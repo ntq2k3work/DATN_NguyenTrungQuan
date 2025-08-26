@@ -1,42 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 relative overflow-hidden">
-        <!-- Register Form -->
-        <div id="register-form" class="form transition-all duration-500">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Đăng ký</h2>
-            <form class="space-y-6" method="POST" action="{{ route('register') }}">
-                @csrf
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Tên</label>
-                    <input id="name" name="name" type="text" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300" placeholder="Nhập tên của bạn">
-                </div>
-                <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700">Địa điểm</label>
-                    <input id="location" name="location" type="text" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300" placeholder="Nhập địa điểm">
-                </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input id="email" name="email" type="email" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300" placeholder="Nhập email của bạn">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
-                    <input id="password" name="password" type="password" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300" placeholder="Nhập mật khẩu">
-                </div>
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
-                    <input id="password_confirmation" name="password_confirmation" type="password" required class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-300" placeholder="Xác nhận mật khẩu">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300">Đăng ký</button>
-            </form>
-            <p class="text-center text-sm text-gray-600 mt-4">Đã có tài khoản? <a href="{{ route('login') }}" class="text-indigo-600 hover:underline">Đăng nhập</a></p>
-        </div>
+@extends('layouts.app')
+
+@section('title')
+Đăng ký - BookStore NTQ
+@endsection
+
+@section('content')
+<div class="min-h-screen flex items-baseline justify-center p-4">
+  <div class="w-full max-w-2xl p-8 md:p-10 rounded-lg shadow-lg">
+    <!-- Tabs -->
+    <div class="flex justify-center mb-6 text-lg">
+      <a href="{{ route('login') }}" class="px-4 font-semibold text-gray-400">Đăng nhập</a>
+      <span class="border-l mx-4"></span>
+      <a href="#" class="px-4 font-bold text-black">Đăng ký</a>
     </div>
-</body>
-</html>
+
+    <!-- Form -->
+    <form class="space-y-5 text-base">
+      <!-- Họ / Tên (2 cột trên md) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" placeholder="Họ" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+        <input type="text" placeholder="Tên" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      </div>
+
+      <!-- Giới tính -->
+      <div class="flex items-center space-x-6 text-gray-700">
+        <label class="flex items-center space-x-2">
+          <input type="radio" name="gender" value="female" class="h-4 w-4">
+          <span>Nữ</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input type="radio" name="gender" value="male" class="h-4 w-4">
+          <span>Nam</span>
+        </label>
+      </div>
+
+      <!-- Ngày sinh / Email / Mật khẩu -->
+      <input type="date" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="text" name="address" placeholder="Nhập địa chỉ" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="email" placeholder="Email" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="password" placeholder="Mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="password_confirmation" placeholder="Nhập lại mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+
+      <p class="text-xs text-gray-500">
+        This site is protected by reCAPTCHA and the Google
+        <a href="#" class="text-blue-500">Privacy Policy</a> and
+        <a href="#" class="text-blue-500">Terms of Service</a> apply.
+      </p>
+
+      <div class="flex items-center gap-6">
+        <button type="submit" class="bg-red-600 text-white font-bold py-3 px-6 rounded hover:bg-red-700">
+          ĐĂNG KÝ
+        </button>
+        <div class="text-sm text-gray-700">
+          Bạn đã có tài khoản?
+          <a href="#" class="text-blue-600 ml-2">Đăng nhập ngay</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+@endsection
