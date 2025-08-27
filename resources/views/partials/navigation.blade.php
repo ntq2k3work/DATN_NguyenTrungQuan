@@ -4,7 +4,7 @@
     <ul class="flex space-x-8 text-gray-700 font-medium">
       <!-- Trang chủ -->
       <li class="py-4">
-        <a href="#" class="hover:text-red-500">Trang chủ</a>
+        <a href="{{ route('home') }}" class="hover:text-red-500">Trang chủ</a>
       </li>
 
       <!-- Danh mục sách -->
@@ -44,11 +44,6 @@
             <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Thiếu Nhi</a></li>
             <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Tham khảo - Học tập</a></li>
         </ul>
-
-
-
-
-
       </li>
 
       <!-- Giới thiệu -->
