@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
+use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
 {
@@ -29,9 +33,27 @@ class AuthController extends Controller
         // return view('pages.auth.reset-password');
     }
 
-    public function verifyEmail()
+    public function verifyEmail(Request $request)
     {
-        // return view('pages.auth.verify-email');
+        $user = User::find($request->route('id'));
+
+        if (!$user) {
+            return redirect('/login')->withErrors(['email' => 'Người dùng không tồn tại.']);
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect('/login')->with('status', 'Email đã được xác thực trước đó.');
+        }
+
+        if (!hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            return redirect('/login')->withErrors(['email' => 'Link xác thực không hợp lệ.']);
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new \Illuminate\Auth\Events\Verified($user));
+        }
+
+        return redirect('/login')->with('status', 'Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.');
     }
 
     public function confirmPassword()
@@ -57,40 +79,50 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    public function handleRegister(Request $request)
+    public function handleRegister(RegisterRequest $request)
     {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'g-recaptcha-response' => 'required',
-        ]);
+        $request->validated();
+
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => env('reCAPTCHA_SECRET'),
             'response' => $request->input('g-recaptcha-response'),
             'remoteip' => $request->ip(), // optional
         ]);
+
         if($response->json()['success'] == false) {
             return back()->withErrors([
                 'captcha' => 'Captcha verification failed. Please try again.',
             ])->onlyInput('email');
         }
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
 
+        $user = User::create([
+            'name' => $request->last_name . ' ' . $request->first_name,
+            'email' => $request->email,
+            'date_of_birth' => $request->date_of_birth,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'password' => bcrypt($request->password),
         ]);
 
-        auth()->login($user);
+        // Generate verification URL
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
 
-        return redirect('/');
+        // Send verification email
+        try {
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+
+            return redirect('/login')->with('status', 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản trước khi đăng nhập.');
+        } catch (\Exception $e) {
+            // If email fails, delete the user and show error
+            $user->delete();
+
+            return back()->withErrors([
+                'email' => 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
+            ])->onlyInput('email');
+        }
     }
-
-
-
-
 }
