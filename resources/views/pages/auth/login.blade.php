@@ -14,11 +14,28 @@
       <a href="{{ route('register') }}" class="px-4 font-semibold text-gray-400">Đăng ký</a>
     </div>
 
+    <!-- Status Messages -->
+    @if (session('status'))
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Form -->
-    <form class="space-y-5 text-base">
+    <form method="POST" action="{{ route('login') }}" class="space-y-5 text-base">
       @csrf
-      <input type="email" placeholder="Email" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
-      <input type="password" placeholder="Mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="email" name="email" placeholder="Email" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200" value="{{ old('email') }}" required>
+      <input type="password" name="password" placeholder="Mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200" required>
 
       <p class="text-xs text-gray-500">
         This site is protected by reCAPTCHA and the Google
@@ -31,8 +48,8 @@
           ĐĂNG NHẬP
         </button>
         <div class="text-sm text-gray-700">
-          Bạn đã có tài khoản?
-          <a href="#" class="text-blue-600 ml-2">Đăng nhập ngay</a>
+          Bạn chưa có tài khoản?
+          <a href="{{ route('register') }}" class="text-blue-600 ml-2">Đăng ký ngay</a>
         </div>
       </div>
     </form>
