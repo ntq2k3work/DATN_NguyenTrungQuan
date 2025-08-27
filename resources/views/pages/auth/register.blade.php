@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('script')
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endsection
+
 @section('title')
 Đăng ký - BookStore NTQ
 @endsection
@@ -15,11 +19,11 @@
     </div>
 
     <!-- Form -->
-    <form class="space-y-5 text-base">
-      <!-- Họ / Tên (2 cột trên md) -->
+    <form action="{{ route('handleRegister') }}" method="POST" class="space-y-5 text-base">
+      @csrf
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" placeholder="Họ" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
-        <input type="text" placeholder="Tên" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+        <input type="text" placeholder="Họ" name="last_name" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+        <input type="text" placeholder="Tên" name="first_name" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
       </div>
 
       <!-- Giới tính -->
@@ -35,16 +39,14 @@
       </div>
 
       <!-- Ngày sinh / Email / Mật khẩu -->
-      <input type="date" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="date" name="date_of_birth" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
       <input type="text" name="address" placeholder="Nhập địa chỉ" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
-      <input type="email" placeholder="Email" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
-      <input type="password" placeholder="Mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
-      <input type="password_confirmation" placeholder="Nhập lại mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="email" placeholder="Email" name="email" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="password" placeholder="Mật khẩu" name="password" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
+      <input type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu" class="w-full p-3 bg-gray-100 rounded outline-none focus:ring-2 focus:ring-red-200">
 
       <p class="text-xs text-gray-500">
-        This site is protected by reCAPTCHA and the Google
-        <a href="#" class="text-blue-500">Privacy Policy</a> and
-        <a href="#" class="text-blue-500">Terms of Service</a> apply.
+        <div class="g-recaptcha" data-sitekey="6LcLFbQrAAAAACCQxNzJgYvvKNT0ZkJsKm0Hnb7o"></div>
       </p>
 
       <div class="flex items-center gap-6">
