@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -63,20 +66,63 @@ class AuthController extends Controller
 
     public function handleLogin(Request $request)
     {
+        // Rate limiting for login attempts
+        $throttleKey = 'login.' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => 'Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau ' . $seconds . ' giây.',
+            ]);
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (auth()->attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Clear rate limiter on successful login
+            RateLimiter::clear($throttleKey);
+
             $request->session()->regenerate();
 
-            return redirect()->intended('/');
+            // Check if email is verified
+            if (!Auth::user()->hasVerifiedEmail()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Vui lòng xác thực email trước khi đăng nhập.',
+                ])->onlyInput('email');
+            }
+
+            return redirect()->intended('/')->with('status', 'Đăng nhập thành công!');
         }
 
+        // Increment rate limiter on failed attempt
+        RateLimiter::hit($throttleKey, 300); // 5 minutes
+
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Email hoặc mật khẩu không chính xác.',
         ])->onlyInput('email');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('status', 'Đăng xuất thành công!');
+    }
+
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('pages.auth.profile', compact('user'));
     }
 
     public function handleRegister(RegisterRequest $request)
