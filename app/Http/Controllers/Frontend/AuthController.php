@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Mail\EmailVerificationMail;
+use App\Mail\PasswordResetMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +13,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -28,12 +32,135 @@ class AuthController extends Controller
 
     public function forgotPassword()
     {
-        // return view('pages.auth.forgot-password');
+        return view('pages.auth.forgot-password');
     }
 
-    public function resetPassword()
+    public function resetPassword(Request $request, $token)
     {
-        // return view('pages.auth.reset-password');
+        return view('pages.auth.reset-password', [
+            'token' => $token,
+            'email' => $request->email
+        ]);
+    }
+
+        public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email không tồn tại trong hệ thống.']);
+        }
+
+        // Rate limiting: Check if email was sent recently
+        $throttleKey = 'password_reset.' . $request->email;
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 1)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'email' => "Vui lòng chờ {$seconds} giây trước khi gửi lại email đặt lại mật khẩu."
+            ]);
+        }
+
+        // Check if there's an existing reset record and if it's too recent
+        $existingReset = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->first();
+
+        if ($existingReset) {
+            $lastSent = Carbon::parse($existingReset->created_at);
+            $timeDiff = now()->diffInSeconds($lastSent);
+
+            if ($timeDiff < 30) {
+                $remainingSeconds = 30 - $timeDiff;
+                return back()->withErrors([
+                    'email' => "Vui lòng chờ {$remainingSeconds} giây trước khi gửi lại email đặt lại mật khẩu."
+                ]);
+            }
+        }
+
+        // Generate password reset token
+        $token = Str::random(64);
+
+        // Store token in database (you might want to create a password_resets table)
+        DB::table('password_resets')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'token' => $token,
+                'created_at' => now()
+            ]
+        );
+
+        // Generate reset URL
+        $resetUrl = url('/reset-password/' . $token . '?email=' . urlencode($request->email));
+
+        // Send email
+        try {
+            Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
+
+            // Hit rate limiter after successful email send
+            RateLimiter::hit($throttleKey, 30); // 30 seconds cooldown
+
+            return back()->with('status', 'Link đặt lại mật khẩu đã được gửi đến email của bạn! Vui lòng chờ 30 giây trước khi gửi lại.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Không thể gửi email. Vui lòng thử lại sau.']);
+        }
+    }
+
+    public function resetPasswordUpdate(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        // Find the reset record
+        $resetRecord = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$resetRecord) {
+            return back()->withErrors(['email' => 'Token không hợp lệ hoặc đã bị xóa.']);
+        }
+
+        // Check if token is expired (60 minutes)
+        $tokenCreated = Carbon::parse($resetRecord->created_at);
+        $isExpired = $tokenCreated->addHours(1)->isPast();
+
+        if ($isExpired) {
+            // Delete expired token
+            DB::table('password_resets')
+                ->where('email', $request->email)
+                ->delete();
+
+            return back()->withErrors([
+                'email' => 'Link đặt lại mật khẩu đã hết hạn. Vui lòng yêu cầu email mới.',
+                'token_expired' => true
+            ]);
+        }
+
+        // Update user password
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $user->update([
+                'password' => bcrypt($request->password)
+            ]);
+
+            // Delete the reset record
+            DB::table('password_resets')
+                ->where('email', $request->email)
+                ->delete();
+
+            return redirect()->route('login')->with('status', 'Mật khẩu đã được đặt lại thành công! Bạn có thể đăng nhập với mật khẩu mới.');
+        }
+
+        return back()->withErrors(['email' => 'Có lỗi xảy ra. Vui lòng thử lại.']);
     }
 
     public function verifyEmail(Request $request)
