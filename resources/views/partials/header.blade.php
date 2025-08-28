@@ -208,6 +208,13 @@
                     </svg>
                     <span>Đăng ký</span>
                   </a>
+
+                  <a href="{{ route('password.request') }}" class="flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100 transition-colors">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7 7m0 0a6 6 0 01-7-7m7 7v4m0 0H9m3 0h3m-3-4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    <span>Quên mật khẩu</span>
+                  </a>
                 </div>
               </div>
             </div>
