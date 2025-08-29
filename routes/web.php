@@ -26,6 +26,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     Route::get('/profile',[AuthController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit',[AuthController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
 });
 
 // Email verification route

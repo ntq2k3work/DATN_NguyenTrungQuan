@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Mail\EmailVerificationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\User;
@@ -250,6 +251,35 @@ class AuthController extends Controller
     {
         $user = Auth::user();
         return view('pages.auth.profile', compact('user'));
+    }
+
+    public function editProfile()
+    {
+        $user = Auth::user();
+
+        // Split full name into first and last name
+        $nameParts = explode(' ', $user->name, 2);
+        $firstName = $nameParts[0] ?? '';
+        $lastName = $nameParts[1] ?? '';
+
+        return view('pages.auth.edit-profile', compact('user', 'firstName', 'lastName'));
+    }
+
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $user = Auth::user();
+
+        // Combine first and last name
+        $fullName = $request->first_name . ' ' . $request->last_name;
+
+        $user->update([
+            'name' => $fullName,
+            'date_of_birth' => $request->date_of_birth,
+            'gender' => $request->gender,
+            'address' => $request->address,
+        ]);
+
+        return redirect()->route('profile')->with('status', 'Thông tin cá nhân đã được cập nhật thành công!');
     }
 
     public function handleRegister(RegisterRequest $request)
