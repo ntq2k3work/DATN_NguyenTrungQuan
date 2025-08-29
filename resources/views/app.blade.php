@@ -441,11 +441,11 @@
       </div>
 
       <div class="text-center mt-12">
-        <button
-          class="border border-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-100 transition"
+        <a href="#"
+          class="border hover:bg-sky-50 border-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-100 transition"
         >
           Xem thêm gợi ý
-        </button>
+        </a>
       </div>
     </div>
   </section>
@@ -520,61 +520,168 @@
       </div>
 
       <div class="text-center mt-12">
-        <button class="border border-gray-300 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
+        <a href="#" class="border hover:bg-sky-50 border-gray-300 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
           Xem tất cả top bán chạy
-        </button>
+        </a>
       </div>
     </div>
   </section>
 
 
-        <!-- Best Sellers -->
-        <section class="py-16 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-warm-gray-900 mb-4">Best Sellers</h2>
-                    <p class="text-warm-gray-600">Những cuốn sách bán chạy nhất mọi thời đại</p>
-                </div>
+<!-- Best Sellers -->
+<section class="py-16 bg-background">
+    <div class="container mx-auto px-4">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-foreground mb-4">Best Sellers</h2>
+        <p class="text-muted-foreground text-lg max-w-2xl mx-auto">
+          Những cuốn sách bán chạy nhất mọi thời đại được độc giả tin tưởng
+        </p>
+      </div>
 
-                <!-- Category Filter -->
-                <div class="flex flex-wrap justify-center gap-4 mb-8">
-                    <button onclick="filterBestSellers('all')" class="filter-btn active bg-terracotta-600 text-white px-6 py-2 rounded-full font-medium hover:bg-terracotta-700 transition-colors">
-                        Tất cả
-                    </button>
-                    <button onclick="filterBestSellers('fiction')" class="filter-btn bg-sage-100 text-warm-gray-700 px-6 py-2 rounded-full font-medium hover:bg-sage-200 transition-colors">
-                        Tiểu thuyết
-                    </button>
-                    <button onclick="filterBestSellers('business')" class="filter-btn bg-sage-100 text-warm-gray-700 px-6 py-2 rounded-full font-medium hover:bg-sage-200 transition-colors">
-                        Kinh doanh
-                    </button>
-                    <button onclick="filterBestSellers('self-help')" class="filter-btn bg-sage-100 text-warm-gray-700 px-6 py-2 rounded-full font-medium hover:bg-sage-200 transition-colors">
-                        Phát triển bản thân
-                    </button>
-                </div>
+      <!-- Category filters -->
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        <button class="px-6 bg-amber-600 text-white rounded hover:bg-amber-500 hover:text-white">Tất cả</button>
+        <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Văn học</button>
+        <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Kinh doanh</button>
+        <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Kỹ năng sống</button>
+        <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Khoa học</button>
+      </div>
 
-                <div id="bestSellersBooks" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Books will be loaded here by JavaScript -->
+      <!-- Books Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Book Card 1 -->
+        <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
+          <div class="p-6">
+            <div class="flex gap-4">
+              <div class="relative flex-shrink-0">
+                <img
+                  src="{{ asset('images/vietnamese-business-book-cover.png') }}"
+                  alt="Homo Deus: Lược sử tương lai"
+                  class="w-24 h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
+                />
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">HOT</span>
+              </div>
+              <div class="flex-1 space-y-3">
+                <div>
+                  <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                    Homo Deus: Lược sử tương lai
+                  </h3>
+                  <p class="text-sm text-muted-foreground">Yuval Noah Harari</p>
                 </div>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center text-yellow-400">
+                    ★★★★★
+                  </div>
+                  <span class="text-sm text-muted-foreground">4.8</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex flex-col">
+                    <span class="text-lg font-bold text-orange-500">178.000đ</span>
+                    <span class="text-sm text-muted-foreground line-through text-teal-600">223.000đ</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button class="border border-gray-300 p-2 rounded hover:bg-gray-100">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                    </button>
+                    <button class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90">Mua</button>
+                  </div>
+                </div>
+              </div>
             </div>
-        </section>
+          </div>
+        </div>
+        <!-- Tương tự cho các sách còn lại -->
+      </div>
 
-        <!-- New Releases -->
-        <section class="py-16 bg-cream-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-warm-gray-900 mb-4">Sách mới phát hành</h2>
-                    <p class="text-warm-gray-600">Những cuốn sách mới nhất vừa ra mắt</p>
-                </div>
+      <div class="text-center mt-12">
+        <a href="#" class="border border-gray-300 hover:bg-sky-50 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
+          Xem tất cả Best Sellers
+        </a>
+      </div>
+    </div>
+  </section>
 
-                <div id="newReleasesBooks" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Books will be loaded here by JavaScript -->
-                </div>
 
-                <div class="text-center mt-12">
-                    <a href="books.html" class="bg-terracotta-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-terracotta-700 transition-colors">
-                        Xem tất cả sách mới
-                    </a>
-                </div>
+<!-- New Releases -->
+<section class="py-16 bg-card bg-amber-50">
+    <div class="container mx-auto px-4">
+      <!-- Tiêu đề -->
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-foreground mb-4">Sách mới phát hành</h2>
+        <p class="text-muted-foreground text-lg max-w-2xl mx-auto">
+          Cập nhật những đầu sách mới nhất từ các nhà xuất bản uy tín
+        </p>
+      </div>
+
+      <!-- Danh sách sách -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        <!-- Card 1 -->
+        <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
+          <div class="p-4">
+            <div class="relative mb-4">
+              <img src="{{ asset('images/sales-art-book-cover.png') }}" alt="Nghệ Thuật Bán Hàng"
+                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
+              <div class="absolute top-2 left-2 flex flex-col gap-2">
+                <span class="bg-secondary text-secondary-foreground px-2 py-1 text-xs rounded">Kinh doanh</span>
+              </div>
+              <button
+                class="absolute top-2 right-2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </button>
             </div>
-        </section>
+
+            <div class="space-y-3">
+              <div>
+                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                  Nghệ Thuật Bán Hàng
+                </h3>
+                <p class="text-sm text-muted-foreground">Brian Tracy</p>
+              </div>
+
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Phát hành: 15/01/2024</span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg font-bold text-primary text-orange-500">189.000đ</span>
+                  <span class="text-sm text-muted-foreground line-through text-teal-600">236.000đ</span>
+                </div>
+              </div>
+
+              <button class="w-full px-4 py-2 rounded bg-amber-600 text-white cursor-pointer hover:bg-amber-500 text-sm">
+                Thêm vào giỏ
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lặp lại cho các sách khác, thay đổi nội dung -->
+
+      </div>
+
+      <!-- Nút xem tất cả -->
+      <div class="text-center mt-12">
+        <a href="#"
+          class="px-6 py-3 cursor-pointer rounded border border-input bg-white hover:bg-sky-50 hover:bg-accent hover:text-accent-foreground text-sm">
+          Xem tất cả sách mới
+        </a>
+      </div>
+    </div>
+  </section>
 @endsection
