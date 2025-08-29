@@ -55,7 +55,7 @@
 <div class="bg-white pb-3">
   <!-- Top bar -->
   <div class="bg-pink-50 p-2">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4">
+    <div class="container mx-auto flex items-center justify-between gap-4 px-4">
 
       <!-- Logo -->
       <a href="{{ route('home') }}" class="flex-shrink-0">
