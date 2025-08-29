@@ -12,6 +12,14 @@ Route::middleware('guest')->group(function () {
     Route::get('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/register',[AuthController::class, 'handleRegister'])->name('handleRegister');
     Route::post('/login',[AuthController::class, 'handleLogin'])->name('handleLogin');
+
+    // Password Reset Routes
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])
+        ->name('password.reset')
+        ->middleware('check.password.reset.token');
+    Route::post('/reset-password', [AuthController::class, 'resetPasswordUpdate'])->name('password.update');
 });
 
 // Protected Routes
