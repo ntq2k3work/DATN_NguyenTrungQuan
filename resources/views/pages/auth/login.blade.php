@@ -110,10 +110,17 @@
               type="password"
               autocomplete="current-password"
               required
-              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 ease-in-out @error('password') border-red-300 ring-red-200 @enderror"
+              class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200 ease-in-out @error('password') border-red-300 ring-red-200 @enderror"
               placeholder="Nhập mật khẩu"
               aria-describedby="password-error"
             >
+            <!-- Eye Icon for Password -->
+            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('password')" aria-label="Hiển thị/ẩn mật khẩu">
+              <svg id="eye-icon-password" class="h-5 w-5 text-gray-400 hover:text-gray-600 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
           </div>
           @error('password')
             <p id="password-error" class="mt-2 text-sm text-red-600 flex items-center">
@@ -171,4 +178,29 @@
     </form>
   </div>
 </div>
+
+<!-- Password Toggle Script -->
+<script>
+function togglePasswordVisibility(fieldId) {
+    const passwordField = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById(`eye-icon-${fieldId}`);
+
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        // Show crossed eye icon
+        eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+        `;
+        eyeIcon.setAttribute('aria-label', 'Ẩn mật khẩu');
+    } else {
+        passwordField.type = 'password';
+        // Show open eye icon
+        eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        `;
+        eyeIcon.setAttribute('aria-label', 'Hiển thị mật khẩu');
+    }
+}
+</script>
 @endsection

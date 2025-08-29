@@ -34,25 +34,19 @@ Chỉnh sửa hồ sơ - BookStore NTQ
     <!-- Edit Profile Form -->
     <div class="bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <form method="POST" action="{{ route('profile.update') }}" class="space-y-6">
+        <form method="POST" action="{{ route('profile.update') }}" class="space-y-6" id="editProfileForm">
           @csrf
           @method('PUT')
 
-          <!-- Success Message -->
+          <!-- Success Message (will be replaced by toast) -->
           @if(session('status'))
-            <div class="rounded-md bg-green-50 p-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium text-green-800">
-                    {{ session('status') }}
-                  </p>
-                </div>
-              </div>
+            <div class="hidden">
+              <script>
+                // Show success toast when page loads with success message
+                document.addEventListener('DOMContentLoaded', function() {
+                  showSuccessToast("{{ session('status') }}");
+                });
+              </script>
             </div>
           @endif
 
@@ -220,7 +214,7 @@ Chỉnh sửa hồ sơ - BookStore NTQ
                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
               Hủy
             </a>
-            <button type="submit"
+            <button type="submit" id="submitBtn"
                     class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
               <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -233,4 +227,35 @@ Chỉnh sửa hồ sơ - BookStore NTQ
     </div>
   </div>
 </div>
+
+<!-- Toast Notification Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('editProfileForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Đang cập nhật...
+        `;
+
+        // Show info toast
+        showInfoToast('Đang cập nhật thông tin hồ sơ...');
+    });
+
+    // Handle form validation errors
+    @if($errors->any())
+        @foreach($errors->all() as $error)
+            showErrorToast("{{ $error }}");
+        @endforeach
+    @endif
+});
+</script>
 @endsection
