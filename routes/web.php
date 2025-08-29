@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile',[AuthController::class, 'profile'])->name('profile');
     Route::get('/profile/edit',[AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/password/change',[AuthController::class, 'changePassword'])->name('password.change');
+    Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.change');
 });
 
 // Email verification route

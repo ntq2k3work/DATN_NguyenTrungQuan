@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Mail\EmailVerificationMail;
 use App\Mail\PasswordResetMail;
 use App\Models\User;
@@ -280,6 +281,28 @@ class AuthController extends Controller
         ]);
 
         return redirect()->route('profile')->with('status', 'Thông tin cá nhân đã được cập nhật thành công!');
+    }
+
+    public function changePassword()
+    {
+        return view('pages.auth.change-password');
+    }
+
+    public function updatePassword(ChangePasswordRequest $request)
+    {
+        $user = Auth::user();
+
+        // Update password
+        $user->update([
+            'password' => bcrypt($request->new_password)
+        ]);
+
+        // Logout user after password change for security
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', 'Mật khẩu đã được thay đổi thành công! Vui lòng đăng nhập lại với mật khẩu mới.');
     }
 
     public function handleRegister(RegisterRequest $request)

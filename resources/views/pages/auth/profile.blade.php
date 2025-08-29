@@ -171,9 +171,9 @@ Hồ sơ cá nhân - BookStore NTQ
                     <a href="{{ route('profile.edit') }}" class="bg-blue-50 px-2 py-1.5 rounded-md text-sm font-medium text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600">
                       Chỉnh sửa hồ sơ
                     </a>
-                    <button type="button" class="ml-3 bg-blue-50 px-2 py-1.5 rounded-md text-sm font-medium text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600">
+                    <a href="{{ route('password.change') }}" class="ml-3 bg-blue-50 px-2 py-1.5 rounded-md text-sm font-medium text-blue-800 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-50 focus:ring-blue-600">
                       Đổi mật khẩu
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
