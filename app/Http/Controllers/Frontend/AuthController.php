@@ -315,6 +315,7 @@ class AuthController extends Controller
             'remoteip' => $request->ip(), // optional
         ]);
 
+
         if($response->json()['success'] == false) {
             return back()->withErrors([
                 'captcha' => 'Captcha verification failed. Please try again.',
@@ -329,13 +330,15 @@ class AuthController extends Controller
             'gender' => $request->gender,
             'password' => bcrypt($request->password),
         ]);
-
+        
         // Generate verification URL
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
             ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
         );
+
+        dd($verificationUrl);
 
         // Send verification email
         try {

@@ -13,13 +13,14 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Sách -->
+        <!-- Sách gợi ý -->
+        @foreach ($book_recommendations as $book)
         <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
           <div class="p-4">
             <div class="relative mb-4">
               <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
+                src="{{ asset($book->image_url) }}"
+                alt="{{ $book->title }}"
                 class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
               />
               <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
@@ -40,9 +41,9 @@
             <div class="space-y-3">
               <div>
                 <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
+                  {{ $book->title }}
                 </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
+                <p class="text-sm text-gray-500">{{ $book->author->name }}</p>
               </div>
 
               <div class="flex items-center gap-2">
@@ -54,8 +55,12 @@
 
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
+                  @if ($book->discount_percent)
+                    <span class="text-lg font-bold text-primary">{{ number_format($book->discount_price, 0, ',', '.') }}đ</span>
+                    <span class="text-sm text-gray-500 line-through">{{ number_format($book->price, 0, ',', '.') }}đ</span>
+                  @else
+                    <span class="text-lg font-bold text-primary">{{ number_format($book->price, 0, ',', '.') }}đ</span>
+                  @endif
                 </div>
               </div>
 
@@ -67,377 +72,9 @@
             </div>
           </div>
         </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
+        @endforeach
 
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
 
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="group bg-amber-50 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-          <div class="p-4">
-            <div class="relative mb-4">
-              <img
-                src="{{ asset('images/the-alchemist-book-cover.png') }}"
-                alt="Nhà Giả Kim"
-                class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
-              <button
-                class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              <div>
-                <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nhà Giả Kim
-                </h3>
-                <p class="text-sm text-gray-500">Paulo Coelho</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
-                </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary">89.000đ</span>
-                  <span class="text-sm text-gray-500 line-through">120.000đ</span>
-                </div>
-              </div>
-
-              <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-              >
-                Thêm vào giỏ
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="text-center mt-12">
@@ -540,34 +177,35 @@
       </div>
 
       <!-- Category filters -->
-      <div class="flex flex-wrap justify-center gap-4 mb-12">
+      {{-- <div class="flex flex-wrap justify-center gap-4 mb-12">
         <button class="px-6 bg-amber-600 text-white rounded hover:bg-amber-500 hover:text-white">Tất cả</button>
         <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Văn học</button>
         <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Kinh doanh</button>
         <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Kỹ năng sống</button>
         <button class="px-6 border border-gray-300 rounded hover:bg-amber-500 hover:text-white">Khoa học</button>
-      </div>
+      </div> --}}
 
       <!-- Books Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <!-- Book Card 1 -->
-        <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
+        @foreach ($best_sellers as $book )
+          <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
           <div class="p-6">
             <div class="flex gap-4">
               <div class="relative flex-shrink-0">
                 <img
-                  src="{{ asset('images/vietnamese-business-book-cover.png') }}"
-                  alt="Homo Deus: Lược sử tương lai"
+                  src="{{ asset($book->image_url) }}"
+                  alt="{{ $book->title }}"
                   class="w-24 h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                 />
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">HOT</span>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">{{ $book->percent ? $book->percent.'%' : number_format($book->amount,0,',','.').'đ' }}</span>
               </div>
               <div class="flex-1 space-y-3">
                 <div>
                   <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                    Homo Deus: Lược sử tương lai
+                    {{ $book->title }}
                   </h3>
-                  <p class="text-sm text-muted-foreground">Yuval Noah Harari</p>
+                  <p class="text-sm text-muted-foreground">{{ $book->author->name }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="flex items-center text-yellow-400">
@@ -577,8 +215,8 @@
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex flex-col">
-                    <span class="text-lg font-bold text-orange-500">178.000đ</span>
-                    <span class="text-sm text-muted-foreground line-through text-teal-600">223.000đ</span>
+                    <span class="text-lg font-bold text-orange-500">{{ number_format($book->final_price,0,',','.') }}đ</span>
+                    <span class="text-sm text-muted-foreground line-through text-teal-600">{{ number_format($book->price,0,',','.') }}</span>
                   </div>
                   <div class="flex gap-2">
                     <button class="border border-gray-300 p-2 rounded hover:bg-gray-100">
@@ -598,6 +236,7 @@
             </div>
           </div>
         </div>
+        @endforeach
         <!-- Tương tự cho các sách còn lại -->
       </div>
 
@@ -624,10 +263,11 @@
       <!-- Danh sách sách -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
         <!-- Card 1 -->
+        @foreach($new_publishers as $book)
         <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
           <div class="p-4">
             <div class="relative mb-4">
-              <img src="{{ asset('images/sales-art-book-cover.png') }}" alt="Nghệ Thuật Bán Hàng"
+              <img src="{{ asset($book->image_url) }}" alt="{{ $book->title }}"
                 class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
               <div class="absolute top-2 left-2 flex flex-col gap-2">
                 <span class="bg-secondary text-secondary-foreground px-2 py-1 text-xs rounded">Kinh doanh</span>
@@ -644,9 +284,9 @@
             <div class="space-y-3">
               <div>
                 <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                  Nghệ Thuật Bán Hàng
+                  {{ $book->title }}
                 </h3>
-                <p class="text-sm text-muted-foreground">Brian Tracy</p>
+                <p class="text-sm text-muted-foreground">{{ $book->author->name }}</p>
               </div>
 
               <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -654,13 +294,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>Phát hành: 15/01/2024</span>
+                <span>Phát hành: {{ date_format($book->created_at,'d/m/Y') }}</span>
               </div>
 
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="text-lg font-bold text-primary text-orange-500">189.000đ</span>
-                  <span class="text-sm text-muted-foreground line-through text-teal-600">236.000đ</span>
+                  <span class="text-lg font-bold text-primary text-orange-500">{{ $book->final_price }}đ</span>
+                  <span class="text-sm text-muted-foreground line-through text-teal-600">{{ $book->price }}đ</span>
                 </div>
               </div>
 
@@ -670,6 +310,7 @@
             </div>
           </div>
         </div>
+        @endforeach
 
         <!-- Lặp lại cho các sách khác, thay đổi nội dung -->
 

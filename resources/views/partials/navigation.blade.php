@@ -17,32 +17,28 @@
         </button>
         <!-- Dropdown -->
        <ul class="absolute left-0 mt-4 w-56 bg-white shadow-lg border border-gray-100 rounded-lg hidden group-hover:block z-50">
-            <li class="relative group px-0 py-0 business-book">
-                <a href="#" class="flex items-center justify-between w-full px-4 py-2 hover:text-red-500">
-                    Sách Kinh Doanh
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
+            @foreach ($categories as $category )
+            @if ($category->children->isEmpty())
+              <li class="hover:bg-gray-100"><a href="{{ env('APP_URL').$category->slug }}" class="block w-full px-4 py-2">{{ $category->name }}</a></li>
+            @else
+              <li class="relative group px-0 py-0 business-book">
+                  <a href="#" class="flex items-center justify-between w-full px-4 py-2 hover:text-red-500">
+                      {{ $category->name }}
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                  </a>
 
-                <!-- Submenu cấp 2 -->
-                <ul class="business-book-menu absolute left-full top-0 w-48 bg-white shadow-lg rounded-lg hidden  z-50">
-                    <li class=" hover:bg-gray-100"><a class="block w-full px-4 py-2" href="#">Sách Huyền Học</a></li>
-                    <li class=" hover:bg-gray-100"><a class="block w-full px-4 py-2" href="#">Combo Sách Hot</a></li>
-                    <li class=" hover:bg-gray-100"><a class="block w-full px-4 py-2" href="#">Sách Tâm Lý Học</a></li>
-                </ul>
-            </li>
+                  <!-- Submenu cấp 2 -->
+                  <ul class="business-book-menu absolute left-full top-0 w-48 bg-white shadow-lg rounded-lg hidden  z-50">
+                      @foreach ($category->children as $children )
+                        <li class=" hover:bg-gray-100"><a class="block w-full px-4 py-2" href="{{ env('APP_URL').$children->slug }}">{{ $children->name }}</a></li>
+                      @endforeach
+                  </ul>
+              </li>
+            @endif
+            @endforeach
 
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Sách Huyền Học</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Combo Sách Hot</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Sách Tâm Lý Học</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Sách Học Tập</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Sách Văn Học - Tiểu Thuyết</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Kiến Thức - Bách Khoa</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Sống Xanh - Dinh dưỡng - Sức khỏe</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Đầu tư - Tài chính</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Thiếu Nhi</a></li>
-            <li class="hover:bg-gray-100"><a href="#" class="block w-full px-4 py-2">Tham khảo - Học tập</a></li>
         </ul>
       </li>
 

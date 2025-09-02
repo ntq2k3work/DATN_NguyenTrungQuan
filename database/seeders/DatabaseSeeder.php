@@ -13,14 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'), // password
-            'date_of_birth' => '1990-01-01',
-            ''
+        // Gọi các seeder theo thứ tự để đảm bảo ràng buộc khóa ngoại
+        $this->call([
+            CategorySeeder::class,      // 1. Tạo danh mục trước
+            AuthorSeeder::class,        // 2. Tạo tác giả
+            PublisherSeeder::class,     // 3. Tạo nhà xuất bản
+            BookSeeder::class,          // 4. Tạo sách (cần category_id và publisher_id)
+            BookAuthorSeeder::class,    // 5. Tạo quan hệ sách-tác giả (cần book_id và author_id)
+            UserSeeder::class,          // 6. Tạo người dùng
+            CartSeeder::class,          // 7. Tạo giỏ hàng (cần user_id)
+            CartItemSeeder::class,      // 8. Tạo mục giỏ hàng (cần cart_id và book_id)
+            OrderSeeder::class,         // 9. Tạo đơn hàng (cần user_id)
+            OrderItemSeeder::class,     // 10. Tạo mục đơn hàng (cần order_id và book_id)
+            WishlistSeeder::class,      // 11. Tạo danh sách yêu thích (cần user_id và book_id)
         ]);
     }
 }

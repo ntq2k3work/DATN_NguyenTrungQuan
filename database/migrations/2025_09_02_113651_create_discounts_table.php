@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('book_authors', function (Blueprint $table) {
+        Schema::create('discounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('book_id');
-            $table->unsignedBigInteger('author_id');
-            $table->foreign('book_id')->references('id')->on('books')->onUpdate('cascade') ->onDelete('cascade');
-            $table->foreign('author_id')->references('id')->on('authors')->onUpdate('cascade') ->onDelete('cascade');
+            $table->integer('percent')->nullable();
+            $table->double('amount')->nullable();
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
+            $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('book_authors');
+        Schema::dropIfExists('discounts');
     }
 };
