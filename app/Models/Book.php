@@ -25,22 +25,22 @@ class Book extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function publisher()
     {
-        return $this->belongsTo(Publisher::class);
+        return $this->belongsTo(Publisher::class, 'publisher_id');
     }
 
     public function discount()
     {
-        return $this->belongsTo(Book::class,'id');
+        return $this->belongsTo(Discount::class, 'id', 'book_id');
     }
 
     public function author()
     {
-        return $this->belongsTo(Author::class);
+        return $this->belongsTo(Author::class, 'author_id');
     }
 
     // public function getPriceAttribute($value)

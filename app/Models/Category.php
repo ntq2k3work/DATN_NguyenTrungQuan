@@ -30,4 +30,9 @@ class Category extends Model
         return Category::findOrFail($id);
     }
 
+    public function books()
+    {
+        return $this->hasMany(Book::class, 'category_id');
+    }
+
 }

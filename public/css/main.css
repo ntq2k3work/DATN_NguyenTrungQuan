@@ -235,3 +235,120 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--warm-gray-600);
 }
+
+/* Pagination Styles */
+.pagination {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination .page-item {
+  margin: 0;
+}
+
+.pagination .page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--sage-200);
+  background-color: white;
+  color: var(--warm-gray-700);
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.pagination .page-link:hover {
+  background-color: var(--sage-50);
+  border-color: var(--sage-300);
+  color: var(--warm-gray-900);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--terracotta-600);
+  border-color: var(--terracotta-600);
+  color: white;
+  box-shadow: 0 2px 4px rgba(194, 65, 12, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: var(--sage-100);
+  border-color: var(--sage-200);
+  color: var(--warm-gray-400);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pagination .page-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.1);
+}
+
+/* Responsive pagination */
+@media (max-width: 640px) {
+  .pagination {
+    gap: 0.125rem;
+  }
+  
+  .pagination .page-link {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Category Sidebar Styles */
+.category-sidebar {
+  transition: all 0.3s ease;
+}
+
+.category-sidebar .section-content {
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.category-sidebar .section-content.collapsed {
+  max-height: 0;
+}
+
+.category-sidebar .toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.category-sidebar .toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Responsive sidebar */
+@media (max-width: 1024px) {
+  .category-sidebar {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .main-content-with-sidebar {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-sidebar {
+    padding: 1rem;
+  }
+  
+  .category-sidebar h3 {
+    font-size: 1rem;
+  }
+}

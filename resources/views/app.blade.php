@@ -78,7 +78,7 @@
       </div>
 
       <div class="text-center mt-12">
-        <a href="#"
+        <a href="{{ route('categories.recommendations') }}"
           class="border hover:bg-sky-50 border-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-100 transition"
         >
           Xem thêm gợi ý
@@ -157,7 +157,7 @@
       </div>
 
       <div class="text-center mt-12">
-        <a href="#" class="border hover:bg-sky-50 border-gray-300 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
+        <a href="{{ route('categories.top-selling') }}" class="border hover:bg-sky-50 border-gray-300 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
           Xem tất cả top bán chạy
         </a>
       </div>
@@ -241,7 +241,7 @@
       </div>
 
       <div class="text-center mt-12">
-        <a href="#" class="border border-gray-300 hover:bg-sky-50 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
+        <a href="{{ route('categories.best-sellers') }}" class="border border-gray-300 hover:bg-sky-50 text-gray-700 py-3 px-6 rounded hover:bg-gray-100">
           Xem tất cả Best Sellers
         </a>
       </div>
@@ -318,7 +318,7 @@
 
       <!-- Nút xem tất cả -->
       <div class="text-center mt-12">
-        <a href="#"
+        <a href="{{ route('categories.new-releases') }}"
           class="px-6 py-3 cursor-pointer rounded border border-input bg-white hover:bg-sky-50 hover:bg-accent hover:text-accent-foreground text-sm">
           Xem tất cả sách mới
         </a>
