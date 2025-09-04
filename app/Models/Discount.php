@@ -15,6 +15,6 @@ class Discount extends Model
 
     public function book()
     {
-        return $this->belongsTo(Discount::class,'book_id');
+        return $this->belongsTo(Book::class, 'book_id');
     }
 }

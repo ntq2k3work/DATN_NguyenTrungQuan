@@ -28,10 +28,10 @@ class HomeController extends Controller
                 ->select('category_id', 'author_id')
                 ->distinct()
                 ->get();
-            
+
             $categoryIds = $categoriesAuthors->pluck('category_id')->filter()->unique();
             $authorIds = $categoriesAuthors->pluck('author_id')->filter()->unique();
-            
+
             // Lấy sách liên quan (cùng tác giả hoặc danh mục)
             $books = Book::whereNotIn('id', $bookIdsInWishlist)
                 ->where(function($query) use ($categoryIds, $authorIds) {
@@ -39,7 +39,7 @@ class HomeController extends Controller
                         ->orWhereIn('author_id', $authorIds);
                 })
                 ->get();
-            
+
             // Xử lý sắp xếp theo mức độ liên quan bằng code PHP
             $books = $books->map(function($book) use ($categoryIds, $authorIds) {
                 $score = 0;
@@ -48,7 +48,7 @@ class HomeController extends Controller
                 $book->score = $score; // thêm thuộc tính điểm
                 return $book;
             });
-            
+
             // Sắp xếp giảm dần theo score, rồi random trong cùng nhóm
             $book_recommendations = $books
                 ->sortByDesc('score') // ưu tiên sách có điểm cao
