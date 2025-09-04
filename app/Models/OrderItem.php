@@ -27,3 +27,4 @@ class OrderItem extends Model
         return $this->belongsTo(Book::class);
     }
 }
+

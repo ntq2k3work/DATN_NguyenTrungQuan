@@ -4,6 +4,7 @@ use App\Http\Controllers\Frontend\AuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',[HomeController::class, 'index'])->name('home');
@@ -74,4 +75,19 @@ Route::get('/api/categories/recommendations/filter', [App\Http\Controllers\Front
 Route::get('/api/categories/{slug}/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBooks'])
     ->name('api.categories.filter')
     ->middleware('web');
+
+// Admin Routes - Commented out to use Filament Admin Panel
+// Route::prefix('admin')->name('admin.')->group(function () {
+//     // Guest admin routes (login)
+//     Route::middleware('guest')->group(function () {
+//         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+//         Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
+//     });
+    
+//     // Protected admin routes
+//     Route::middleware(['auth', 'admin'])->group(function () {
+//         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('dashboard');
+//         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+//     });
+// });
 

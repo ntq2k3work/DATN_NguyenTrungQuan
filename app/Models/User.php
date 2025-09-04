@@ -25,7 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'date_of_birth',
         'gender',
         'address',
-        'email_verified_at'
+        'email_verified_at',
+        'role'
     ];
 
     /**
@@ -49,7 +50,37 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    } 
+    }
 
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 
+    /**
+     * Check if user is regular user
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Get the orders for the user
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the wishlist for the user
+     */
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }
