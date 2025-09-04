@@ -2,11 +2,13 @@
 <div class="group hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden">
     <div class="p-3 sm:p-4">
         <div class="relative mb-3 sm:mb-4">
-            <img
-                src="{{ asset($book->image_url) }}"
-                alt="{{ $book->title }}"
-                class="w-full h-[200px] sm:h-[220px] lg:h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
-            />
+            <a href="{{ route('product.show', $book->slug) }}">
+                <img
+                    src="{{ asset($book->image_url) }}"
+                    alt="{{ $book->title }}"
+                    class="w-full h-[200px] sm:h-[220px] lg:h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
+                />
+            </a>
             <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
             <button class="absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -19,7 +21,9 @@
         <div class="space-y-2 sm:space-y-3">
             <div>
                 <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors text-sm sm:text-base">
-                    {{ $book->title }}
+                    <a href="{{ route('product.show', $book->slug) }}" class="hover:text-primary transition-colors">
+                        {{ $book->title }}
+                    </a>
                 </h3>
                 <p class="text-xs sm:text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown Author' }}</p>
             </div>

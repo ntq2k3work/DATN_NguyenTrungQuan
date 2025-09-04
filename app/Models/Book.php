@@ -17,6 +17,7 @@ class Book extends Model
         'image_url',
         'category_id',
         'publisher_id',
+        'author_id',
     ];
 
     // public $casts = [
