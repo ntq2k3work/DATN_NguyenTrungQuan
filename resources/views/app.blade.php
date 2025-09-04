@@ -43,7 +43,7 @@
                 <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                   {{ $book->title }}
                 </h3>
-                <p class="text-sm text-gray-500">{{ $book->author->name }}</p>
+                <p class="text-sm text-gray-500">{{ $book->author?->name ?? 'Unknown' }}</p>
               </div>
 
               <div class="flex items-center gap-2">
@@ -205,7 +205,7 @@
                   <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                     {{ $book->title }}
                   </h3>
-                  <p class="text-sm text-muted-foreground">{{ $book->author->name }}</p>
+                  <p class="text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown' }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="flex items-center text-yellow-400">
@@ -286,7 +286,7 @@
                 <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                   {{ $book->title }}
                 </h3>
-                <p class="text-sm text-muted-foreground">{{ $book->author->name }}</p>
+                <p class="text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown' }}</p>
               </div>
 
               <div class="flex items-center gap-2 text-sm text-muted-foreground">

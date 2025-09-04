@@ -44,3 +44,20 @@ Route::get('/categories/recommendations', [App\Http\Controllers\Frontend\Categor
 Route::get('/categories/top-selling', [App\Http\Controllers\Frontend\CategoryController::class, 'topSelling'])->name('categories.top-selling');
 Route::get('/categories/{slug}', [App\Http\Controllers\Frontend\CategoryController::class, 'showBySlug'])->name('categories.show');
 
+// API Routes for AJAX
+Route::get('/api/categories/best-sellers/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBestSellers'])
+    ->name('api.categories.best-sellers.filter')
+    ->middleware('web');
+
+Route::get('/api/categories/new-releases/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterNewReleases'])
+    ->name('api.categories.new-releases.filter')
+    ->middleware('web');
+
+Route::get('/api/categories/recommendations/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterRecommendations'])
+    ->name('api.categories.recommendations.filter')
+    ->middleware('web');
+
+Route::get('/api/categories/{slug}/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBooks'])
+    ->name('api.categories.filter')
+    ->middleware('web');
+

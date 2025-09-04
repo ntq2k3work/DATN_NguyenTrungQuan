@@ -54,7 +54,7 @@
                 <div class="p-3 sm:p-4">
                     <!-- Rank Badge -->
                     <div class="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 z-10">
-                        <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm 
+                        <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm
                             {{ $index < 3 ? 'bg-yellow-500' : 'bg-gray-500' }}">
                             {{ $index + 1 }}
                         </div>
@@ -79,7 +79,7 @@
                             <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors text-sm sm:text-base">
                                 {{ $book->title }}
                             </h3>
-                            <p class="text-xs sm:text-sm text-muted-foreground">{{ $book->author->name }}</p>
+                            <p class="text-xs sm:text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown' }}</p>
                         </div>
 
                         <div class="flex items-center gap-1">
