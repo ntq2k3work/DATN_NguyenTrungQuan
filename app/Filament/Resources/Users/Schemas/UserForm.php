@@ -8,8 +8,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
@@ -35,7 +35,9 @@ class UserForm
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255)
-                                    ->placeholder('example@email.com'),
+                                    ->placeholder('example@email.com')
+                                    ->disabled(fn (string $context): bool => $context === 'edit')
+                                    ->dehydrated(fn (string $context): bool => $context === 'create'),
                             ]),
 
                         Grid::make(2)
@@ -47,7 +49,8 @@ class UserForm
                                     ->dehydrated(fn ($state) => filled($state))
                                     ->required(fn (string $context): bool => $context === 'create')
                                     ->minLength(8)
-                                    ->placeholder('Tối thiểu 8 ký tự'),
+                                    ->placeholder('Tối thiểu 8 ký tự')
+                                    ->visible(fn (string $context): bool => $context === 'create'),
 
                                 TextInput::make('password_confirmation')
                                     ->label('Xác nhận mật khẩu')
@@ -55,7 +58,8 @@ class UserForm
                                     ->dehydrated(false)
                                     ->required(fn (string $context): bool => $context === 'create')
                                     ->same('password')
-                                    ->placeholder('Nhập lại mật khẩu'),
+                                    ->placeholder('Nhập lại mật khẩu')
+                                    ->visible(fn (string $context): bool => $context === 'create'),
                             ]),
                     ]),
 
@@ -103,6 +107,28 @@ class UserForm
                             ->dehydrated(fn ($state) => filled($state)),
                     ])
                     ->collapsible(),
+
+                Section::make('Đổi mật khẩu')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('new_password')
+                                    ->label('Mật khẩu mới')
+                                    ->password()
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->minLength(8)
+                                    ->placeholder('Để trống nếu không muốn đổi mật khẩu'),
+
+                                TextInput::make('new_password_confirmation')
+                                    ->label('Xác nhận mật khẩu mới')
+                                    ->password()
+                                    ->dehydrated(false)
+                                    ->same('new_password')
+                                    ->placeholder('Nhập lại mật khẩu mới'),
+                            ]),
+                    ])
+                    ->collapsible()
+                    ->visible(fn (string $context): bool => $context === 'edit'),
             ]);
     }
 }
