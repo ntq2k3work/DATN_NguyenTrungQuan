@@ -69,7 +69,7 @@ class CategoriesTable
             ->filters([
                 SelectFilter::make('parent_id')
                     ->label('Danh mục cha')
-                    ->options(Category::whereNull('parent_id')->pluck('name', 'id'))
+                    ->relationship('parent', 'name')
                     ->searchable()
                     ->placeholder('Tất cả'),
             ])

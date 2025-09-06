@@ -100,17 +100,17 @@ class BooksTable
             ->filters([
                 SelectFilter::make('category_id')
                     ->label('Danh mục')
-                    ->options(Category::all()->pluck('name', 'id'))
+                    ->relationship('category', 'name')
                     ->searchable(),
 
                 SelectFilter::make('author_id')
                     ->label('Tác giả')
-                    ->options(Author::all()->pluck('name', 'id'))
+                    ->relationship('author', 'name')
                     ->searchable(),
 
                 SelectFilter::make('publisher_id')
                     ->label('Nhà xuất bản')
-                    ->options(Publisher::all()->pluck('name', 'id'))
+                    ->relationship('publisher', 'name')
                     ->searchable(),
 
                 SelectFilter::make('status')
