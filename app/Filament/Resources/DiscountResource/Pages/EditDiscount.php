@@ -13,7 +13,18 @@ class EditDiscount extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->label('Xóa giảm giá'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Giảm giá đã được cập nhật thành công';
+    }
+
+    protected function getDeletedNotificationTitle(): ?string
+    {
+        return 'Giảm giá đã được xóa thành công';
     }
 }

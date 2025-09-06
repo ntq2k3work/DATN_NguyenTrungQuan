@@ -8,19 +8,31 @@ use App\Filament\Resources\Authors\Pages\ListAuthors;
 use App\Filament\Resources\Authors\Schemas\AuthorForm;
 use App\Filament\Resources\Authors\Tables\AuthorsTable;
 use App\Models\Author;
+use App\Enums\NavigationGroup;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AuthorResource extends Resource
 {
     protected static ?string $model = Author::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
 
-    protected static ?string $recordTitleAttribute = 'Author';
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::PRODUCT_MANAGEMENT;
+
+    protected static ?string $navigationLabel = 'Tác giả';
+
+    protected static ?string $modelLabel = 'Tác giả';
+
+    protected static ?string $pluralModelLabel = 'Tác giả';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

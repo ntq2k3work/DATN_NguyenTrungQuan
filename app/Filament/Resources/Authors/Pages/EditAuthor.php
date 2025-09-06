@@ -13,7 +13,18 @@ class EditAuthor extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->label('Xóa tác giả'),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Tác giả đã được cập nhật thành công';
+    }
+
+    protected function getDeletedNotificationTitle(): ?string
+    {
+        return 'Tác giả đã được xóa thành công';
     }
 }

@@ -22,7 +22,13 @@ class DiscountResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = NavigationGroup::PRODUCT_MANAGEMENT;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationLabel = 'Giảm giá';
+
+    protected static ?string $modelLabel = 'Giảm giá';
+
+    protected static ?string $pluralModelLabel = 'Giảm giá';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDiscount extends CreateRecord
 {
     protected static string $resource = DiscountResource::class;
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Giảm giá đã được tạo thành công';
+    }
 }
