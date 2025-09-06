@@ -12,7 +12,7 @@
     @yield('script')
     @vite('resources/css/app.css')
     @yield('link-css')
-    <title>@yield('title', 'My Laravel App')</title>
+    <title>@yield('title', 'BookStore ')</title>
 </head>
 <body>
     <header>

@@ -352,7 +352,7 @@ function increaseQuantity() {
 function buyNow() {
     const quantity = document.getElementById('quantity').value;
     const bookId = {{ $book->id }};
-    window.location.href = `{{ route('checkout.show') }}?book_id=${bookId}&quantity=${quantity}`;
+    window.location.href = `{{ route('checkout') }}?book_id=${bookId}&quantity=${quantity}`;
 }
 </script>
 @endsection

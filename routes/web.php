@@ -3,7 +3,7 @@
 use App\Http\Controllers\Frontend\AuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
-use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,9 +13,18 @@ Route::get('/',[HomeController::class, 'index'])->name('home');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
 // Checkout Routes
-Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
-Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/orders/success/{orderNumber}', [OrderController::class, 'success'])->name('orders.success');
+
+// Order Tracking Routes
+Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.track');
+
+// User Orders Routes (Protected)
+Route::middleware('auth')->group(function () {
+    Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -56,10 +65,6 @@ Route::get('/categories/top-selling', [App\Http\Controllers\Frontend\CategoryCon
 Route::get('/categories/{slug}', [App\Http\Controllers\Frontend\CategoryController::class, 'showBySlug'])->name('categories.show');
 
 // API Routes for AJAX
-Route::get('/api/check-discount', [App\Http\Controllers\Frontend\CheckoutController::class, 'checkDiscount'])
-    ->name('api.check-discount')
-    ->middleware('web');
-
 Route::get('/api/categories/best-sellers/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBestSellers'])
     ->name('api.categories.best-sellers.filter')
     ->middleware('web');
