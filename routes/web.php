@@ -24,6 +24,8 @@ Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.tra
 Route::middleware('auth')->group(function () {
     Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{orderNumber}/mark-delivered', [OrderController::class, 'markDelivered'])->name('orders.mark-delivered');
+    Route::post('/orders/{orderNumber}/return', [OrderController::class, 'returnOrder'])->name('orders.return');
 });
 
 // Authentication Routes

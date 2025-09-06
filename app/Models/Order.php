@@ -64,7 +64,7 @@ class Order extends Model
             'shipped' => 'Đã giao hàng',
             'delivered' => 'Đã nhận hàng',
             'cancelled' => 'Đã hủy',
-            'returned' => 'Đã trả hàng',
+            'returned' => 'Đã hoàn hàng',
             default => $this->status,
         };
     }

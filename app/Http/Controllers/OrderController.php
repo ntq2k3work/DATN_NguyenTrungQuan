@@ -238,7 +238,8 @@ class OrderController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $orders = Order::where('user_id', $user->id)
+        $orders = Order::with(['items.book'])
+            ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -251,7 +252,8 @@ class OrderController extends Controller
     public function show($orderNumber)
     {
         $user = Auth::user();
-        $order = Order::where('order_number', $orderNumber)
+        $order = Order::with(['items.book'])
+            ->where('order_number', $orderNumber)
             ->where('user_id', $user->id)
             ->first();
 
@@ -260,6 +262,61 @@ class OrderController extends Controller
         }
 
         return view('pages.order-details', compact('order'));
+    }
+
+    /**
+     * Mark order as delivered by user
+     */
+    public function markDelivered($orderNumber)
+    {
+        $user = Auth::user();
+        $order = Order::where('order_number', $orderNumber)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'Không tìm thấy đơn hàng');
+        }
+
+        // Chỉ cho phép đánh dấu đã nhận hàng nếu đơn hàng đang ở trạng thái 'shipped'
+        if ($order->status !== 'shipped') {
+            return redirect()->back()->with('error', 'Chỉ có thể đánh dấu đã nhận hàng khi đơn hàng đã được giao');
+        }
+
+        $order->update(['status' => 'delivered']);
+
+        return redirect()->back()->with('success', 'Đã đánh dấu đơn hàng là đã nhận hàng');
+    }
+
+    /**
+     * Return order by user
+     */
+    public function returnOrder(Request $request, $orderNumber)
+    {
+        $request->validate([
+            'return_reason' => 'required|string|max:500',
+        ]);
+
+        $user = Auth::user();
+        $order = Order::where('order_number', $orderNumber)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'Không tìm thấy đơn hàng');
+        }
+
+        // Chỉ cho phép hoàn hàng nếu đơn hàng đã được giao hoặc đã nhận hàng
+        if (!in_array($order->status, ['shipped', 'delivered'])) {
+            return redirect()->back()->with('error', 'Chỉ có thể hoàn hàng khi đơn hàng đã được giao hoặc đã nhận hàng');
+        }
+
+        $order->update([
+            'status' => 'returned',
+            'notes' => $order->notes . "\n\nLý do hoàn hàng: " . $request->return_reason
+        ]);
+
+        return redirect()->back()->with('success', 'Đã gửi yêu cầu hoàn hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất');
     }
 
     /**

@@ -1,6 +1,31 @@
 @extends('layouts.app')
 @section('title', 'Đơn hàng của tôi - BookStore')
 @section('content')
+<style>
+    /* Modal Animation */
+    .modal-backdrop {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .modal-content {
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-content.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    /* Enhanced shadow for modal */
+    .modal-shadow {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+</style>
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
@@ -28,6 +53,7 @@
                                 @elseif($order->status == 'shipped') bg-purple-100 text-purple-800
                                 @elseif($order->status == 'delivered') bg-green-100 text-green-800
                                 @elseif($order->status == 'cancelled') bg-red-100 text-red-800
+                                @elseif($order->status == 'returned') bg-orange-100 text-orange-800
                                 @endif">
                                 {{ $order->status_label }}
                             </span>
@@ -75,6 +101,30 @@
                             </svg>
                             Theo dõi đơn hàng
                         </a>
+
+                        @if($order->status === 'shipped')
+                        <!-- Nút đánh dấu đã nhận hàng -->
+                        <button type="button" 
+                                onclick="openDeliveredModal('{{ $order->order_number }}')"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Đã nhận hàng
+                        </button>
+                        @endif
+
+                        @if(in_array($order->status, ['shipped', 'delivered']))
+                        <!-- Nút hoàn hàng -->
+                        <button type="button" 
+                                onclick="openReturnModal('{{ $order->order_number }}')"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m5 3v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2"></path>
+                            </svg>
+                            Hoàn hàng
+                        </button>
+                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -106,4 +156,151 @@
         </div>
     </div>
 </div>
+
+<!-- Mark Delivered Modal -->
+<div id="deliveredModal" class="fixed inset-0 modal-backdrop overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 modal-shadow rounded-lg bg-white modal-content">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Xác nhận đã nhận hàng</h3>
+                <button onclick="closeDeliveredModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <p class="text-center text-gray-600 mb-2">Bạn có chắc chắn đã nhận hàng?</p>
+                <p class="text-center text-sm text-gray-500">Hành động này sẽ cập nhật trạng thái đơn hàng thành "Đã nhận hàng"</p>
+            </div>
+            
+            <form id="deliveredForm" method="POST">
+                @csrf
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeDeliveredModal()"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Hủy
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        Xác nhận đã nhận hàng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Return Order Modal -->
+<div id="returnModal" class="fixed inset-0 modal-backdrop overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 modal-shadow rounded-lg bg-white modal-content">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Hoàn hàng</h3>
+                <button onclick="closeReturnModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="returnForm" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label for="return_reason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Lý do hoàn hàng <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="return_reason" 
+                              name="return_reason" 
+                              rows="4" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                              placeholder="Vui lòng nhập lý do hoàn hàng..."
+                              required></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeReturnModal()"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Hủy
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Gửi yêu cầu hoàn hàng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeliveredModal(orderNumber) {
+    const modal = document.getElementById('deliveredModal');
+    const form = document.getElementById('deliveredForm');
+    const content = modal.querySelector('.modal-content');
+    
+    form.action = `/orders/${orderNumber}/mark-delivered`;
+    modal.classList.remove('hidden');
+    
+    // Trigger animation
+    setTimeout(() => {
+        content.classList.add('show');
+    }, 10);
+}
+
+function closeDeliveredModal() {
+    const modal = document.getElementById('deliveredModal');
+    const content = modal.querySelector('.modal-content');
+    
+    content.classList.remove('show');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+function openReturnModal(orderNumber) {
+    const modal = document.getElementById('returnModal');
+    const form = document.getElementById('returnForm');
+    const content = modal.querySelector('.modal-content');
+    
+    form.action = `/orders/${orderNumber}/return`;
+    modal.classList.remove('hidden');
+    
+    // Trigger animation
+    setTimeout(() => {
+        content.classList.add('show');
+    }, 10);
+}
+
+function closeReturnModal() {
+    const modal = document.getElementById('returnModal');
+    const content = modal.querySelector('.modal-content');
+    
+    content.classList.remove('show');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Close modal when clicking outside
+document.getElementById('deliveredModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeliveredModal();
+    }
+});
+
+document.getElementById('returnModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReturnModal();
+    }
+});
+</script>
 @endsection
