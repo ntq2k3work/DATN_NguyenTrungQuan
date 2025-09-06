@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessOrderJob;
 use App\Models\Book;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -142,8 +143,18 @@ class OrderController extends Controller
                 return redirect()->route('home')->with('error', 'Giỏ hàng trống');
             }
 
-            
-            DB::beginTransaction();
+            // Validate stock availability before processing
+            foreach ($cartItems as $item) {
+                $book = Book::find($item->book_id);
+                if (!$book) {
+                    return redirect()->back()->with('error', "Sản phẩm không tồn tại: " . ($item->book->title ?? 'Unknown'));
+                }
+                
+                if ($book->quantity < $item->quantity) {
+                    return redirect()->back()->with('error', "Không đủ số lượng tồn kho cho sản phẩm: {$book->title}. Số lượng còn lại: {$book->quantity}");
+                }
+            }
+
             // Calculate totals
             $subtotal = $cartItems->sum(function ($item) {
                 return $item->price * $item->quantity;
@@ -152,8 +163,7 @@ class OrderController extends Controller
             $shippingFee = $this->calculateShippingFee($request->shipping_method, $subtotal);
             $total = $subtotal + $shippingFee;
 
-
-            // Create order
+            // Create order first with pending status
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
                 'order_number' => Order::generateOrderNumber(),
@@ -166,35 +176,28 @@ class OrderController extends Controller
                 'subtotal' => $subtotal,
                 'shipping_fee' => $shippingFee,
                 'total' => $total,
-                'status' => 'pending',
+                'status' => 'pending', // Will be updated by job
                 'notes' => $request->notes,
             ]);
 
-            
-            // Create order items
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
+            // Prepare cart items data
+            $cartItemsData = $cartItems->map(function ($item) {
+                return [
                     'book_id' => $item->book_id,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
-                ]);
-                
-                // Update book quantity
-                $book = Book::find($item->book_id);
-                if ($book) {
-                    $book->decrement('quantity', $item->quantity);
-                }
-            }
+                ];
+            })->toArray();
+
+            // Dispatch job to process order items and update stock
+            ProcessOrderJob::dispatch($order->toArray(), $cartItemsData);
             
-            // Clear cart
+            // Clear cart immediately after dispatching job
             if ($user && $cart) {
                 \App\Models\CartItem::where('cart_id', $cart->id)->delete();
             } else {
                 Session::forget('cart');
             }
-
-            DB::commit();
 
             return redirect()->route('orders.success', $order->order_number)
                 ->with('success', 'Đặt hàng thành công!');
