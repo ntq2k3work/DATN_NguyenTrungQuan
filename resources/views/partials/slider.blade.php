@@ -1,7 +1,6 @@
 <section class="relative bg-amber-50 overflow-hidden">
     <div class="container mx-auto px-4">
       <div class="relative h-[500px] flex items-center">
-        <!-- Slides -->
         <div class="absolute inset-0 transition-opacity duration-500 opacity-100" data-slide="0">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full items-center">
             <div class="space-y-6">
@@ -15,7 +14,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <button class="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-primary/90">Khám phá ngay</button>
+                <a href="{{ route('categories.index') }}" class="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors">Khám phá ngay</a>
                 <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
               </div>
             </div>
@@ -39,7 +38,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <button class="px-8 py-3 bg-amber-600 text-white rounded-lg hover:bg-primary/90">Xem sách mới</button>
+                <a href="{{ route('categories.new-releases') }}" class="px-8 py-3 bg-amber-600 text-white rounded-lg hover:bg-primary/90 transition-colors">Xem sách mới</a>
                 <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
               </div>
             </div>
@@ -63,7 +62,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <button class="bg-amber-600 text-white px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Mua ngay</button>
+                <a href="{{ route('categories.best-sellers') }}" class="bg-amber-600 text-white px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">Mua ngay</a>
                 <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
               </div>
             </div>
@@ -74,7 +73,6 @@
           </div>
         </div>
 
-        <!-- Navigation arrows -->
         <button id="prevSlide"
           class="absolute bg-white left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full shadow-lg">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +86,6 @@
           </svg>
         </button>
 
-        <!-- Indicators -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           <button class="w-3 h-3 rounded-full bg-primary" data-indicator="0"></button>
           <button class="w-3 h-3 rounded-full bg-background/50" data-indicator="1"></button>

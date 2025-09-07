@@ -60,6 +60,7 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed');
 
 // Category Routes
+Route::get('/categories', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/best-sellers', [App\Http\Controllers\Frontend\CategoryController::class, 'bestSellers'])->name('categories.best-sellers');
 Route::get('/categories/new-releases', [App\Http\Controllers\Frontend\CategoryController::class, 'newReleases'])->name('categories.new-releases');
 Route::get('/categories/recommendations', [App\Http\Controllers\Frontend\CategoryController::class, 'recommendations'])->name('categories.recommendations');
@@ -67,6 +68,10 @@ Route::get('/categories/top-selling', [App\Http\Controllers\Frontend\CategoryCon
 Route::get('/categories/{slug}', [App\Http\Controllers\Frontend\CategoryController::class, 'showBySlug'])->name('categories.show');
 
 // API Routes for AJAX
+Route::get('/api/categories/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterIndex'])
+    ->name('api.categories.filter')
+    ->middleware('web');
+
 Route::get('/api/categories/best-sellers/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBestSellers'])
     ->name('api.categories.best-sellers.filter')
     ->middleware('web');
