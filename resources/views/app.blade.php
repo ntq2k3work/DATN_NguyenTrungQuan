@@ -66,8 +66,9 @@
               </div>
 
               <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition"
-                onclick="event.stopPropagation();"
+                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition add-to-cart-btn"
+                data-book-id="{{ $book->id }}"
+                onclick="event.stopPropagation(); addToCart({{ $book->id }})"
               >
                 Thêm vào giỏ
               </button>
@@ -232,7 +233,11 @@
                 </div>
               </div>
 
-              <button class="w-full px-4 py-2 rounded bg-amber-600 text-white cursor-pointer hover:bg-amber-500 text-sm" onclick="event.stopPropagation();">
+              <button 
+                class="w-full px-4 py-2 rounded bg-amber-600 text-white cursor-pointer hover:bg-amber-500 text-sm add-to-cart-btn"
+                data-book-id="{{ $book->id }}"
+                onclick="event.stopPropagation(); addToCart({{ $book->id }})"
+              >
                 Thêm vào giỏ
               </button>
             </div>
@@ -253,4 +258,103 @@
       </div>
     </div>
   </section>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+      </svg>
+      <span id="toast-message">Đã thêm vào giỏ hàng!</span>
+    </div>
+  </div>
+
+  <script>
+    function addToCart(bookId) {
+      const button = document.querySelector(`[data-book-id="${bookId}"]`);
+      const originalText = button.textContent;
+      
+      // Disable button and show loading
+      button.disabled = true;
+      button.textContent = 'Đang thêm...';
+      button.classList.add('opacity-50');
+      
+      // Make API call
+      fetch('{{ route("cart.add") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+          book_id: bookId,
+          quantity: 1
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          showToast(data.message);
+          
+          // Update cart count if cart icon exists
+          updateCartCount(data.cart_count);
+          
+          // Change button text temporarily
+          button.textContent = 'Đã thêm!';
+          button.classList.remove('bg-amber-600', 'hover:bg-primary/90');
+          button.classList.add('bg-green-600');
+          
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('bg-green-600');
+            button.classList.add('bg-amber-600', 'hover:bg-primary/90');
+          }, 2000);
+        } else {
+          showToast(data.error || 'Có lỗi xảy ra', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra khi thêm vào giỏ hàng', 'error');
+      })
+      .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+        button.classList.remove('opacity-50');
+      });
+    }
+    
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      
+      toastMessage.textContent = message;
+      
+      // Change color based on type
+      if (type === 'error') {
+        toast.classList.remove('bg-green-500');
+        toast.classList.add('bg-red-500');
+      } else {
+        toast.classList.remove('bg-red-500');
+        toast.classList.add('bg-green-500');
+      }
+      
+      // Show toast
+      toast.classList.remove('translate-x-full');
+      
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('translate-x-full');
+      }, 3000);
+    }
+    
+    function updateCartCount(count) {
+      // Update cart count in header if exists
+      const cartCountElement = document.querySelector('.cart-count');
+      if (cartCountElement) {
+        cartCountElement.textContent = count;
+      }
+    }
+  </script>
 @endsection

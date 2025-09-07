@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Book;
 use App\Models\Wishlist;
+use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
@@ -18,7 +22,7 @@ class HomeController extends Controller
     public function index()
     {
         $books = Book::all();
-        $auth = auth()->user();
+        $auth = Auth::user();
         if ($auth) {
             $wishlists = Wishlist::where('user_id', $auth->id)->get('book_id');
 
@@ -94,6 +98,28 @@ class HomeController extends Controller
 
             $book->price = $this->numberFormat($book->price);
         }
-        return view('app',compact(['book_recommendations','best_sellers','new_publishers']));
+        
+        // Calculate cart count
+        $cartCount = $this->getCartCount();
+        
+        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount']));
+    }
+    
+    /**
+     * Get total cart count
+     */
+    private function getCartCount()
+    {
+        if (Auth::check()) {
+            $cart = Cart::where('user_id', Auth::id())->first();
+            if ($cart) {
+                return CartItem::where('cart_id', $cart->id)->sum('quantity');
+            }
+        } else {
+            $sessionCart = Session::get('cart', []);
+            return array_sum(array_column($sessionCart, 'quantity'));
+        }
+        
+        return 0;
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Frontend\AuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +12,14 @@ Route::get('/',[HomeController::class, 'index'])->name('home');
 
 // Product Routes
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+
+// Cart Routes
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+Route::get('/cart/api', [CartController::class, 'index'])->name('cart.index');
+Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 
 // Checkout Routes
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');

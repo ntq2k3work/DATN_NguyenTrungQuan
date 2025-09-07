@@ -222,11 +222,11 @@
         @endauth
 
         <!-- Giỏ hàng -->
-        <div class="relative flex items-center">
+        <div class="relative flex items-center cursor-pointer" onclick="window.location.href='{{ route('cart.show') }}'">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m12-9l2 9m-6-9v9" />
           </svg>
-          <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">0</span>
+          <span class="cart-count absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">{{ $cartCount ?? 0 }}</span>
           <span class="ml-2 text-sm">Giỏ hàng</span>
         </div>
       </div>
