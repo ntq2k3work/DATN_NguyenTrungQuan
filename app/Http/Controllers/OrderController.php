@@ -230,9 +230,27 @@ class OrderController extends Controller
     /**
      * Order tracking page
      */
-    public function track()
+    public function track(Request $request)
     {
-        return view('pages.order-tracking');
+        $user = Auth::user();
+        $order = null;
+        
+        // If user is searching for a specific order by order number
+        if ($request->has('order_number') && !empty($request->order_number)) {
+            $order = Order::with(['items.book', 'items.book.author'])
+                ->where('order_number', $request->order_number)
+                ->where('user_id', $user->id) // Only show orders belonging to the authenticated user
+                ->first();
+        }
+        
+        // Get user's recent orders for quick access
+        $recentOrders = Order::with(['items.book'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        
+        return view('pages.order-tracking', compact('order', 'recentOrders'));
     }
 
     /**

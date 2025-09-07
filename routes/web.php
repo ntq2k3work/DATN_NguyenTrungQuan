@@ -26,11 +26,9 @@ Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 Route::get('/orders/success/{orderNumber}', [OrderController::class, 'success'])->name('orders.success');
 
-// Order Tracking Routes
-Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.track');
-
 // User Orders Routes (Protected)
 Route::middleware('auth')->group(function () {
+    Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.track');
     Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderNumber}/mark-delivered', [OrderController::class, 'markDelivered'])->name('orders.mark-delivered');

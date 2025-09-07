@@ -10,33 +10,67 @@
                 <p class="text-gray-600 mt-2">Kiểm tra trạng thái đơn hàng của bạn</p>
             </div>
 
+            <!-- Recent Orders -->
+            @if($recentOrders->count() > 0)
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Đơn hàng gần đây</h3>
+                <div class="space-y-3">
+                    @foreach($recentOrders as $recentOrder)
+                    <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4">
+                                <div>
+                                    <p class="font-medium text-gray-900">#{{ $recentOrder->order_number }}</p>
+                                    <p class="text-sm text-gray-600">{{ $recentOrder->created_at->format('d/m/Y H:i') }}</p>
+                                </div>
+                                <div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                        @if($recentOrder->status == 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($recentOrder->status == 'processing') bg-blue-100 text-blue-800
+                                        @elseif($recentOrder->status == 'shipped') bg-purple-100 text-purple-800
+                                        @elseif($recentOrder->status == 'delivered') bg-green-100 text-green-800
+                                        @elseif($recentOrder->status == 'cancelled') bg-red-100 text-red-800
+                                        @endif">
+                                        {{ $recentOrder->status_label }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">{{ number_format((float)$recentOrder->total, 0, ',', '.') }}đ</span>
+                            <a href="{{ route('orders.track', ['order_number' => $recentOrder->order_number]) }}" 
+                               class="text-amber-600 hover:text-amber-700 text-sm font-medium">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="mt-4 text-center">
+                    <a href="{{ route('orders.index') }}" 
+                       class="text-amber-600 hover:text-amber-700 text-sm font-medium">
+                        Xem tất cả đơn hàng
+                    </a>
+                </div>
+            </div>
+            @endif
+
             <!-- Search Form -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Tra cứu đơn hàng cụ thể</h3>
                 <form action="{{ route('orders.track') }}" method="GET" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="order_number" class="block text-sm font-medium text-gray-700 mb-2">
-                                Mã đơn hàng
-                            </label>
-                            <input type="text" id="order_number" name="order_number" 
-                                   value="{{ request('order_number') }}"
-                                   placeholder="VD: ORD-20241206-0001"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        </div>
-                        
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                                Số điện thoại
-                            </label>
-                            <input type="tel" id="phone" name="phone" 
-                                   value="{{ request('phone') }}"
-                                   placeholder="Số điện thoại đặt hàng"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        </div>
+                    <div class="max-w-md">
+                        <label for="order_number" class="block text-sm font-medium text-gray-700 mb-2">
+                            Mã đơn hàng
+                        </label>
+                        <input type="text" id="order_number" name="order_number" 
+                               value="{{ request('order_number') }}"
+                               placeholder="VD: ORD-20241206-0001"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
                     </div>
                     
                     <button type="submit" 
-                            class="w-full md:w-auto bg-amber-600 text-white py-2 px-6 rounded-md hover:bg-amber-700 transition-colors">
+                            class="bg-amber-600 text-white py-2 px-6 rounded-md hover:bg-amber-700 transition-colors">
                         Tra cứu đơn hàng
                     </button>
                 </form>
@@ -189,7 +223,7 @@
                     </div>
                 </div>
             </div>
-            @elseif(request()->has('order_number') || request()->has('phone'))
+            @elseif(request()->has('order_number') && !empty(request('order_number')))
             <!-- No Order Found -->
             <div class="bg-white rounded-lg shadow-md p-6 text-center">
                 <div class="text-gray-400 mb-4">
@@ -198,7 +232,7 @@
                     </svg>
                 </div>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">Không tìm thấy đơn hàng</h3>
-                <p class="text-gray-600 mb-4">Vui lòng kiểm tra lại mã đơn hàng và số điện thoại</p>
+                <p class="text-gray-600 mb-4">Vui lòng kiểm tra lại mã đơn hàng</p>
                 <a href="{{ route('orders.track') }}" 
                    class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors">
                     Tra cứu lại

@@ -95,5 +95,13 @@ class Order extends Model
             default => $this->shipping_method,
         };
     }
+
+    /**
+     * Check if order was placed by authenticated user
+     */
+    public function isPlacedByAuthenticatedUser(): bool
+    {
+        return !is_null($this->user_id);
+    }
 }
 
