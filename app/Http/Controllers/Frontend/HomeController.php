@@ -63,8 +63,12 @@ class HomeController extends Controller
             $book_recommendations = Book::inRandomOrder()->take(8)->get();
         }
 
-        $best_sellers = Book::select('*')
-        ->join('discounts', 'books.id', '=', 'discounts.book_id')
+        $best_sellers = Book::select('books.*', \DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'), \DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
+        ->whereExists(function($query) {
+            $query->select(\DB::raw(1))
+                  ->from('discounts')
+                  ->whereColumn('discounts.book_id', 'books.id');
+        })
         ->with(['author'])
         ->take(6)
         ->get();

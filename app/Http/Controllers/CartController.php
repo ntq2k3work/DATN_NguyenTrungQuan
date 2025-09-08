@@ -182,12 +182,19 @@ class CartController extends Controller
             $cartItem->save();
         } else {
             // Create new cart item
-            $book = Book::find($bookId);
+            $book = Book::select('books.*', 'discounts.percent', 'discounts.amount')
+                ->leftJoin('discounts', 'books.id', '=', 'discounts.book_id')
+                ->where('books.id', $bookId)
+                ->first();
+            
+            // Calculate final price with discount
+            $finalPrice = $this->calculateFinalPrice($book);
+            
             CartItem::create([
                 'cart_id' => $cart->id,
                 'book_id' => $bookId,
                 'quantity' => $quantity,
-                'price' => $book->price
+                'price' => $finalPrice
             ]);
         }
     }
@@ -285,5 +292,24 @@ class CartController extends Controller
         }
         
         return 0;
+    }
+
+    /**
+     * Calculate final price with discount
+     */
+    private function calculateFinalPrice($book)
+    {
+        $price = $book->price;
+        $percent = $book->percent ?? 0;
+        $amount = $book->amount ?? 0;
+        
+        $finalPrice = $price - ($price * $percent / 100) - $amount;
+        
+        // Ensure price doesn't go below 0
+        if ($finalPrice <= 0) {
+            $finalPrice = 0;
+        }
+        
+        return $finalPrice;
     }
 }

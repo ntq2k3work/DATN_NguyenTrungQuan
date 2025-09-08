@@ -49,11 +49,11 @@ function displayCart(cartItems) {
     cartItems.forEach(item => {
         const book = item.book || item;
         const quantity = item.quantity;
-        const price = book.final_price || book.price;
+        const price = item.price || book.final_price || book.price;
         
         html += `
             <div class="bg-white rounded-lg shadow-md p-6 flex items-center space-x-6">
-                <img src="${book.image || '/images/placeholder-book.jpg'}" alt="${book.title}" class="w-20 h-28 object-cover rounded">
+                <img src="${book.image_url || '/images/placeholder-book.jpg'}" alt="${book.title}" class="w-20 h-28 object-cover rounded">
                 
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
@@ -84,7 +84,7 @@ function displayCart(cartItems) {
     // Calculate total
     const total = cartItems.reduce((sum, item) => {
         const book = item.book || item;
-        const price = book.final_price || book.price;
+        const price = item.price || book.final_price || book.price;
         return sum + (price * item.quantity);
     }, 0);
     

@@ -156,7 +156,13 @@
                         />
                       </svg>
                     </button>
-                    <button class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90" onclick="event.stopPropagation();">Mua</button>
+                    <button 
+                      class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 add-to-cart-btn"
+                      data-book-id="{{ $book->id }}"
+                      onclick="event.stopPropagation(); addToCart({{ $book->id }})"
+                    >
+                      Thêm vào giỏ
+                    </button>
                   </div>
                 </div>
               </div>
