@@ -132,7 +132,7 @@
                 </div>
 
                 @if($books->count() > 0)
-                <div class="mt-8 sm:mt-12">
+                <div class="mt-8 sm:mt-12 flex justify-center">
                     {{ $books->links() }}
                 </div>
                 @endif
