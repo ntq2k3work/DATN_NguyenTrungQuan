@@ -26,20 +26,38 @@ class OrderController extends Controller
             $bookId = $request->book_id;
             $quantity = $request->quantity;
             
-            $book = Book::find($bookId);
+            $book = Book::with('discount')->find($bookId);
             if ($book) {
-                // Store buy now data in session
+                // Calculate price with discount
+                $price = $book->price;
+                if ($this->hasDiscount($book)) {
+                    if ($book->discount->amount != null && $book->discount->amount > 0) {
+                        // Discount theo amount
+                        $discountPrice = $price - $book->discount->amount;
+                    } elseif ($book->discount->percent != null && $book->discount->percent > 0) {
+                        // Discount theo percent
+                        $discountPrice = $price - ($price * $book->discount->percent / 100);
+                    } else {
+                        $discountPrice = $price;
+                    }
+                    
+                    if ($discountPrice > 0) {
+                        $price = $discountPrice;
+                    }
+                }
+                
+                // Store buy now data in session with discounted price
                 Session::put('buy_now', [
                     'book_id' => $bookId,
                     'quantity' => $quantity,
-                    'price' => $book->price
+                    'price' => $price
                 ]);
                 
                 // Create temporary cart items for display
                 $cartItems = collect([(object) [
                     'book' => $book,
                     'quantity' => $quantity,
-                    'price' => $book->price,
+                    'price' => $price,
                     'book_id' => $bookId
                 ]]);
             }
@@ -62,7 +80,7 @@ class OrderController extends Controller
                         $cartItems->push((object) [
                             'book' => $book,
                             'quantity' => $item['quantity'],
-                            'price' => $book->price,
+                            'price' => $item['price'] ?? $book->price, // Use stored discounted price
                             'book_id' => $book->id
                         ]);
                     }
@@ -108,7 +126,7 @@ class OrderController extends Controller
                     $cartItems = collect([(object) [
                         'book' => $book,
                         'quantity' => $buyNowData['quantity'],
-                        'price' => $book->price,
+                        'price' => $buyNowData['price'], // Use stored discounted price
                         'book_id' => $book->id
                     ]]);
                 }
@@ -129,7 +147,7 @@ class OrderController extends Controller
                             $cartItems->push((object) [
                                 'book' => $book,
                                 'quantity' => $item['quantity'],
-                                'price' => $book->price,
+                                'price' => $item['price'] ?? $book->price, // Use stored discounted price
                                 'book_id' => $book->id
                             ]);
                         }
@@ -355,5 +373,40 @@ class OrderController extends Controller
             default:
                 return 30000;
         }
+    }
+
+    /**
+     * Check if book has valid discount
+     */
+    private function hasDiscount($book)
+    {
+        if (!$book->discount) {
+            return false;
+        }
+        
+        // Kiểm tra discount theo amount hoặc percent
+        $hasValidDiscount = false;
+        if ($book->discount->amount != null && $book->discount->amount > 0) {
+            $hasValidDiscount = true;
+        } elseif ($book->discount->percent != null && $book->discount->percent > 0) {
+            $hasValidDiscount = true;
+        }
+        
+        if (!$hasValidDiscount) {
+            return false;
+        }
+        
+        // Kiểm tra thời gian hiệu lực
+        $now = now();
+        $startDate = $book->discount->start_date;
+        $endDate = $book->discount->end_date;
+        
+        // Nếu có thời gian bắt đầu và kết thúc
+        if ($startDate && $endDate) {
+            return $now->between($startDate, $endDate);
+        }
+        
+        // Nếu không có thời gian, coi như luôn có hiệu lực
+        return true;
     }
 }

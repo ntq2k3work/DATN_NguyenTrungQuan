@@ -14,95 +14,18 @@ use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
-
     public function numberFormat($price)
     {
         return number_format($price,0,',','.');
     }
+    
     public function index()
     {
-        $books = Book::all();
-        $auth = Auth::user();
-        if ($auth) {
-            $wishlists = Wishlist::where('user_id', $auth->id)->get('book_id');
-
-            $bookIdsInWishlist = $wishlists->pluck('book_id');
-
-            $categoriesAuthors = Book::whereIn('id', $bookIdsInWishlist)
-                ->select('category_id', 'author_id')
-                ->distinct()
-                ->get();
-
-            $categoryIds = $categoriesAuthors->pluck('category_id')->filter()->unique();
-            $authorIds = $categoriesAuthors->pluck('author_id')->filter()->unique();
-
-            // Lấy sách liên quan (cùng tác giả hoặc danh mục)
-            $books = Book::whereNotIn('id', $bookIdsInWishlist)
-                ->where(function($query) use ($categoryIds, $authorIds) {
-                    $query->whereIn('category_id', $categoryIds)
-                        ->orWhereIn('author_id', $authorIds);
-                })
-                ->get();
-
-            // Xử lý sắp xếp theo mức độ liên quan bằng code PHP
-            $books = $books->map(function($book) use ($categoryIds, $authorIds) {
-                $score = 0;
-                if ($categoryIds->contains($book->category_id)) $score++;
-                if ($authorIds->contains($book->author_id)) $score++;
-                $book->score = $score; // thêm thuộc tính điểm
-                return $book;
-            });
-
-            // Sắp xếp giảm dần theo score, rồi random trong cùng nhóm
-            $book_recommendations = $books
-                ->sortByDesc('score') // ưu tiên sách có điểm cao
-                ->take(8)
-                ->values();
-        } else {
-            $wishlists = collect();
-            $book_recommendations = Book::inRandomOrder()->take(8)->get();
-        }
-
-        $best_sellers = Book::select('*')
-        ->join('discounts', 'books.id', '=', 'discounts.book_id')
-        ->with(['author'])
-        ->take(6)
-        ->get();
-
-        foreach ($best_sellers as $book) {
-            $price = $book->price;
-            $percent = $book->percent ?? 0;
-            $amount = $book->amount ?? 0;
-
-            $book->final_price = $price - ($price * $percent / 100) - $amount;
-            if ($book->final_price <= 0){
-                $book->final_price = 0;
-                $book->percent = 100;
-            }
-        }
-
-        $best_sellers = $best_sellers->sortBy('final_price')->values();
-
-        $new_publishers = Book::select()->with(['author','discount'])->orderBy('created_at','desc')->take(6)->get();
-        foreach($new_publishers as $book)
-        {
-            $price = $book->price;
-            $percent = $book->percent ?? 0;
-            $amount = $book->amount ?? 0;
-            $book->final_price = $this->numberFormat($price - ($price * $percent / 100) - $amount);
-
-            if ($book->final_price <= 0){
-                $book->final_price = 0;
-                $book->percent = 100;
-            }
-
-            $book->price = $this->numberFormat($book->price);
-        }
-        
-        // Calculate cart count
+        // Calculate cart count for header
         $cartCount = $this->getCartCount();
         
-        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount']));
+        // Return view with only cart count - Livewire components will handle their own data
+        return view('app', compact('cartCount'));
     }
     
     /**

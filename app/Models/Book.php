@@ -39,6 +39,16 @@ class Book extends Model
         return $this->belongsTo(Discount::class, 'id', 'book_id');
     }
 
+    public function discounts()
+    {
+        return $this->hasMany(Discount::class, 'book_id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'book_id');
+    }
+
     public function author()
     {
         return $this->belongsTo(Author::class, 'author_id');

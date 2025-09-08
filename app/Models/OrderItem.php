@@ -26,5 +26,15 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    // Accessor để tính total nếu không có trong database
+    public function getTotalAttribute($value)
+    {
+        if ($value && $value > 0) {
+            return $value;
+        }
+        
+        return $this->price * $this->quantity;
+    }
 }
 

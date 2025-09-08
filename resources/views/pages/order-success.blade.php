@@ -1,80 +1,84 @@
 @extends('layouts.app')
-@section('title', 'Đặt hàng thành công - BookStore')
+
+@section('title', 'Đặt hàng thành công')
+
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto text-center">
-            <!-- Success Icon -->
-            <div class="mb-8">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                    <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <!-- Success Message -->
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium">Đặt hàng thành công!</span>
+            </div>
+        </div>
+
+        <!-- Order Information -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Thông tin đơn hàng</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Mã đơn hàng</label>
+                    <p class="text-lg font-semibold text-primary">{{ $order->order_number }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ngày đặt hàng</label>
+                    <p class="text-gray-900">{{ $order->created_at->format('d/m/Y H:i') }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {{ ucfirst($order->status) }}
+                    </span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tổng tiền</label>
+                    <p class="text-lg font-semibold text-primary">{{ number_format($order->total, 0, ',', '.') }}đ</p>
                 </div>
             </div>
 
-            <!-- Success Message -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">Đặt hàng thành công!</h1>
-                <p class="text-lg text-gray-600 mb-2">Cảm ơn bạn đã đặt hàng tại BookStore</p>
-                <p class="text-gray-600">Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất</p>
-            </div>
-
-            <!-- Order Information -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Thông tin đơn hàng</h2>
-                <div class="space-y-3 text-left">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Mã đơn hàng:</span>
-                        <span class="font-medium">{{ $order->order_number }}</span>
+            <!-- Order Items -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Sản phẩm đã đặt</h3>
+                <div class="space-y-3">
+                    @foreach($order->items as $item)
+                    <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <img src="{{ asset('images/books/' . $item->book->image) }}" 
+                             alt="{{ $item->book->title }}" 
+                             class="w-16 h-20 object-cover rounded">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">{{ $item->book->title }}</h4>
+                            <p class="text-sm text-gray-600">Số lượng: {{ $item->quantity }}</p>
+                            <p class="text-sm text-gray-600">Giá: {{ number_format($item->price, 0, ',', '.') }}đ</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-primary">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}đ</p>
+                        </div>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Ngày đặt:</span>
-                        <span class="font-medium">{{ $order->created_at->format('d/m/Y H:i') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Tổng tiền:</span>
-                        <span class="font-medium text-lg text-amber-600">{{ number_format($order->total, 0, ',', '.') }}đ</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Trạng thái:</span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                            {{ $order->status_label }}
-                        </span>
-                    </div>
+                    @endforeach
                 </div>
             </div>
+        </div>
 
-            <!-- Next Steps -->
-            <div class="bg-blue-50 rounded-lg p-6 mb-8">
-                <h3 class="text-lg font-semibold text-blue-900 mb-3">Bước tiếp theo</h3>
-                <div class="space-y-2 text-sm text-blue-800">
-                    <p>• Chúng tôi sẽ gửi email xác nhận đơn hàng đến {{ $order->email }}</p>
-                    <p>• Đơn hàng sẽ được xử lý trong vòng 1-2 ngày làm việc</p>
-                    <p>• Bạn có thể theo dõi trạng thái đơn hàng bằng mã đơn hàng</p>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                @auth
-                    <a href="{{ route('orders.track') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        Theo dõi đơn hàng
-                    </a>
-                @endauth
-                
-                <a href="{{ route('home') }}" 
-                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
-                    Về trang chủ
-                </a>
-            </div>
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ route('home') }}" 
+               class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors text-center">
+                Tiếp tục mua sắm
+            </a>
+            <a href="{{ route('orders.track') }}" 
+               class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-center">
+                Theo dõi đơn hàng
+            </a>
+            @auth
+            <a href="{{ route('orders.index') }}" 
+               class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                Xem đơn hàng của tôi
+            </a>
+            @endauth
         </div>
     </div>
 </div>

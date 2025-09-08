@@ -2,40 +2,67 @@
 
 use App\Http\Controllers\Frontend\AuthController;
 use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\Admin\AdminAuthController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// Helper function to get cart count
+function getCartCount() {
+    $cartCount = 0;
+    
+    if (Auth::check()) {
+        $cart = \App\Models\Cart::where('user_id', Auth::id())->first();
+        if ($cart) {
+            $cartCount = $cart->items()->sum('quantity');
+        }
+    } else {
+        $cart = session()->get('cart', []);
+        foreach ($cart as $item) {
+            $cartCount += $item['quantity'];
+        }
+    }
+    
+    return $cartCount;
+}
+
+// Home Route - Keep using HomeController for now as it handles Livewire components
 Route::get('/',[HomeController::class, 'index'])->name('home');
 
-// Product Routes
-Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
+// Livewire Routes - Product Detail
+Route::get('/product/{slug}', function($slug) {
+    return view('pages.product.detail', ['slug' => $slug, 'cartCount' => getCartCount()]);
+})->name('product.show');
 
-// Cart Routes
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
-Route::get('/cart/api', [CartController::class, 'index'])->name('cart.index');
-Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+// Livewire Routes - Cart
+Route::get('/cart', function() {
+    return view('pages.cart.index', ['cartCount' => getCartCount()]);
+})->name('cart.show');
 
-// Checkout Routes
-Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+
+// Livewire Routes - Checkout
+Route::get('/checkout', function() {
+    return view('pages.checkout', ['cartCount' => getCartCount()]);
+})->name('checkout');
+
+// Order Success Route - Keep using OrderController for now
 Route::get('/orders/success/{orderNumber}', [OrderController::class, 'success'])->name('orders.success');
 
-// User Orders Routes (Protected)
+// Livewire Routes - User Orders (Protected)
 Route::middleware('auth')->group(function () {
-    Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.track');
-    Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{orderNumber}/mark-delivered', [OrderController::class, 'markDelivered'])->name('orders.mark-delivered');
-    Route::post('/orders/{orderNumber}/return', [OrderController::class, 'returnOrder'])->name('orders.return');
+    Route::get('/orders/track', function() {
+        return view('pages.order-tracking', ['cartCount' => getCartCount()]);
+    })->name('orders.track');
+    
+    Route::get('/my-orders', function() {
+        return view('pages.my-orders', ['cartCount' => getCartCount()]);
+    })->name('orders.index');
+    
+    Route::get('/orders/{orderNumber}', function($orderNumber) {
+        return view('pages.order-details', ['orderNumber' => $orderNumber, 'cartCount' => getCartCount()]);
+    })->name('orders.show');
 });
 
-// Authentication Routes
+// Authentication Routes - Keep using AuthController for now
 Route::middleware('guest')->group(function () {
     Route::get('/register',[AuthController::class, 'register'])->name('register');
     Route::get('/login',[AuthController::class, 'login'])->name('login');
@@ -51,7 +78,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPasswordUpdate'])->name('password.update');
 });
 
-// Protected Routes
+// Protected Routes - Keep using AuthController for now
 Route::middleware('auth')->group(function () {
     Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
     Route::get('/profile',[AuthController::class, 'profile'])->name('profile');
@@ -66,34 +93,30 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->name('verification.verify')
     ->middleware('signed');
 
-// Category Routes
-Route::get('/categories', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
-Route::get('/categories/best-sellers', [App\Http\Controllers\Frontend\CategoryController::class, 'bestSellers'])->name('categories.best-sellers');
-Route::get('/categories/new-releases', [App\Http\Controllers\Frontend\CategoryController::class, 'newReleases'])->name('categories.new-releases');
-Route::get('/categories/recommendations', [App\Http\Controllers\Frontend\CategoryController::class, 'recommendations'])->name('categories.recommendations');
-Route::get('/categories/top-selling', [App\Http\Controllers\Frontend\CategoryController::class, 'topSelling'])->name('categories.top-selling');
-Route::get('/categories/{slug}', [App\Http\Controllers\Frontend\CategoryController::class, 'showBySlug'])->name('categories.show');
+// Livewire Routes - Categories
+Route::get('/categories', function() {
+    return view('pages.categories.index', ['cartCount' => getCartCount()]);
+})->name('categories.index');
 
-// API Routes for AJAX
-Route::get('/api/categories/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterIndex'])
-    ->name('api.categories.filter')
-    ->middleware('web');
+Route::get('/categories/best-sellers', function() {
+    return view('pages.categories.best_sellers', ['cartCount' => getCartCount()]);
+})->name('categories.best-sellers');
 
-Route::get('/api/categories/best-sellers/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBestSellers'])
-    ->name('api.categories.best-sellers.filter')
-    ->middleware('web');
+Route::get('/categories/new-releases', function() {
+    return view('pages.categories.new_releases', ['cartCount' => getCartCount()]);
+})->name('categories.new-releases');
 
-Route::get('/api/categories/new-releases/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterNewReleases'])
-    ->name('api.categories.new-releases.filter')
-    ->middleware('web');
+Route::get('/categories/recommendations', function() {
+    return view('pages.categories.recommendations', ['cartCount' => getCartCount()]);
+})->name('categories.recommendations');
 
-Route::get('/api/categories/recommendations/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterRecommendations'])
-    ->name('api.categories.recommendations.filter')
-    ->middleware('web');
+Route::get('/categories/top-selling', function() {
+    return view('pages.categories.top_selling', ['cartCount' => getCartCount()]);
+})->name('categories.top-selling');
 
-Route::get('/api/categories/{slug}/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBooks'])
-    ->name('api.categories.filter')
-    ->middleware('web');
+Route::get('/categories/{slug}', function($slug) {
+    return view('pages.categories.show', ['slug' => $slug, 'cartCount' => getCartCount()]);
+})->name('categories.show');
 
 // Admin Routes - Commented out to use Filament Admin Panel
 // Route::prefix('admin')->name('admin.')->group(function () {

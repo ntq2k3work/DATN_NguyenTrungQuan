@@ -13,6 +13,7 @@
     @vite('resources/css/app.css')
     @yield('link-css')
     <title>@yield('title', 'BookStore ')</title>
+    @livewireStyles
 </head>
 <body>
     <header>
@@ -28,6 +29,20 @@
     </footer>
 
     @vite('resources/js/app.js')
+    @livewireScripts
+    
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Listen for cart count updates from Livewire components
+            Livewire.on('cartCountUpdated', (count) => {
+                const cartCountElement = document.querySelector('.cart-count');
+                if (cartCountElement) {
+                    cartCountElement.textContent = count;
+                }
+            });
+        });
+    </script>
+    
     @stack('scripts')
 </body>
 </html>
