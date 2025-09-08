@@ -182,10 +182,12 @@ class CartController extends Controller
             $cartItem->save();
         } else {
             // Create new cart item
+            $book = Book::find($bookId);
             CartItem::create([
                 'cart_id' => $cart->id,
                 'book_id' => $bookId,
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'price' => $book->price
             ]);
         }
     }
