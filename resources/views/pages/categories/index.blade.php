@@ -224,9 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const performFilter = () => {
-        const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-            .map(checkbox => checkbox.value);
-
         const selectedPublishers = Array.from(document.querySelectorAll('.publisher-checkbox:checked'))
             .map(checkbox => checkbox.value);
 
@@ -239,11 +236,6 @@ document.addEventListener('DOMContentLoaded', function() {
         booksGridContainer.style.opacity = '0.5';
 
         const params = new URLSearchParams();
-        if (selectedCategories.length > 0) {
-            selectedCategories.forEach(category => {
-                params.append('categories[]', category);
-            });
-        }
         if (selectedPublishers.length > 0) {
             selectedPublishers.forEach(publisher => {
                 params.append('publishers[]', publisher);
@@ -286,11 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
             booksGridContainer.style.opacity = '1';
 
             const url = new URL(window.location);
-            if (selectedCategories.length > 0) {
-                url.searchParams.set('categories', selectedCategories.join(','));
-            } else {
-                url.searchParams.delete('categories');
-            }
             if (selectedPublishers.length > 0) {
                 url.searchParams.set('publishers', selectedPublishers.join(','));
             } else {
@@ -349,15 +336,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const initializeFiltersFromURL = () => {
         const urlParams = new URLSearchParams(window.location.search);
 
-        const categoriesParam = urlParams.get('categories');
-        if (categoriesParam) {
-            const categories = categoriesParam.split(',');
-            categories.forEach(categoryId => {
-                const checkbox = document.querySelector(`.category-checkbox[value="${categoryId}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-
         const publishersParam = urlParams.get('publishers');
         if (publishersParam) {
             const publishers = publishersParam.split(',');
@@ -392,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sortSelect.value = sortParam;
         }
 
-        if (categoriesParam || publishersParam || priceRangesParam || customPriceMin || customPriceMax || sortParam) {
+        if (publishersParam || priceRangesParam || customPriceMin || customPriceMax || sortParam) {
             performFilter();
         }
     };

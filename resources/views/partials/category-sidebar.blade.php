@@ -12,16 +12,9 @@
         <div id="categories-content" class="section-content space-y-2">
             @if(isset($categories) && $categories->count() > 0)
                 @foreach($categories as $cat)
-                    @if(isset($category) && $category->slug)
-                        <a href="{{ route('categories.show', $cat->slug) }}" class="block text-gray-700 hover:text-purple-600 transition-colors py-1 text-sm lg:text-base">
-                            {{ $cat->name }}
-                        </a>
-                    @else
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" name="categories[]" value="{{ $cat->id }}" class="filter-checkbox category-checkbox w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
-                            <span class="text-gray-700 text-sm lg:text-base">{{ $cat->name }}</span>
-                        </label>
-                    @endif
+                    <a href="{{ route('categories.show', $cat->slug) }}" class="block text-gray-700 hover:text-purple-600 transition-colors py-1 text-sm lg:text-base">
+                        {{ $cat->name }}
+                    </a>
                 @endforeach
             @else
                 <p class="text-gray-500 text-sm">Không có danh mục nào</p>
