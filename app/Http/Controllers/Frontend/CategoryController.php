@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Publisher;
+use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    use WishlistCountTrait;
     public function index()
     {
         $books = Book::with(['author', 'category', 'publisher'])
@@ -22,7 +24,10 @@ class CategoryController extends Controller
         // Get all categories for sidebar
         $categories = Category::orderBy('name')->get();
 
-        return view('pages.categories.index', compact('books', 'publishers', 'categories'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.index', compact('books', 'publishers', 'categories', 'wishlistCount'));
     }
 
     public function bestSellers()
@@ -37,7 +42,10 @@ class CategoryController extends Controller
         // Get all categories for sidebar
         $categories = Category::orderBy('name')->get();
 
-        return view('pages.categories.best_sellers', compact('books', 'publishers', 'categories'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.best_sellers', compact('books', 'publishers', 'categories', 'wishlistCount'));
     }
 
     public function newReleases()
@@ -52,7 +60,10 @@ class CategoryController extends Controller
         // Get all categories for sidebar
         $categories = Category::orderBy('name')->get();
 
-        return view('pages.categories.new_releases', compact('books', 'publishers', 'categories'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.new_releases', compact('books', 'publishers', 'categories', 'wishlistCount'));
     }
 
     public function recommendations()
@@ -67,7 +78,10 @@ class CategoryController extends Controller
         // Get all categories for sidebar
         $categories = Category::orderBy('name')->get();
 
-        return view('pages.categories.recommendations', compact('books', 'publishers', 'categories'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.recommendations', compact('books', 'publishers', 'categories', 'wishlistCount'));
     }
 
     public function topSelling()
@@ -76,7 +90,10 @@ class CategoryController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        return view('pages.categories.top_selling', compact('books'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.top_selling', compact('books', 'wishlistCount'));
     }
 
     public function showBySlug($slug)
@@ -93,7 +110,10 @@ class CategoryController extends Controller
         // Get all categories for sidebar
         $categories = Category::orderBy('name')->get();
 
-        return view('pages.categories.show', compact('category', 'books', 'publishers', 'categories'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+
+        return view('pages.categories.show', compact('category', 'books', 'publishers', 'categories', 'wishlistCount'));
     }
 
     public function filterIndex(Request $request)

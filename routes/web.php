@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,14 @@ Route::post('/cart/update', [CartController::class, 'update'])->name('cart.updat
 Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::get('/cart/api', [CartController::class, 'index'])->name('cart.index');
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+
+// Wishlist Routes
+Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
+Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::get('/wishlist/check', [WishlistController::class, 'check'])->name('wishlist.check');
+Route::get('/wishlist/count', [WishlistController::class, 'count'])->name('wishlist.count');
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
 // Checkout Routes
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');

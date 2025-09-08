@@ -28,6 +28,7 @@
     </footer>
 
     @vite('resources/js/app.js')
+    <script src="{{ asset('js/wishlist.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

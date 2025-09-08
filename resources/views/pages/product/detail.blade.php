@@ -106,6 +106,25 @@
                     @else
                         <span class="text-3xl font-bold text-red-600">{{ number_format($book->price, 0, ',', '.') }}₫</span>
                     @endif
+                    
+                    <!-- Wishlist Button -->
+                    <div class="flex items-center space-x-2">
+                        <button 
+                            id="wishlist-btn" 
+                            class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:border-red-500 transition-colors {{ $inWishlist ? 'bg-red-50 border-red-500 text-red-600' : 'bg-white text-gray-600 hover:text-red-600' }}"
+                            onclick="toggleWishlist({{ $book->id }})"
+                            data-book-id="{{ $book->id }}"
+                            data-in-wishlist="{{ $inWishlist ? 'true' : 'false' }}"
+                        >
+                            <svg class="w-5 h-5 {{ $inWishlist ? 'fill-current' : 'stroke-current' }}" 
+                                 fill="{{ $inWishlist ? 'currentColor' : 'none' }}" 
+                                 stroke="{{ $inWishlist ? 'none' : 'currentColor' }}" 
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span id="wishlist-text">{{ $inWishlist ? 'Đã yêu thích' : 'Thêm vào yêu thích' }}</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quantity and Buy Button -->
@@ -460,6 +479,85 @@ function updateCartCount(count) {
     if (cartCountElement) {
         cartCountElement.textContent = count;
     }
+}
+
+// Wishlist functions
+function toggleWishlist(bookId) {
+    const button = document.getElementById('wishlist-btn');
+    const text = document.getElementById('wishlist-text');
+    const svg = button.querySelector('svg');
+    const originalText = text.textContent;
+    
+    // Disable button and show loading
+    button.disabled = true;
+    text.textContent = 'Đang xử lý...';
+    button.classList.add('opacity-50');
+    
+    // Make API call
+    fetch('{{ route("wishlist.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            book_id: bookId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button state
+            const isInWishlist = data.in_wishlist;
+            
+            if (isInWishlist) {
+                // Added to wishlist
+                button.classList.remove('bg-white', 'text-gray-600', 'hover:text-red-600');
+                button.classList.add('bg-red-50', 'border-red-500', 'text-red-600');
+                svg.classList.remove('stroke-current');
+                svg.classList.add('fill-current');
+                svg.setAttribute('fill', 'currentColor');
+                svg.setAttribute('stroke', 'none');
+                text.textContent = 'Đã yêu thích';
+                button.setAttribute('data-in-wishlist', 'true');
+                
+                showToast(data.message, 'success');
+                
+                // Update wishlist count in header
+                if (window.WishlistManager && data.wishlist_count !== undefined) {
+                    window.WishlistManager.updateWishlistCount(data.wishlist_count);
+                }
+            } else {
+                // Removed from wishlist
+                button.classList.remove('bg-red-50', 'border-red-500', 'text-red-600');
+                button.classList.add('bg-white', 'text-gray-600', 'hover:text-red-600');
+                svg.classList.remove('fill-current');
+                svg.classList.add('stroke-current');
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'currentColor');
+                text.textContent = 'Thêm vào yêu thích';
+                button.setAttribute('data-in-wishlist', 'false');
+                
+                showToast(data.message, 'success');
+                
+                // Update wishlist count in header
+                if (window.WishlistManager && data.wishlist_count !== undefined) {
+                    window.WishlistManager.updateWishlistCount(data.wishlist_count);
+                }
+            }
+        } else {
+            showToast(data.error || 'Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra khi thực hiện thao tác', 'error');
+    })
+    .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+        button.classList.remove('opacity-50');
+    });
 }
 </script>
 @endsection

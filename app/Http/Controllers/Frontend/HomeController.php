@@ -8,12 +8,14 @@ use App\Models\Book;
 use App\Models\Wishlist;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
+    use WishlistCountTrait;
 
     public function numberFormat($price)
     {
@@ -106,7 +108,10 @@ class HomeController extends Controller
         // Calculate cart count
         $cartCount = $this->getCartCount();
         
-        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount']));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+        
+        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount','wishlistCount']));
     }
     
     /**

@@ -26,7 +26,9 @@
               <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Bestseller</span>
               <button
                 class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onclick="event.stopPropagation();"
+                onclick="event.stopPropagation(); toggleWishlist({{ $book->id }})"
+                data-book-id="{{ $book->id }}"
+                title="Thêm vào yêu thích"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -146,7 +148,12 @@
                     <span class="text-sm text-muted-foreground line-through text-teal-600">{{ number_format($book->price,0,',','.') }}</span>
                   </div>
                   <div class="flex gap-2">
-                    <button class="border border-gray-300 p-2 rounded hover:bg-gray-100" onclick="event.stopPropagation();">
+                    <button 
+                      class="border border-gray-300 p-2 rounded hover:bg-gray-100" 
+                      onclick="event.stopPropagation(); toggleWishlist({{ $book->id }})"
+                      data-book-id="{{ $book->id }}"
+                      title="Thêm vào yêu thích"
+                    >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           stroke-linecap="round"
@@ -207,7 +214,9 @@
               </div>
               <button
                 class="absolute top-2 right-2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onclick="event.stopPropagation();"
+                onclick="event.stopPropagation(); toggleWishlist({{ $book->id }})"
+                data-book-id="{{ $book->id }}"
+                title="Thêm vào yêu thích"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -360,6 +369,16 @@
       const cartCountElement = document.querySelector('.cart-count');
       if (cartCountElement) {
         cartCountElement.textContent = count;
+      }
+    }
+
+    // Wishlist function for home page
+    function toggleWishlist(bookId) {
+      if (window.WishlistManager) {
+        window.WishlistManager.toggleWishlist(bookId);
+      } else {
+        // Fallback if WishlistManager is not loaded
+        console.error('WishlistManager not found');
       }
     }
   </script>

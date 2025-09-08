@@ -7,12 +7,14 @@ use App\Models\Book;
 use App\Models\Wishlist;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class ProductController extends Controller
 {
+    use WishlistCountTrait;
     public function show($slug)
     {
         $book = Book::with(['author', 'category', 'publisher', 'discount'])
@@ -68,7 +70,10 @@ class ProductController extends Controller
         // Calculate cart count
         $cartCount = $this->getCartCount();
         
-        return view('pages.product.detail', compact('book', 'inWishlist', 'relatedBooks', 'cartCount'));
+        // Calculate wishlist count
+        $wishlistCount = $this->getWishlistCount();
+        
+        return view('pages.product.detail', compact('book', 'inWishlist', 'relatedBooks', 'cartCount', 'wishlistCount'));
     }
 
     public function numberFormat($price)

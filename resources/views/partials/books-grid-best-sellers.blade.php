@@ -12,12 +12,7 @@
             <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
                 Best Seller
             </span>
-            <button class="absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-            </button>
+            <x-wishlist-button :book="$book" :in-wishlist="false" size="sm" />
         </div>
 
         <div class="space-y-2 sm:space-y-3">
