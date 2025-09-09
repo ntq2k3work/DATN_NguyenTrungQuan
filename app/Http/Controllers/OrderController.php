@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessOrderJob;
 use App\Models\Book;
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\VNPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +19,148 @@ class OrderController extends Controller
     /**
      * Show checkout page
      */
+
+
+    /**
+     * Xử lý thanh toán VNPay
+     */
+    public function handleVNPay(Request $request)
+    {
+        try {
+            $request->validate([
+                'full_name' => 'required|string|max:255',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|max:255',
+                'address' => 'required|string',
+                'shipping_method' => 'required|in:standard,express,pickup',
+                'notes' => 'nullable|string',
+            ]);
+
+            $user = Auth::user();
+            $cartItems = collect();
+            $cart = null;
+
+            // Check if this is a "Buy Now" request (from session)
+            $buyNowData = Session::get('buy_now');
+            
+            if ($buyNowData) {
+                $book = Book::find($buyNowData['book_id']);
+                if ($book) {
+                    $cartItems = collect([(object) [
+                        'book' => $book,
+                        'quantity' => $buyNowData['quantity'],
+                        'price' => $book->price,
+                        'book_id' => $book->id
+                    ]]);
+                }
+                // Clear buy now session
+                Session::forget('buy_now');
+            } else {
+                // Get cart items
+                if ($user) {
+                    $cart = Cart::where('user_id', $user->id)->first();
+                    if ($cart) {
+                        $cartItems = CartItem::with('book')->where('cart_id', $cart->id)->get();
+                    }
+                } else {
+                    $sessionCart = Session::get('cart', []);
+                    foreach ($sessionCart as $item) {
+                        $book = Book::find($item['book_id']);
+                        if ($book) {
+                            $cartItems->push((object) [
+                                'book' => $book,
+                                'quantity' => $item['quantity'],
+                                'price' => $book->price,
+                                'book_id' => $book->id
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('home')->with('error', 'Giỏ hàng trống');
+            }
+
+            // Validate stock availability before processing
+            foreach ($cartItems as $item) {
+                $book = Book::find($item->book_id);
+                if (!$book) {
+                    return redirect()->back()->with('error', "Sản phẩm không tồn tại: " . ($item->book->title ?? 'Unknown'));
+                }
+                
+                if ($book->quantity < $item->quantity) {
+                    return redirect()->back()->with('error', "Không đủ số lượng tồn kho cho sản phẩm: {$book->title}. Số lượng còn lại: {$book->quantity}");
+                }
+            }
+
+            // Calculate totals
+            $subtotal = $cartItems->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+            $shippingFee = $this->calculateShippingFee($request->shipping_method, $subtotal);
+            $total = $subtotal + $shippingFee;
+
+            // Create order first with pending status
+            $order = Order::create([
+                'user_id' => $user ? $user->id : null,
+                'order_number' => Order::generateOrderNumber(),
+                'full_name' => $request->full_name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'address' => $request->address,
+                'shipping_method' => $request->shipping_method,
+                'payment_method' => 'vnpay',
+                'subtotal' => $subtotal,
+                'shipping_fee' => $shippingFee,
+                'total' => $total,
+                'status' => 'pending',
+                'notes' => $request->notes,
+            ]);
+
+            // Prepare cart items data
+            $cartItemsData = $cartItems->map(function ($item) {
+                return [
+                    'book_id' => $item->book_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                ];
+            })->toArray();
+
+            // Dispatch job to process order items and update stock
+            ProcessOrderJob::dispatch($order->toArray(), $cartItemsData);
+
+            // Clear cart immediately after dispatching job
+            if ($user && $cart) {
+                CartItem::where('cart_id', $cart->id)->delete();
+            } else {
+                Session::forget('cart');
+            }
+
+            // Create VNPay payment URL
+            $vnpayService = new VNPayService();
+            $orderData = [
+                'order_number' => $order->order_number,
+                'amount' => $total,
+                'order_info' => 'Thanh toan don hang ' . $order->order_number
+            ];
+
+            $paymentUrl = $vnpayService->createPaymentUrl($orderData);
+
+            return redirect($paymentUrl);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+        }
+    }
+
     public function checkout(Request $request)
     {
         $user = Auth::user();
@@ -46,9 +191,9 @@ class OrderController extends Controller
         } else {
             // Handle regular cart checkout
             if ($user) {
-                $cart = \App\Models\Cart::where('user_id', $user->id)->first();
+                $cart =Cart::where('user_id', $user->id)->first();
                 if ($cart) {
-                    $cartItems = \App\Models\CartItem::with('book')
+                    $cartItems =CartItem::with('book')
                         ->where('cart_id', $cart->id)
                         ->get();
                 }
@@ -89,7 +234,7 @@ class OrderController extends Controller
                 'email' => 'required|email|max:255',
                 'address' => 'required|string',
                 'shipping_method' => 'required|in:standard,express,pickup',
-                'payment_method' => 'required|in:cod,bank_transfer,credit_card,momo',
+                'payment_method' => 'required|in:cod,bank_transfer,credit_card,momo,vnpay',
                 'notes' => 'nullable|string',
             ]);
 
@@ -117,9 +262,9 @@ class OrderController extends Controller
             } else {
                 // Get cart items
                 if ($user) {
-                    $cart = \App\Models\Cart::where('user_id', $user->id)->first();
+                    $cart = Cart::where('user_id', $user->id)->first();
                     if ($cart) {
-                        $cartItems = \App\Models\CartItem::with('book')->where('cart_id', $cart->id)->get();
+                        $cartItems = CartItem::with('book')->where('cart_id', $cart->id)->get();
                     }
                 } else {
                     $sessionCart = Session::get('cart', []);
@@ -163,6 +308,7 @@ class OrderController extends Controller
             $shippingFee = $this->calculateShippingFee($request->shipping_method, $subtotal);
             $total = $subtotal + $shippingFee;
 
+           
             // Create order first with pending status
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
@@ -194,7 +340,7 @@ class OrderController extends Controller
             
             // Clear cart immediately after dispatching job
             if ($user && $cart) {
-                \App\Models\CartItem::where('cart_id', $cart->id)->delete();
+                CartItem::where('cart_id', $cart->id)->delete();
             } else {
                 Session::forget('cart');
             }
@@ -338,6 +484,102 @@ class OrderController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Đã gửi yêu cầu hoàn hàng. Chúng tôi sẽ liên hệ với bạn sớm nhất');
+    }
+
+    /**
+     * Xử lý callback từ VNPay
+     */
+    public function vnpayCallback(Request $request)
+    {
+        $vnpayService = new VNPayService();
+        
+        // Validate callback data
+        if (!$vnpayService->validateCallback($request->all())) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Dữ liệu callback không hợp lệ');
+        }
+
+        $orderNumber = $request->vnp_TxnRef;
+        $responseCode = $request->vnp_ResponseCode;
+        $transactionStatus = $request->vnp_TransactionStatus;
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        
+        if (!$order) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Không tìm thấy đơn hàng');
+        }
+
+        // Check payment status
+        if ($responseCode == '00' && $transactionStatus == '00') {
+            // Payment successful
+            $order->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+                'notes' => $order->notes . "\n\nVNPay Transaction ID: " . $request->vnp_TransactionNo
+            ]);
+
+            return redirect()->route('orders.success', $order->order_number)
+                ->with('success', 'Thanh toán thành công!');
+        } else {
+            // Payment failed
+            $order->update([
+                'status' => 'cancelled',
+                'payment_status' => 'failed',
+                'notes' => $order->notes . "\n\nVNPay Error: " . $request->vnp_ResponseCode
+            ]);
+
+            return redirect()->route('orders.index')
+                ->with('error', 'Thanh toán thất bại. Vui lòng thử lại.');
+        }
+    }
+
+    /**
+     * Xử lý return từ VNPay
+     */
+    public function vnpayReturn(Request $request)
+    {
+        $vnpayService = new VNPayService();
+        
+        // Validate return data
+        if (!$vnpayService->validateCallback($request->all())) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Dữ liệu return không hợp lệ');
+        }
+
+        $orderNumber = $request->vnp_TxnRef;
+        $responseCode = $request->vnp_ResponseCode;
+        $transactionStatus = $request->vnp_TransactionStatus;
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        
+        if (!$order) {
+            return redirect()->route('orders.index')
+                ->with('error', 'Không tìm thấy đơn hàng');
+        }
+
+        // Check payment status
+        if ($responseCode == '00' && $transactionStatus == '00') {
+            // Payment successful
+            $order->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+                'notes' => $order->notes . "\n\nVNPay Transaction ID: " . $request->vnp_TransactionNo
+            ]);
+
+            return redirect()->route('orders.success', $order->order_number)
+                ->with('success', 'Thanh toán thành công!');
+        } else {
+            // Payment failed
+            $order->update([
+                'status' => 'cancelled',
+                'payment_status' => 'failed',
+                'notes' => $order->notes . "\n\nVNPay Error: " . $request->vnp_ResponseCode
+            ]);
+
+            return redirect()->route('orders.index')
+                ->with('error', 'Thanh toán thất bại. Vui lòng thử lại.');
+        }
     }
 
     /**

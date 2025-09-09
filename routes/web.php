@@ -35,6 +35,11 @@ Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 Route::get('/orders/success/{orderNumber}', [OrderController::class, 'success'])->name('orders.success');
 
+// VNPay Routes
+Route::post('/vnpay/payment', [OrderController::class, 'handleVNPay'])->name('vnpay.payment');
+Route::get('/vnpay/return', [OrderController::class, 'vnpayReturn'])->name('vnpay.return');
+Route::post('/vnpay/callback', [OrderController::class, 'vnpayCallback'])->name('vnpay.callback');
+
 // User Orders Routes (Protected)
 Route::middleware('auth')->group(function () {
     Route::get('/orders/track', [OrderController::class, 'track'])->name('orders.track');

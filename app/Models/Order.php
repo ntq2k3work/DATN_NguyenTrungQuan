@@ -18,6 +18,7 @@ class Order extends Model
         'address',
         'shipping_method',
         'payment_method',
+        'payment_status',
         'subtotal',
         'shipping_fee',
         'total',
@@ -79,7 +80,22 @@ class Order extends Model
             'bank_transfer' => 'Chuyển khoản ngân hàng',
             'credit_card' => 'Thẻ tín dụng',
             'momo' => 'Ví MoMo',
+            'vnpay' => 'Ví VNPay',
             default => $this->payment_method,
+        };
+    }
+
+    /**
+     * Get payment status label
+     */
+    public function getPaymentStatusLabelAttribute(): string
+    {
+        return match ($this->payment_status) {
+            'pending' => 'Chờ thanh toán',
+            'paid' => 'Đã thanh toán',
+            'failed' => 'Thanh toán thất bại',
+            'refunded' => 'Đã hoàn tiền',
+            default => $this->payment_status,
         };
     }
 

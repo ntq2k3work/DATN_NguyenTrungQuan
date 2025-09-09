@@ -140,13 +140,13 @@
                                     </div>
                                 </label>
                                 
-                                <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                                    <input type="radio" name="payment_method" value="momo" 
-                                           {{ old('payment_method') == 'momo' ? 'checked' : '' }}
+                                <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50" >
+                                    <input type="radio" name="payment_method" value="vnpay"
+                                           {{ old('payment_method') == 'vnpay' ? 'checked' : '' }}
                                            class="mr-3 text-amber-600 focus:ring-amber-500">
-                                    <div class="flex-1">
-                                        <div class="font-medium">Ví MoMo</div>
-                                        <div class="text-sm text-gray-600">Thanh toán qua ví MoMo</div>
+                                    <div class="flex-1" >
+                                        <div class="font-medium">Ví VNPay</div>
+                                        <div class="text-sm text-gray-600">Thanh toán qua ví VNPay</div>
                                     </div>
                                 </label>
                             </div>
@@ -276,8 +276,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
+        // Check payment method and redirect accordingly
+        if (paymentMethod.value === 'vnpay') {
+            e.preventDefault();
+            // Change form action to VNPay route
+            this.action = '{{ route("vnpay.payment") }}';
+            this.submit();
+        }
+        
         console.log('Form validation passed, submitting...');
     });
+
 });
 </script>
 @endsection
