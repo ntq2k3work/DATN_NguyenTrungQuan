@@ -279,7 +279,7 @@ class CartController extends Controller
     /**
      * Get total cart count
      */
-    private function getCartCount()
+    public function getCartCount()
     {
         if (Auth::check()) {
             $cart = Cart::where('user_id', Auth::id())->first();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -239,6 +240,8 @@ class WishlistController extends Controller
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $cartCount = (new CartController())->getCartCount();
         
 
         // Calculate final prices for wishlist items
@@ -257,6 +260,6 @@ class WishlistController extends Controller
             }
         }
 
-        return view('pages.wishlist.index', compact('wishlistItems'));
+        return view('pages.wishlist.index', compact('wishlistItems', 'cartCount'));
     }
 }

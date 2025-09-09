@@ -1,4 +1,4 @@
-@extends('layouts.app', ['wishlistCount' => $wishlistItems->count()])
+@extends('layouts.app', ['wishlistCount' => $wishlistItems->count(),'cartCount' => $cartCount])
 @section('title', 'Danh sách yêu thích')
 
 @section('content')
@@ -272,6 +272,15 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
+// Update cart count function
+function updateCartCount(count) {
+    // Update cart count in header if exists
+    const cartCountElement = document.querySelector('.cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = count;
+    }
+}
+
 // Add to cart from wishlist
 function addToCartFromWishlist(bookId) {
     const button = document.querySelector(`[onclick="addToCartFromWishlist(${bookId})"]`);
@@ -301,6 +310,9 @@ function addToCartFromWishlist(bookId) {
             if (window.WishlistManager) {
                 window.WishlistManager.showToast(data.message, 'success');
             }
+            
+            // Update cart count in header
+            updateCartCount(data.cart_count);
             
             // Change button text temporarily
             button.textContent = 'Đã thêm!';
