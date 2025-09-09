@@ -58,13 +58,21 @@ class AuthController extends Controller
         }
 
         // Rate limiting: Check if email was sent recently
-        $throttleKey = 'password_reset.' . $request->email;
+        $throttleKey = 'password_reset.' . strtolower($request->email);
 
+        // Check Laravel rate limiter (should always be integer seconds)
         if (RateLimiter::tooManyAttempts($throttleKey, 1)) {
-            $seconds = RateLimiter::availableIn($throttleKey);
-            return back()->withErrors([
-                'email' => "Vui lòng chờ {$seconds} giây trước khi gửi lại email đặt lại mật khẩu."
-            ]);
+            $seconds = (int) RateLimiter::availableIn($throttleKey);
+            if ($seconds > 0 && $seconds < 3600) {
+                return back()->withErrors([
+                    'email' => "Vui lòng chờ {$seconds} giây trước khi gửi lại email đặt lại mật khẩu."
+                ]);
+            } else {
+                // fallback for any unexpected value
+                return back()->withErrors([
+                    'email' => "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau."
+                ]);
+            }
         }
 
         // Check if there's an existing reset record and if it's too recent
@@ -74,9 +82,9 @@ class AuthController extends Controller
 
         if ($existingReset) {
             $lastSent = Carbon::parse($existingReset->created_at);
-            $timeDiff = now()->diffInSeconds($lastSent);
+            $timeDiff = now()->diffInSeconds($lastSent, false); // negative if in future
 
-            if ($timeDiff < 30) {
+            if ($timeDiff < 30 && $timeDiff >= 0) {
                 $remainingSeconds = 30 - $timeDiff;
                 return back()->withErrors([
                     'email' => "Vui lòng chờ {$remainingSeconds} giây trước khi gửi lại email đặt lại mật khẩu."
@@ -87,7 +95,7 @@ class AuthController extends Controller
         // Generate password reset token
         $token = Str::random(64);
 
-        // Store token in database (you might want to create a password_resets table)
+        // Store token in database
         DB::table('password_resets')->updateOrInsert(
             ['email' => $request->email],
             [
@@ -105,7 +113,7 @@ class AuthController extends Controller
             Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
 
             // Hit rate limiter after successful email send
-            RateLimiter::hit($throttleKey, 30); // 30 seconds cooldown
+            RateLimiter::hit($throttleKey, 30);
 
             return back()->with('status', 'Link đặt lại mật khẩu đã được gửi đến email của bạn! Vui lòng chờ 30 giây trước khi gửi lại.');
         } catch (\Exception $e) {

@@ -42,8 +42,14 @@
                     @endif
                 </div>
                 <div class="flex gap-1 sm:gap-2">
-                    <button class="border border-gray-300 p-1.5 sm:p-2 rounded hover:bg-gray-100">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button 
+                        class="wishlist-btn border border-gray-300 p-1.5 sm:p-2 rounded hover:bg-gray-100 hover:border-red-500 transition-colors"
+                        onclick="toggleWishlist({{ $book->id }})"
+                        data-book-id="{{ $book->id }}"
+                        data-in-wishlist="false"
+                        title="Thêm vào yêu thích"
+                    >
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 stroke-current text-gray-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>

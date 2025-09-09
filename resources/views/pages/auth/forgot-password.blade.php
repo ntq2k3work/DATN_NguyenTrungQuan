@@ -83,21 +83,7 @@
             </form>
 
             <div class="mt-6">
-                <!-- Security Info -->
-                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <div class="flex items-center text-sm text-blue-700">
-                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="font-medium">🔒 Bảo mật:</span>
-                    </div>
-                    <ul class="mt-2 text-xs text-blue-600 space-y-1">
-                        <li>• Link đặt lại mật khẩu có hiệu lực trong 60 phút</li>
-                        <li>• Chỉ cho phép gửi email sau mỗi 30 giây để chống spam</li>
-                        <li>• Token được mã hóa và bảo mật</li>
-                        <li>• Tự động xóa token hết hạn để bảo mật</li>
-                    </ul>
-                </div>
+
 
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
