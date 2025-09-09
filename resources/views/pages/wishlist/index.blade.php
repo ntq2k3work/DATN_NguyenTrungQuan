@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['wishlistCount' => $wishlistItems->count()])
 @section('title', 'Danh sách yêu thích')
 
 @section('content')

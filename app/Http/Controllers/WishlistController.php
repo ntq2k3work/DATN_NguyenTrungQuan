@@ -239,6 +239,7 @@ class WishlistController extends Controller
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
+        
 
         // Calculate final prices for wishlist items
         foreach ($wishlistItems as $item) {
