@@ -56,16 +56,21 @@ class HomeController extends Controller
             });
 
             // Sắp xếp giảm dần theo score, rồi random trong cùng nhóm
-            $book_recommendations = $books
-                ->sortByDesc('score') // ưu tiên sách có điểm cao
-                ->take(8)
-                ->values();
+            if($books->count() > 0){
+                $book_recommendations = $books
+                    ->sortByDesc('score') // ưu tiên sách có điểm cao
+                    ->take(8)
+                    ->values();
+            } else{
+                $book_recommendations = Book::inRandomOrder()->take(8)->get();
+            }
         } else {
             $wishlists = collect();
             $book_recommendations = Book::inRandomOrder()->take(8)->get();
         }
 
-        $best_sellers = Book::select('books.*', \DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'), \DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
+        $best_sellers = Book::select('books.*', \DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'), 
+        \DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
         ->whereExists(function($query) {
             $query->select(\DB::raw(1))
                   ->from('discounts')
@@ -93,8 +98,8 @@ class HomeController extends Controller
         foreach($new_publishers as $book)
         {
             $price = $book->price;
-            $percent = $book->percent ?? 0;
-            $amount = $book->amount ?? 0;
+            $percent = $book->discount?->percent ?? 0;
+            $amount = $book->discount?->amount ?? 0;
             $book->final_price = $this->numberFormat($price - ($price * $percent / 100) - $amount);
 
             if ($book->final_price <= 0){
@@ -110,8 +115,8 @@ class HomeController extends Controller
         
         // Calculate wishlist count
         $wishlistCount = $this->getWishlistCount();
-        
-        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount','wishlistCount']));
+        $wishlist = $this->getWishlist();
+        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount','wishlistCount','wishlist']));
     }
     
     /**

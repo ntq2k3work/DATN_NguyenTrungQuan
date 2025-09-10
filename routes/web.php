@@ -62,7 +62,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])
         ->name('password.reset')
         ->middleware('check.password.reset.token');
-    Route::post('/reset-password', [AuthController::class, 'resetPasswordUpdate'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'resetPasswordUpdate'])->name('password.reset.update');
 });
 
 // Protected Routes
@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit',[AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
     Route::get('/password/change',[AuthController::class, 'changePassword'])->name('password.change');
-    Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.change');
+    Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
 });
 
 // Email verification route
@@ -106,7 +106,7 @@ Route::get('/api/categories/recommendations/filter', [App\Http\Controllers\Front
     ->middleware('web');
 
 Route::get('/api/categories/{slug}/filter', [App\Http\Controllers\Frontend\CategoryController::class, 'filterBooks'])
-    ->name('api.categories.filter')
+    ->name('api.categories.slug.filter')
     ->middleware('web');
 
 // Admin Routes - Commented out to use Filament Admin Panel

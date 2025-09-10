@@ -18,4 +18,13 @@ trait WishlistCountTrait
 
         return Wishlist::where('user_id', Auth::id())->count();
     }
+
+    protected function getWishlist()
+    {
+        if (!Auth::check()) {
+            return 0;
+        }
+
+        return Wishlist::where('user_id', Auth::id())->get();
+    }
 }

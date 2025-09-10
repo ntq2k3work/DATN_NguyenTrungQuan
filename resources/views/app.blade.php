@@ -50,10 +50,12 @@
               </div>
 
               <div class="flex items-center gap-2">
-                <div class="flex items-center text-yellow-400">
-                  <span>★★★★★</span>
+                <div class="flex items-center text-blue-600">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                  <span class="text-sm text-gray-500">Số lượng: {{ $book->quantity ?? 0 }}</span>
                 </div>
-                <span class="text-sm text-gray-500">4.8 (1234)</span>
               </div>
 
               <div class="flex items-center justify-between">
@@ -137,10 +139,12 @@
                   <p class="text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown' }}</p>
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="flex items-center text-yellow-400">
-                    ★★★★★
+                  <div class="flex items-center text-blue-600">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="text-sm text-muted-foreground">Số lượng: {{ $book->quantity ?? 0 }}</span>
                   </div>
-                  <span class="text-sm text-muted-foreground">4.8</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <div class="flex flex-col">
@@ -233,12 +237,13 @@
                 <p class="text-sm text-muted-foreground">{{ $book->author?->name ?? 'Unknown' }}</p>
               </div>
 
-              <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span>Phát hành: {{ date_format($book->created_at,'d/m/Y') }}</span>
+              <div class="flex items-center gap-2">
+                <div class="flex items-center text-blue-600">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                  <span class="text-sm text-muted-foreground">Số lượng: {{ $book->quantity ?? 0 }}</span>
+                </div>
               </div>
 
               <div class="flex items-center justify-between">

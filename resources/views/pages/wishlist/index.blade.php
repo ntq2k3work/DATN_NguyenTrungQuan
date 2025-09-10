@@ -71,10 +71,12 @@
                                 </div>
 
                                 <div class="flex items-center gap-2">
-                                    <div class="flex items-center text-yellow-400">
-                                        <span class="text-sm">★★★★★</span>
+                                    <div class="flex items-center text-blue-600">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-500">Số lượng: {{ $book->quantity ?? 0 }}</span>
                                     </div>
-                                    <span class="text-sm text-gray-500">4.8</span>
                                 </div>
 
                                 <div class="flex items-center justify-between">

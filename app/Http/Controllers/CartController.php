@@ -127,12 +127,12 @@ class CartController extends Controller
         if (Auth::check()) {
             $cart = Cart::where('user_id', Auth::id())->first();
             if ($cart) {
-                $cartItems = CartItem::with('book')->where('cart_id', $cart->id)->get();
+                $cartItems = CartItem::with('book.author')->where('cart_id', $cart->id)->get();
             }
         } else {
             $sessionCart = Session::get('cart', []);
             foreach ($sessionCart as $item) {
-                $book = Book::find($item['book_id']);
+                $book = Book::with('author')->find($item['book_id']);
                 if ($book) {
                     $cartItems->push((object) [
                         'book' => $book,

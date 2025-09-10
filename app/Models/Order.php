@@ -62,6 +62,7 @@ class Order extends Model
         return match ($this->status) {
             'pending' => 'Chờ xử lý',
             'processing' => 'Đang xử lý',
+            'confirmed' => 'Đã xác nhận',
             'shipped' => 'Đã giao hàng',
             'delivered' => 'Đã nhận hàng',
             'cancelled' => 'Đã hủy',
