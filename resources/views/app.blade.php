@@ -68,7 +68,7 @@
               </div>
 
               <button
-                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-primary/90 transition add-to-cart-btn"
+                class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-amber-500 cursor-pointer transition add-to-cart-btn"
                 data-book-id="{{ $book->id }}"
                 onclick="event.stopPropagation(); addToCart({{ $book->id }})"
               >
@@ -164,7 +164,7 @@
                       </svg>
                     </button>
                     <button 
-                      class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 add-to-cart-btn"
+                      class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-500 cursor-pointer add-to-cart-btn"
                       data-book-id="{{ $book->id }}"
                       onclick="event.stopPropagation(); addToCart({{ $book->id }})"
                     >
@@ -249,7 +249,7 @@
               </div>
 
               <button 
-                class="w-full px-4 py-2 rounded bg-amber-600 text-white cursor-pointer hover:bg-amber-500 text-sm add-to-cart-btn"
+                class="w-full px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer text-sm add-to-cart-btn"
                 data-book-id="{{ $book->id }}"
                 onclick="event.stopPropagation(); addToCart({{ $book->id }})"
               >
@@ -317,13 +317,13 @@
           
           // Change button text temporarily
           button.textContent = 'Đã thêm!';
-          button.classList.remove('bg-amber-600', 'hover:bg-primary/90');
+          button.classList.remove('bg-amber-600', 'hover:bg-amber-500');
           button.classList.add('bg-green-600');
           
           setTimeout(() => {
             button.textContent = originalText;
             button.classList.remove('bg-green-600');
-            button.classList.add('bg-amber-600', 'hover:bg-primary/90');
+            button.classList.add('bg-amber-600', 'hover:bg-amber-500');
           }, 2000);
         } else {
           showToast(data.error || 'Có lỗi xảy ra', 'error');
