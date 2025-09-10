@@ -88,6 +88,7 @@ class OrderForm
                                         'bank_transfer' => 'Chuyển khoản ngân hàng',
                                         'credit_card' => 'Thẻ tín dụng',
                                         'momo' => 'Ví MoMo',
+                                        'vnpay' => 'Ví VNPay',
                                     ])
                                     ->required()
                                     ->default('cod'),
@@ -127,6 +128,7 @@ class OrderForm
                                     ->options([
                                         'pending' => 'Chờ xử lý',
                                         'processing' => 'Đang xử lý',
+                                        'confirmed' => 'Đã xác nhận',
                                         'shipped' => 'Đã giao hàng',
                                         'delivered' => 'Đã nhận hàng',
                                         'cancelled' => 'Đã hủy',
@@ -135,12 +137,23 @@ class OrderForm
                                     ->required()
                                     ->default('pending'),
 
-                                Textarea::make('notes')
-                                    ->label('Ghi chú')
-                                    ->rows(3)
-                                    ->maxLength(1000)
-                                    ->placeholder('Ghi chú thêm về đơn hàng'),
+                                Select::make('payment_status')
+                                    ->label('Trạng thái thanh toán')
+                                    ->options([
+                                        'pending' => 'Chờ thanh toán',
+                                        'paid' => 'Đã thanh toán',
+                                        'failed' => 'Thanh toán thất bại',
+                                        'refunded' => 'Đã hoàn tiền',
+                                    ])
+                                    ->required()
+                                    ->default('pending'),
                             ]),
+
+                        Textarea::make('notes')
+                            ->label('Ghi chú')
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->placeholder('Ghi chú thêm về đơn hàng'),
                     ])
                     ->collapsible(),
             ]);
