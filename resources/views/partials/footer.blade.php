@@ -9,13 +9,23 @@
             Nhận thông báo về những cuốn sách mới, ưu đãi đặc biệt và các sự kiện thú vị
           </p>
           <div class="flex gap-4 max-w-md mx-auto">
-            <input type="email" placeholder="Nhập email của bạn"
-              class="bg-background text-foreground w-full px-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" />
-            <button
-              class="bg-amber-600 hover:bg-amber-700 cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2">
-              Đăng ký
-            </button>
+            <form id="newsletter-form" class="flex gap-4 w-full">
+              @csrf
+              <input type="email" name="email" id="newsletter-email" placeholder="Nhập email của bạn" required
+                class="bg-background text-foreground w-full px-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" />
+              <button type="submit" id="newsletter-submit"
+                class="bg-amber-600 hover:bg-amber-700 cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2">
+                <span id="newsletter-text">Đăng ký</span>
+                <span id="newsletter-loading" class="hidden">
+                  <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </span>
+              </button>
+            </form>
           </div>
+          <div id="newsletter-message" class="mt-4 text-sm hidden"></div>
         </div>
       </div>
 
@@ -116,3 +126,88 @@
 
     </div>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const newsletterForm = document.getElementById('newsletter-form');
+      const newsletterEmail = document.getElementById('newsletter-email');
+      const newsletterSubmit = document.getElementById('newsletter-submit');
+      const newsletterText = document.getElementById('newsletter-text');
+      const newsletterLoading = document.getElementById('newsletter-loading');
+      const newsletterMessage = document.getElementById('newsletter-message');
+
+      if (newsletterForm) {
+        newsletterForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+
+          const email = newsletterEmail.value.trim();
+          
+          if (!email) {
+            showMessage('Vui lòng nhập địa chỉ email.', 'error');
+            return;
+          }
+
+          if (!isValidEmail(email)) {
+            showMessage('Địa chỉ email không hợp lệ.', 'error');
+            return;
+          }
+
+          // Show loading state
+          setLoading(true);
+
+          try {
+            const response = await fetch('{{ route("newsletter.subscribe") }}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                               document.querySelector('input[name="_token"]')?.value
+              },
+              body: JSON.stringify({ email: email })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              showMessage(data.message, 'success');
+              newsletterEmail.value = '';
+            } else {
+              showMessage(data.message || 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            }
+          } catch (error) {
+            console.error('Newsletter subscription error:', error);
+            showMessage('Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+          } finally {
+            setLoading(false);
+          }
+        });
+      }
+
+      function setLoading(loading) {
+        newsletterSubmit.disabled = loading;
+        if (loading) {
+          newsletterText.classList.add('hidden');
+          newsletterLoading.classList.remove('hidden');
+        } else {
+          newsletterText.classList.remove('hidden');
+          newsletterLoading.classList.add('hidden');
+        }
+      }
+
+      function showMessage(message, type) {
+        newsletterMessage.textContent = message;
+        newsletterMessage.className = `mt-4 text-sm ${type === 'success' ? 'text-green-400' : 'text-red-400'}`;
+        newsletterMessage.classList.remove('hidden');
+
+        // Hide message after 5 seconds
+        setTimeout(() => {
+          newsletterMessage.classList.add('hidden');
+        }, 5000);
+      }
+
+      function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      }
+    });
+  </script>
