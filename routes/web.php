@@ -130,3 +130,8 @@ Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribePage'])->name('newsletter.unsubscribe');
 Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe.post');
 
+// Search Routes
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
+Route::get('/search/suggestions', [App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
+Route::get('/search-results', [App\Http\Controllers\SearchController::class, 'results'])->name('search.results');
+
