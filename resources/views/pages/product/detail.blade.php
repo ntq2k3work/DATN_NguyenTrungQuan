@@ -93,6 +93,9 @@
                         <span class="text-green-600 font-medium">Tình trạng: Còn hàng</span>
                         <span class="text-gray-600">Nhà xuất bản: {{ $book->publisher->name ?? 'Chưa có thông tin' }}</span>
                     </div>
+                    <div class="mt-2">
+                        <span class="text-blue-600 font-medium text-sm">Số lượng có sẵn: {{ $book->quantity }} sản phẩm</span>
+                    </div>
                 </div>
 
                 <!-- Price Section -->
@@ -133,9 +136,10 @@
                         <span class="text-gray-700 font-medium">Số lượng:</span>
                         <div class="flex items-center border border-gray-300 rounded">
                             <button class="px-3 py-2 hover:bg-gray-100" onclick="decreaseQuantity()">-</button>
-                            <input type="number" id="quantity" value="1" min="1" max="{{ $book->quantity }}" class="w-16 text-center border-none focus:outline-none">
+                            <input type="number" id="quantity" value="1" min="1" max="{{ $book->quantity }}" class="w-16 text-center border-none focus:outline-none" onchange="validateQuantity()" oninput="validateQuantity()">
                             <button class="px-3 py-2 hover:bg-gray-100" onclick="increaseQuantity()">+</button>
                         </div>
+                        <div id="quantity-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     
                     <button onclick="buyNow()" class="w-full bg-red-600 text-white py-4 px-6 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg">
@@ -360,6 +364,7 @@ function decreaseQuantity() {
     const currentValue = parseInt(quantityInput.value);
     if (currentValue > 1) {
         quantityInput.value = currentValue - 1;
+        hideQuantityError();
     }
 }
 
@@ -369,16 +374,56 @@ function increaseQuantity() {
     const maxValue = parseInt(quantityInput.getAttribute('max'));
     if (currentValue < maxValue) {
         quantityInput.value = currentValue + 1;
+        hideQuantityError();
+    } else {
+        showQuantityError(`Số lượng tối đa có thể mua là ${maxValue} sản phẩm`);
     }
 }
 
+function validateQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const currentValue = parseInt(quantityInput.value);
+    const maxValue = parseInt(quantityInput.getAttribute('max'));
+    const minValue = parseInt(quantityInput.getAttribute('min'));
+    
+    if (isNaN(currentValue) || currentValue < minValue) {
+        quantityInput.value = minValue;
+        showQuantityError(`Số lượng tối thiểu là ${minValue} sản phẩm`);
+        return false;
+    } else if (currentValue > maxValue) {
+        quantityInput.value = maxValue;
+        showQuantityError(`Số lượng tối đa có thể mua là ${maxValue} sản phẩm`);
+        return false;
+    } else {
+        hideQuantityError();
+        return true;
+    }
+}
+
+function showQuantityError(message) {
+    const errorElement = document.getElementById('quantity-error');
+    errorElement.textContent = message;
+    errorElement.classList.remove('hidden');
+}
+
+function hideQuantityError() {
+    const errorElement = document.getElementById('quantity-error');
+    errorElement.classList.add('hidden');
+}
+
 function buyNow() {
+    if (!validateQuantity()) {
+        return;
+    }
     const quantity = document.getElementById('quantity').value;
     const bookId = {{ $book->id }};
     window.location.href = `{{ route('checkout') }}?book_id=${bookId}&quantity=${quantity}`;
 }
 
 function addToCart(bookId) {
+    if (!validateQuantity()) {
+        return;
+    }
     const quantity = document.getElementById('quantity').value;
     const button = document.querySelector(`[data-book-id="${bookId}"]`);
     const originalText = button.textContent;

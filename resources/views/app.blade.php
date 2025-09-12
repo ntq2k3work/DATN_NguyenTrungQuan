@@ -290,8 +290,20 @@
   </div>
 
   <script>
-    function addToCart(bookId) {
-      const button = document.querySelector(`[data-book-id="${bookId}"]`);
+    function addToCart(bookId, button = null) {
+      console.log('addToCart called with bookId:', bookId);
+      
+      // If button is not provided, find the first button with the book ID
+      if (!button) {
+        button = document.querySelector(`[data-book-id="${bookId}"]`);
+      }
+      
+      if (!button) {
+        console.error('Button not found for book ID:', bookId);
+        return;
+      }
+      
+      console.log('Button found:', button);
       const originalText = button.textContent;
       
       // Disable button and show loading
@@ -311,8 +323,12 @@
           quantity: 1
         })
       })
-      .then(response => response.json())
+      .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+      })
       .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
           // Show success message
           showToast(data.message);
@@ -387,4 +403,7 @@
       }
     }
   </script>
+  
+  <!-- Include wishlist functionality -->
+  <script src="{{ asset('js/wishlist.js') }}"></script>
 @endsection

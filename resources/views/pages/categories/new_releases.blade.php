@@ -90,8 +90,13 @@
                                             class="w-full h-[200px] sm:h-[220px] lg:h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
                                     </a>
                                     <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
-                                    <button
-                                        class="absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                        class="wishlist-btn absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onclick="toggleWishlist({{ $book->id }})"
+                                        data-book-id="{{ $book->id }}"
+                                        data-in-wishlist="false"
+                                        title="Thêm vào yêu thích"
+                                    >
                                         <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -126,11 +131,12 @@
                                             @endif
                                         </div>
                                         <div class="flex gap-1 sm:gap-2">
-                                            <button class="border border-gray-300 p-1.5 sm:p-2 rounded hover:bg-gray-100">
-                                                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
+                                            <button 
+                                                class="bg-amber-600 hover:bg-amber-500 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base transition-colors"
+                                                onclick="addToCart({{ $book->id }}, this)"
+                                                data-book-id="{{ $book->id }}"
+                                            >
+                                                Thêm vào giỏ
                                             </button>
                                             <button class="bg-primary text-white px-3 sm:px-4 py-2 rounded hover:bg-primary/90 text-sm sm:text-base">Mua</button>
                                         </div>
@@ -320,6 +326,17 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingSpinner.classList.add('hidden');
             booksGridContainer.style.opacity = '1';
 
+            // Reinitialize wishlist functionality for new content
+            if (window.WishlistManager && window.WishlistManager.checkWishlistStatus) {
+                const bookIds = Array.from(document.querySelectorAll('.wishlist-btn[data-book-id]'))
+                    .map(btn => parseInt(btn.getAttribute('data-book-id')))
+                    .filter(id => !isNaN(id));
+                
+                if (bookIds.length > 0) {
+                    window.WishlistManager.checkWishlistStatus(bookIds);
+                }
+            }
+
             // Update URL without page refresh
             const url = new URL(window.location);
             if (selectedPublishers.length > 0) {
@@ -424,6 +441,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize on page load
     initializeFiltersFromURL();
+
+    // Initialize wishlist functionality for initial content
+    if (window.WishlistManager && window.WishlistManager.checkWishlistStatus) {
+        const bookIds = Array.from(document.querySelectorAll('.wishlist-btn[data-book-id]'))
+            .map(btn => parseInt(btn.getAttribute('data-book-id')))
+            .filter(id => !isNaN(id));
+        
+        if (bookIds.length > 0) {
+            window.WishlistManager.checkWishlistStatus(bookIds);
+        }
+    }
 });
 </script>
 
