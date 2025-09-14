@@ -141,13 +141,28 @@ Route::get('/api/chatbot/test', [ChatbotController::class, 'test'])->name('chatb
 Route::get('/api/chatbot/books', [ChatbotController::class, 'getBooksData'])->name('chatbot.books');
 Route::post('/api/chatbot/recommendations', [ChatbotController::class, 'getRecommendations'])->name('chatbot.recommendations');
 
-// Test Chatbot Page
-Route::get('/test-chatbot', function () {
-    return view('test-chatbot');
-})->name('test.chatbot');
 
-// Test Chatbot JavaScript
-Route::get('/test-chatbot-js', function () {
-    return view('test-chatbot-js');
-})->name('test.chatbot.js');
+
+
+
+// Help Pages Routes
+Route::get('/help/shopping-guide', function () {
+    return view('pages.help.shopping-guide');
+})->name('help.shopping-guide');
+
+Route::get('/help/return-policy', function () {
+    return view('pages.help.return-policy');
+})->name('help.return-policy');
+
+Route::get('/help/payment-methods', function () {
+    return view('pages.help.payment-methods');
+})->name('help.payment-methods');
+
+Route::get('/help/shipping-info', function () {
+    return view('pages.help.shipping-info');
+})->name('help.shipping-info');
+
+Route::get('/help/faq', function () {
+    return view('pages.help.faq');
+})->name('help.faq');
 

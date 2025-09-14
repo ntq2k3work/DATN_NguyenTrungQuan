@@ -75,11 +75,11 @@
           <div class="space-y-4">
             <h4 class="font-semibold text-lg">Hỗ trợ khách hàng</h4>
             <ul class="space-y-2 text-sm">
-              <li><a href="#" class="text-background/80 hover:text-background transition-colors">Hướng dẫn mua hàng</a></li>
-              <li><a href="#" class="text-background/80 hover:text-background transition-colors">Chính sách đổi trả</a></li>
-              <li><a href="#" class="text-background/80 hover:text-background transition-colors">Phương thức thanh toán</a></li>
-              <li><a href="#" class="text-background/80 hover:text-background transition-colors">Vận chuyển</a></li>
-              <li><a href="#" class="text-background/80 hover:text-background transition-colors">FAQ</a></li>
+              <li><a href="{{ route('help.shopping-guide') }}" class="text-background/80 hover:text-background transition-colors">Hướng dẫn mua hàng</a></li>
+              <li><a href="{{ route('help.return-policy') }}" class="text-background/80 hover:text-background transition-colors">Chính sách đổi trả</a></li>
+              <li><a href="{{ route('help.payment-methods') }}" class="text-background/80 hover:text-background transition-colors">Phương thức thanh toán</a></li>
+              <li><a href="{{ route('help.shipping-info') }}" class="text-background/80 hover:text-background transition-colors">Vận chuyển</a></li>
+              <li><a href="{{ route('help.faq') }}" class="text-background/80 hover:text-background transition-colors">FAQ</a></li>
             </ul>
           </div>
 
