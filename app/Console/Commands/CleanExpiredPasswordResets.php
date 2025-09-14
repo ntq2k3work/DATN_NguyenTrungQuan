@@ -26,7 +26,7 @@ class CleanExpiredPasswordResets extends Command
      */
     public function handle()
     {
-        $this->info('🧹 Bắt đầu dọn dẹp token đặt lại mật khẩu đã hết hạn...');
+        $this->info('Bắt đầu dọn dẹp token đặt lại mật khẩu đã hết hạn...');
 
         // Xóa các token đã hết hạn (hơn 60 phút)
         $deletedCount = DB::table('password_resets')
@@ -34,7 +34,7 @@ class CleanExpiredPasswordResets extends Command
             ->delete();
 
         if ($deletedCount > 0) {
-            $this->info("✅ Đã xóa {$deletedCount} token hết hạn");
+            $this->info("Đã xóa {$deletedCount} token hết hạn");
         } else {
             $this->info("ℹ️ Không có token nào cần dọn dẹp");
         }

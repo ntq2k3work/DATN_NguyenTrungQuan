@@ -121,12 +121,6 @@
 
       <!-- Right section -->
       <div class="hidden md:flex items-center gap-6">
-        <!-- Giao hàng -->
-        <div class="text-sm">
-          <span class="text-gray-500">Giao hàng</span>
-          <div class="font-medium text-gray-700">Nhà 20H2, ngõ 6 ...</div>
-        </div>
-
         @auth
           <!-- User is logged in - User Account Section -->
           <div class="relative group user-dropdown-container">

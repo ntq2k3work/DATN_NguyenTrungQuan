@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -134,4 +135,19 @@ Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'un
 Route::get('/search', [App\Http\Controllers\SearchController::class, 'search'])->name('search');
 Route::get('/search/suggestions', [App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
 Route::get('/search-results', [App\Http\Controllers\SearchController::class, 'results'])->name('search.results');
+
+// Chatbot Routes
+Route::get('/api/chatbot/test', [ChatbotController::class, 'test'])->name('chatbot.test');
+Route::get('/api/chatbot/books', [ChatbotController::class, 'getBooksData'])->name('chatbot.books');
+Route::post('/api/chatbot/recommendations', [ChatbotController::class, 'getRecommendations'])->name('chatbot.recommendations');
+
+// Test Chatbot Page
+Route::get('/test-chatbot', function () {
+    return view('test-chatbot');
+})->name('test.chatbot');
+
+// Test Chatbot JavaScript
+Route::get('/test-chatbot-js', function () {
+    return view('test-chatbot-js');
+})->name('test.chatbot.js');
 

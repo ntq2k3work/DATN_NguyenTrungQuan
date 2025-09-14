@@ -1,4 +1,12 @@
 <section class="relative bg-amber-50 overflow-hidden">
+<style>
+  .slider-button {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+</style>
     <div class="container mx-auto px-4">
       <div class="relative h-[500px] flex items-center">
         <div class="absolute inset-0 transition-opacity duration-500 opacity-100" data-slide="0">
@@ -14,8 +22,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <a href="{{ route('categories.index') }}" class="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors">Khám phá ngay</a>
-                <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
+                <a href="{{ route('categories.index') }}" class="slider-button bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors">Khám phá ngay</a>
               </div>
             </div>
             <div>
@@ -38,8 +45,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <a href="{{ route('categories.new-releases') }}" class="px-8 py-3 bg-amber-600 text-white rounded-lg hover:bg-primary/90 transition-colors">Xem sách mới</a>
-                <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
+                <a href="{{ route('categories.new-releases') }}" class="slider-button px-8 py-3 bg-amber-600 text-white rounded-lg hover:bg-primary/90 transition-colors">Xem sách mới</a>
               </div>
             </div>
             <div>
@@ -62,8 +68,7 @@
                 </p>
               </div>
               <div class="flex gap-4">
-                <a href="{{ route('categories.best-sellers') }}" class="bg-amber-600 text-white px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">Mua ngay</a>
-                <button class="px-8 py-3 border border-primary rounded-lg bg-transparent hover:bg-primary/10">Tìm hiểu thêm</button>
+                <a href="{{ route('categories.best-sellers') }}" class="slider-button bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors">Mua ngay</a>
               </div>
             </div>
             <div>
@@ -74,13 +79,13 @@
         </div>
 
         <button id="prevSlide"
-          class="absolute bg-white left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full shadow-lg">
+          class="absolute bg-white -left-12 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-3 rounded-full shadow-lg z-20">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <button id="nextSlide"
-          class="absolute bg-white right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full shadow-lg">
+          class="absolute bg-white -right-12 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-3 rounded-full shadow-lg z-20">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
