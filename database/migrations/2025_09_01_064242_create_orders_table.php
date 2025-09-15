@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->double('total_price');
+            $table->double('total');
             $table->enum('status',['pending','processing','shipped','delivered','cancelled']);
             $table->string('shipping_address');
             $table->string('payment_method');
