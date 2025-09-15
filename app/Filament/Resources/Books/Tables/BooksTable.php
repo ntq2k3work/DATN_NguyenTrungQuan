@@ -29,11 +29,6 @@ class BooksTable
                     ->sortable()
                     ->searchable(),
 
-                ImageColumn::make('image_url')
-                    ->label('Hình ảnh')
-                    ->circular()
-                    ->size(50),
-
                 TextColumn::make('title')
                     ->label('Tên sách')
                     ->searchable()
