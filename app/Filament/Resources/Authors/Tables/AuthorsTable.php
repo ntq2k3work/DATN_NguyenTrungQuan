@@ -24,6 +24,13 @@ class AuthorsTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('action')
+                    ->label('Thao tác')
+                    ->extraAttributes([
+                        'class' => 'text-right align-middle', // canh giữa theo chiều dọc
+                    ])
+
+
             ])
             ->filters([
                 //

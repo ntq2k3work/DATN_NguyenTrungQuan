@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check.password.reset.token' => \App\Http\Middleware\CheckPasswordResetToken::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'track.user.access' => \App\Http\Middleware\TrackUserAccess::class,
+        ]);
+
+        // Apply TrackUserAccess middleware globally to web routes
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackUserAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

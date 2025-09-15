@@ -7,6 +7,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
@@ -81,20 +83,21 @@ class UsersTable
                     ->trueColor('success')
                     ->falseColor('danger'),
 
-                TextColumn::make('orders_count')
-                    ->label('Số đơn hàng')
-                    ->counts('orders')
-                    ->sortable(),
+                TextColumn::make('last_access')
+                    ->label('Truy cập gần đây')
+                    ->dateTime('d/m/Y H:i', 'Asia/Ho_Chi_Minh')
+                    ->sortable()
+                    ->placeholder('Chưa truy cập'),
 
                 TextColumn::make('created_at')
                     ->label('Ngày tạo')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i', 'Asia/Ho_Chi_Minh')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
                     ->label('Cập nhật lần cuối')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i', 'Asia/Ho_Chi_Minh')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -140,46 +143,53 @@ class UsersTable
                     }),
             ])
             ->recordActions([
-                ViewAction::make()
-                    ->label('Xem')
-                    ->icon('heroicon-o-eye'),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Xem')
+                        ->icon('heroicon-o-eye'),
 
-                EditAction::make()
-                    ->label('Sửa')
-                    ->icon('heroicon-o-pencil'),
+                    EditAction::make()
+                        ->label('Sửa')
+                        ->icon('heroicon-o-pencil'),
 
-                Action::make('toggle_status')
-                    ->label('Đổi trạng thái')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalHeading('Xác nhận thay đổi trạng thái')
-                    ->modalDescription('Bạn có chắc chắn muốn thay đổi trạng thái xác thực email của người dùng này?')
-                    ->modalSubmitActionLabel('Xác nhận')
-                    ->modalCancelActionLabel('Hủy')
-                    ->action(function (User $record) {
+                    Action::make('toggle_status')
+                        ->label('Đổi trạng thái')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Xác nhận thay đổi trạng thái')
+                        ->modalDescription('Bạn có chắc chắn muốn thay đổi trạng thái xác thực email của người dùng này?')
+                        ->modalSubmitActionLabel('Xác nhận')
+                        ->modalCancelActionLabel('Hủy')
+                        ->action(function (User $record) {
                         // Không cho phép thay đổi trạng thái chính mình
-                        if ($record->id === auth()->id()) {
+                        if ($record->id === Auth::id()) {
+                                Notification::make()
+                                    ->title('Lỗi')
+                                    ->body('Không thể thay đổi trạng thái của chính mình!')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            $record->update([
+                                'email_verified_at' => $record->email_verified_at ? null : now()
+                            ]);
+
+                            $status = $record->email_verified_at ? 'kích hoạt' : 'vô hiệu hóa';
+
                             Notification::make()
-                                ->title('Lỗi')
-                                ->body('Không thể thay đổi trạng thái của chính mình!')
-                                ->danger()
+                                ->title('Thành công')
+                                ->body("Đã {$status} người dùng thành công!")
+                                ->success()
                                 ->send();
-                            return;
-                        }
-
-                        $record->update([
-                            'email_verified_at' => $record->email_verified_at ? null : now()
-                        ]);
-
-                        $status = $record->email_verified_at ? 'kích hoạt' : 'vô hiệu hóa';
-                        
-                        Notification::make()
-                            ->title('Thành công')
-                            ->body("Đã {$status} người dùng thành công!")
-                            ->success()
-                            ->send();
-                    }),
+                        }),
+                ])
+                ->label('Hành động')
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->button()
+                ->color('gray')
+                ->size('sm'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -191,7 +201,7 @@ class UsersTable
                         ->modalSubmitActionLabel('Xóa')
                         ->modalCancelActionLabel('Hủy')
                         ->before(function ($records) {
-                            $currentUserId = auth()->id();
+                            $currentUserId = Auth::id();
                             $hasOrders = $records->some(function ($record) use ($currentUserId) {
                                 return $record->id === $currentUserId || $record->orders()->exists();
                             });
