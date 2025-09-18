@@ -21,8 +21,16 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        @foreach ($books as $book)
-            @livewire('book-card', ['book' => $book, 'cardStyle' => 'default'], key('category-book-' . $book->id))
+        @foreach ($books as $index => $book)
+            @if($categoryType === 'top-selling')
+                @livewire('book-card', ['book' => $book, 'cardStyle' => 'top-selling', 'rank' => $index + 1], key('category-book-' . $book->id))
+            @elseif($categoryType === 'best-sellers')
+                @livewire('book-card', ['book' => $book, 'cardStyle' => 'best-seller'], key('category-book-' . $book->id))
+            @elseif($categoryType === 'new-releases')
+                @livewire('book-card', ['book' => $book, 'cardStyle' => 'new-release'], key('category-book-' . $book->id))
+            @else
+                @livewire('book-card', ['book' => $book, 'cardStyle' => 'default'], key('category-book-' . $book->id))
+            @endif
         @endforeach
     </div>
 

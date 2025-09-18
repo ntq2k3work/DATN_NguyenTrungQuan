@@ -1,39 +1,5 @@
-// Global AJAX functionality and toast notifications for Livewire components
+// Simple toast notification functionality
 document.addEventListener('livewire:init', () => {
-    // Listen for cart updates
-    Livewire.on('addToCart', (event) => {
-        const bookId = event.bookId;
-
-        // Show loading state
-        const buttons = document.querySelectorAll(`[data-book-id="${bookId}"]`);
-        buttons.forEach(button => {
-            if (button.classList.contains('add-to-cart-btn')) {
-                const originalText = button.textContent;
-                button.disabled = true;
-                button.textContent = 'Đang thêm...';
-                button.classList.add('opacity-50');
-
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.textContent = originalText;
-                    button.classList.remove('opacity-50');
-                }, 2000);
-            }
-        });
-
-        // Call the cart manager's addToCart method
-        Livewire.dispatch('addToCart', { bookId: bookId }, 'cart-manager');
-    });
-
-    // Listen for wishlist updates
-    Livewire.on('toggleWishlist', (event) => {
-        const bookId = event.bookId;
-
-        // Call the wishlist manager's toggleWishlist method
-        Livewire.dispatch('toggleWishlist', { bookId: bookId }, 'wishlist-manager');
-    });
-
     // Listen for toast notifications
     Livewire.on('show-toast', (event) => {
         showToast(event.message, event.type);

@@ -12,27 +12,50 @@ class BookCard extends Component
     public $bookData;
     public $showWishlistButton = true;
     public $showAddToCartButton = true;
-    public $cardStyle = 'default'; // default, horizontal, compact
+    public $cardStyle = 'default'; // default, horizontal, compact, best-seller, new-release, top-selling
+    public $rank = null; // For top-selling cards
+    public $addingToCart = false;
+    public $componentId;
 
-    protected $listeners = ['cartUpdated', 'wishlistUpdated'];
+    protected $listeners = ['cartUpdated', 'wishlistUpdated', 'resetAddingToCart'];
 
-    public function mount($book, $showWishlistButton = true, $showAddToCartButton = true, $cardStyle = 'default')
+    public function mount($book, $showWishlistButton = true, $showAddToCartButton = true, $cardStyle = 'default', $rank = null)
     {
         $this->bookId = $book->id;
         $this->bookData = $book->toArray();
         $this->showWishlistButton = $showWishlistButton;
         $this->showAddToCartButton = $showAddToCartButton;
         $this->cardStyle = $cardStyle;
+        $this->rank = $rank;
+        $this->componentId = uniqid('bookcard_');
     }
 
     public function addToCart()
     {
+        // Prevent multiple rapid clicks
+        if ($this->addingToCart) {
+            return;
+        }
+
+        $this->addingToCart = true;
+
+        // Dispatch directly to cart manager
         $this->dispatch('addToCart', bookId: $this->bookId);
+
+        // Reset after 2 seconds using JavaScript
+        $this->js("setTimeout(() => { \$wire.resetAddingToCart('{$this->componentId}'); }, 2000);");
     }
 
     public function toggleWishlist()
     {
         $this->dispatch('toggleWishlist', bookId: $this->bookId);
+    }
+
+    public function resetAddingToCart($componentId)
+    {
+        if ($componentId === $this->componentId) {
+            $this->addingToCart = false;
+        }
     }
 
     public function isInWishlist()

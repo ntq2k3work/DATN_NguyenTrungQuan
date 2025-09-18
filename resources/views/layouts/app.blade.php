@@ -32,8 +32,14 @@
     <!-- Chatbot Component -->
     @livewire('chatbot-component')
 
+    <!-- Cart Manager (Hidden - chỉ để xử lý events) -->
+    @livewire('cart-manager')
+
+    <!-- Wishlist Manager (Hidden - chỉ để xử lý events) -->
+    @livewire('wishlist-manager')
+
     @vite('resources/js/app.js')
-    <script src="{{ asset('js/livewire-ajax.js') }}"></script>
+    <script src="{{ asset('js/toast-notifications.js') }}"></script>
     @livewireScripts
     @stack('scripts')
 </body>

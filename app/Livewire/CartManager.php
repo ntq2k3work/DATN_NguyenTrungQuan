@@ -68,7 +68,7 @@ class CartManager extends Component
 
         if ($success) {
             $this->loadCart();
-            $this->dispatch('cartCountUpdated', count: $this->cartCount);
+            $this->dispatch('cartCountUpdated', ['count' => $this->cartCount]);
             $this->dispatch('show-toast', message: 'Đã xóa sản phẩm khỏi giỏ hàng', type: 'success');
         }
     }
