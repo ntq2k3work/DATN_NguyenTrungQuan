@@ -75,6 +75,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
     Route::get('/password/change',[AuthController::class, 'changePassword'])->name('password.change');
     Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
+
+    // Email Settings Routes
+    Route::get('/email-settings',[AuthController::class, 'emailSettings'])->name('email-settings');
+    Route::put('/email-settings',[AuthController::class, 'updateEmailSettings'])->name('email-settings.update');
 });
 
 // Email verification route
@@ -118,7 +122,7 @@ Route::get('/api/categories/{slug}/filter', [App\Http\Controllers\Frontend\Categ
 //         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
 //         Route::post('/login', [AdminAuthController::class, 'login'])->name('login');
 //     });
-    
+
 //     // Protected admin routes
 //     Route::middleware(['auth', 'admin'])->group(function () {
 //         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('dashboard');

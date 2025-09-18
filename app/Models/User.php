@@ -28,7 +28,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'email_verified_at',
         'last_access',
-        'role'
+        'role',
+        'email_notifications_enabled'
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'last_access' => 'datetime',
             'password' => 'hashed',
+            'email_notifications_enabled' => 'boolean',
         ];
     }
 
@@ -95,5 +97,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function wishlist()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Check if user wants to receive email notifications
+     */
+    public function wantsEmailNotifications(): bool
+    {
+        return $this->email_notifications_enabled ?? true;
     }
 }

@@ -41,8 +41,8 @@
             <!-- Product Image -->
             <div class="space-y-4">
                 <div class="relative">
-                    <img 
-                        src="{{ asset($book->image_url) }}" 
+                    <img
+                        src="{{ asset($book->image_url) }}"
                         alt="{{ $book->title }}"
                         class="w-full h-[500px] object-cover rounded-lg shadow-lg"
                     />
@@ -63,21 +63,21 @@
                         </svg>
                     </button>
                 </div>
-                
+
                 <!-- Thumbnail Images -->
                 <div class="flex space-x-2">
-                    <img 
-                        src="{{ asset($book->image_url) }}" 
+                    <img
+                        src="{{ asset($book->image_url) }}"
                         alt="{{ $book->title }}"
                         class="w-20 h-20 object-cover rounded border-2 border-gray-200 cursor-pointer hover:border-red-500"
                     />
-                    <img 
-                        src="{{ asset($book->image_url) }}" 
+                    <img
+                        src="{{ asset($book->image_url) }}"
                         alt="{{ $book->title }}"
                         class="w-20 h-20 object-cover rounded border-2 border-gray-200 cursor-pointer hover:border-red-500"
                     />
                 </div>
-                
+
                 <!-- Dots indicator -->
                 <div class="flex justify-center space-x-2">
                     <div class="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -109,19 +109,19 @@
                     @else
                         <span class="text-3xl font-bold text-red-600">{{ number_format($book->price, 0, ',', '.') }}₫</span>
                     @endif
-                    
+
                     <!-- Wishlist Button -->
                     <div class="flex items-center space-x-2">
-                        <button 
-                            id="wishlist-btn" 
+                        <button
+                            id="wishlist-btn"
                             class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:border-red-500 transition-colors {{ $inWishlist ? 'bg-red-50 border-red-500 text-red-600' : 'bg-white text-gray-600 hover:text-red-600' }}"
                             onclick="toggleWishlist({{ $book->id }})"
                             data-book-id="{{ $book->id }}"
                             data-in-wishlist="{{ $inWishlist ? 'true' : 'false' }}"
                         >
-                            <svg class="w-5 h-5 {{ $inWishlist ? 'fill-current' : 'stroke-current' }}" 
-                                 fill="{{ $inWishlist ? 'currentColor' : 'none' }}" 
-                                 stroke="{{ $inWishlist ? 'none' : 'currentColor' }}" 
+                            <svg class="w-5 h-5 {{ $inWishlist ? 'fill-current' : 'stroke-current' }}"
+                                 fill="{{ $inWishlist ? 'currentColor' : 'none' }}"
+                                 stroke="{{ $inWishlist ? 'none' : 'currentColor' }}"
                                  viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                             </svg>
@@ -141,11 +141,11 @@
                         </div>
                         <div id="quantity-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
-                    
+
                     <button onclick="buyNow()" class="w-full bg-red-600 text-white py-4 px-6 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg">
                         MUA NGAY
                     </button>
-                    
+
                     <button onclick="addToCart({{ $book->id }})" class="w-full bg-amber-600 text-white py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors font-semibold text-lg add-to-cart-btn" data-book-id="{{ $book->id }}">
                         THÊM VÀO GIỎ HÀNG
                     </button>
@@ -267,20 +267,6 @@
     </div>
 </div>
 
-<!-- Floating Icons -->
-<div class="fixed bottom-6 right-6 space-y-3 z-50">
-    <button class="bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-        </svg>
-    </button>
-    <button class="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
-    </button>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const descriptionContent = document.getElementById('description-content');
@@ -288,18 +274,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggle-description');
     const toggleText = document.getElementById('toggle-text');
     const toggleIcon = document.getElementById('toggle-icon');
-    
+
     let isExpanded = false;
     const maxHeight = 120; // Chiều cao tối đa khi thu gọn
-    
+
     // Kiểm tra xem nội dung có dài không
     function checkContentHeight() {
         // Reset để đo chiều cao thực
         descriptionContent.style.maxHeight = 'none';
         descriptionContent.style.overflow = 'visible';
-        
+
         const contentHeight = descriptionContent.scrollHeight;
-        
+
         if (contentHeight > maxHeight) {
             // Nội dung dài, hiển thị overlay và nút toggle
             descriptionOverlay.classList.remove('hidden');
@@ -307,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             descriptionContent.style.maxHeight = maxHeight + 'px';
             descriptionContent.style.overflow = 'hidden';
             isExpanded = false;
-            
+
             // Thêm class để ẩn overlay khi hover
             descriptionContent.parentElement.classList.add('group');
         } else {
@@ -319,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isExpanded = true;
         }
     }
-    
+
     // Xử lý sự kiện click nút toggle
     toggleButton.addEventListener('click', function() {
         if (isExpanded) {
@@ -339,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleText.textContent = 'Thu gọn';
             toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>';
             isExpanded = true;
-            
+
             // Sau khi mở rộng hoàn toàn, reset maxHeight để có thể thu gọn lại
             setTimeout(() => {
                 if (isExpanded) {
@@ -348,10 +334,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }
     });
-    
+
     // Kiểm tra khi trang load
     setTimeout(checkContentHeight, 100);
-    
+
     // Kiểm tra khi cửa sổ thay đổi kích thước
     window.addEventListener('resize', function() {
         setTimeout(checkContentHeight, 100);
@@ -385,7 +371,7 @@ function validateQuantity() {
     const currentValue = parseInt(quantityInput.value);
     const maxValue = parseInt(quantityInput.getAttribute('max'));
     const minValue = parseInt(quantityInput.getAttribute('min'));
-    
+
     if (isNaN(currentValue) || currentValue < minValue) {
         quantityInput.value = minValue;
         showQuantityError(`Số lượng tối thiểu là ${minValue} sản phẩm`);
@@ -427,12 +413,12 @@ function addToCart(bookId) {
     const quantity = document.getElementById('quantity').value;
     const button = document.querySelector(`[data-book-id="${bookId}"]`);
     const originalText = button.textContent;
-    
+
     // Disable button and show loading
     button.disabled = true;
     button.textContent = 'ĐANG THÊM...';
     button.classList.add('opacity-50');
-    
+
     // Make API call
     fetch('{{ route("cart.add") }}', {
         method: 'POST',
@@ -450,15 +436,15 @@ function addToCart(bookId) {
         if (data.success) {
             // Show success message
             showToast(data.message);
-            
+
             // Update cart count if cart icon exists
             updateCartCount(data.cart_count);
-            
+
             // Change button text temporarily
             button.textContent = 'ĐÃ THÊM!';
             button.classList.remove('bg-amber-600', 'hover:bg-amber-700');
             button.classList.add('bg-green-600');
-            
+
             setTimeout(() => {
                 button.textContent = originalText;
                 button.classList.remove('bg-green-600');
@@ -496,10 +482,10 @@ function showToast(message, type = 'success') {
         `;
         document.body.appendChild(toast);
     }
-    
+
     const toastMessage = document.getElementById('toast-message');
     toastMessage.textContent = message;
-    
+
     // Change color based on type
     if (type === 'error') {
         toast.classList.remove('bg-green-500');
@@ -508,10 +494,10 @@ function showToast(message, type = 'success') {
         toast.classList.remove('bg-red-500');
         toast.classList.add('bg-green-500');
     }
-    
+
     // Show toast
     toast.classList.remove('translate-x-full');
-    
+
     // Hide toast after 3 seconds
     setTimeout(() => {
         toast.classList.add('translate-x-full');
@@ -532,12 +518,12 @@ function toggleWishlist(bookId) {
     const text = document.getElementById('wishlist-text');
     const svg = button.querySelector('svg');
     const originalText = text.textContent;
-    
+
     // Disable button and show loading
     button.disabled = true;
     text.textContent = 'Đang xử lý...';
     button.classList.add('opacity-50');
-    
+
     // Make API call
     fetch('{{ route("wishlist.toggle") }}', {
         method: 'POST',
@@ -554,7 +540,7 @@ function toggleWishlist(bookId) {
         if (data.success) {
             // Update button state
             const isInWishlist = data.in_wishlist;
-            
+
             if (isInWishlist) {
                 // Added to wishlist
                 button.classList.remove('bg-white', 'text-gray-600', 'hover:text-red-600');
@@ -565,9 +551,9 @@ function toggleWishlist(bookId) {
                 svg.setAttribute('stroke', 'none');
                 text.textContent = 'Đã yêu thích';
                 button.setAttribute('data-in-wishlist', 'true');
-                
+
                 showToast(data.message, 'success');
-                
+
                 // Update wishlist count in header
                 if (window.WishlistManager && data.wishlist_count !== undefined) {
                     window.WishlistManager.updateWishlistCount(data.wishlist_count);
@@ -582,9 +568,9 @@ function toggleWishlist(bookId) {
                 svg.setAttribute('stroke', 'currentColor');
                 text.textContent = 'Thêm vào yêu thích';
                 button.setAttribute('data-in-wishlist', 'false');
-                
+
                 showToast(data.message, 'success');
-                
+
                 // Update wishlist count in header
                 if (window.WishlistManager && data.wishlist_count !== undefined) {
                     window.WishlistManager.updateWishlistCount(data.wishlist_count);

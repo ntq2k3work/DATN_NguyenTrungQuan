@@ -338,7 +338,7 @@ class AuthController extends Controller
             'gender' => $request->gender,
             'password' => bcrypt($request->password),
         ]);
-        
+
         // Generate verification URL
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
@@ -346,9 +346,7 @@ class AuthController extends Controller
             ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
         );
 
-        dd($verificationUrl);
-
-        // Send verification email
+        // Send verification email (always send verification email regardless of notification settings)
         try {
             Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
 
@@ -361,5 +359,32 @@ class AuthController extends Controller
                 'email' => 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
             ])->onlyInput('email');
         }
+    }
+
+    /**
+     * Show email settings page
+     */
+    public function emailSettings()
+    {
+        $user = Auth::user();
+        return view('pages.auth.email-settings', compact('user'));
+    }
+
+    /**
+     * Update email notification settings
+     */
+    public function updateEmailSettings(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'email_notifications_enabled' => 'boolean',
+        ]);
+
+        $user->update([
+            'email_notifications_enabled' => $request->boolean('email_notifications_enabled'),
+        ]);
+
+        return redirect()->route('email-settings')->with('status', 'Cài đặt thông báo email đã được cập nhật thành công!');
     }
 }

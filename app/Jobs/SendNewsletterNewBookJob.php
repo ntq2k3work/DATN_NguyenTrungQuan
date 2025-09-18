@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Book;
 use App\Models\NewsletterSubscription;
+use App\Models\User;
 use App\Mail\NewsletterNewBookMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -33,7 +34,7 @@ class SendNewsletterNewBookJob implements ShouldQueue
     public function handle(): void
     {
         $book = Book::with(['author', 'category', 'publisher'])->find($this->bookId);
-        
+
         if (!$book) {
             Log::warning("Book not found for newsletter", ['book_id' => $this->bookId]);
             return;
@@ -49,15 +50,29 @@ class SendNewsletterNewBookJob implements ShouldQueue
 
         $successCount = 0;
         $failureCount = 0;
+        $skippedCount = 0;
 
         foreach ($subscriptions as $subscription) {
+            // Check if user wants email notifications
+            $user = User::where('email', $subscription->email)->first();
+
+            if ($user && !$user->wantsEmailNotifications()) {
+                $skippedCount++;
+                Log::info("Newsletter email skipped - user disabled email notifications", [
+                    'email' => $subscription->email,
+                    'user_id' => $user->id,
+                    'book_id' => $book->id
+                ]);
+                continue;
+            }
+
             try {
                 Mail::to($subscription->email)->send(
                     new NewsletterNewBookMail($book, $subscription->unsubscribe_token)
                 );
-                
+
                 $successCount++;
-                
+
                 Log::info("Newsletter email sent successfully", [
                     'email' => $subscription->email,
                     'book_id' => $book->id,
@@ -66,7 +81,7 @@ class SendNewsletterNewBookJob implements ShouldQueue
 
             } catch (\Exception $e) {
                 $failureCount++;
-                
+
                 Log::error("Failed to send newsletter email", [
                     'email' => $subscription->email,
                     'book_id' => $book->id,
@@ -80,7 +95,8 @@ class SendNewsletterNewBookJob implements ShouldQueue
             'book_title' => $book->title,
             'total_subscriptions' => $subscriptions->count(),
             'success_count' => $successCount,
-            'failure_count' => $failureCount
+            'failure_count' => $failureCount,
+            'skipped_count' => $skippedCount
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsletterSubscription;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
@@ -46,13 +47,22 @@ class NewsletterController extends Controller
             } else {
                 // Reactivate subscription
                 $existingSubscription->resubscribe();
-                
-                // Send welcome email
-                try {
-                    Mail::to($email)->send(new NewsletterWelcomeMail($email));
-                } catch (\Exception $e) {
-                    // Log error but don't fail the subscription
-                    Log::error('Failed to send welcome email: ' . $e->getMessage());
+
+                // Send welcome email only if user wants email notifications
+                $user = User::where('email', $email)->first();
+                if (!$user || $user->wantsEmailNotifications()) {
+                    try {
+                        Mail::to($email)->send(new NewsletterWelcomeMail($email));
+                        Log::info('Newsletter welcome email sent', ['email' => $email]);
+                    } catch (\Exception $e) {
+                        // Log error but don't fail the subscription
+                        Log::error('Failed to send welcome email: ' . $e->getMessage());
+                    }
+                } else {
+                    Log::info('Newsletter welcome email skipped - user disabled email notifications', [
+                        'email' => $email,
+                        'user_id' => $user->id
+                    ]);
                 }
 
                 return response()->json([
@@ -69,12 +79,21 @@ class NewsletterController extends Controller
             'subscribed_at' => now(),
         ]);
 
-        // Send welcome email
-        try {
-            Mail::to($email)->send(new NewsletterWelcomeMail($email));
-        } catch (\Exception $e) {
-            // Log error but don't fail the subscription
-            Log::error('Failed to send welcome email: ' . $e->getMessage());
+        // Send welcome email only if user wants email notifications
+        $user = User::where('email', $email)->first();
+        if (!$user || $user->wantsEmailNotifications()) {
+            try {
+                Mail::to($email)->send(new NewsletterWelcomeMail($email));
+                Log::info('Newsletter welcome email sent', ['email' => $email]);
+            } catch (\Exception $e) {
+                // Log error but don't fail the subscription
+                Log::error('Failed to send welcome email: ' . $e->getMessage());
+            }
+        } else {
+            Log::info('Newsletter welcome email skipped - user disabled email notifications', [
+                'email' => $email,
+                'user_id' => $user->id
+            ]);
         }
 
         return response()->json([

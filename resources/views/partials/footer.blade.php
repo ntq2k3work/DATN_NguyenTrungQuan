@@ -39,28 +39,10 @@
             <p class="text-background/80 text-sm leading-relaxed">
               Cửa hàng sách trực tuyến hàng đầu Việt Nam, mang đến cho bạn những cuốn sách chất lượng với giá tốt nhất.
             </p>
-            <div class="flex gap-4">
-              <!-- Social buttons -->
-              <a href="#" class="bg-background/10 hover:bg-background/20 p-2 rounded-full transition-colors">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775..."/>
-                </svg>
-              </a>
-              <a href="#" class="bg-background/10 hover:bg-background/20 p-2 rounded-full transition-colors">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22.46 6c-.77.35-1.6.58-2.46.69..."/>
-                </svg>
-              </a>
-              <a href="#" class="bg-background/10 hover:bg-background/20 p-2 rounded-full transition-colors">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987..."/>
-                </svg>
-              </a>
-            </div>
           </div>
 
           <!-- Quick links -->
-          <div class="space-y-4">
+          {{-- <div class="space-y-4">
             <h4 class="font-semibold text-lg">Liên kết nhanh</h4>
             <ul class="space-y-2 text-sm">
               <li><a href="#" class="text-background/80 hover:text-background transition-colors">Về chúng tôi</a></li>
@@ -69,7 +51,7 @@
               <li><a href="#" class="text-background/80 hover:text-background transition-colors">Tin tức</a></li>
               <li><a href="#" class="text-background/80 hover:text-background transition-colors">Sự kiện</a></li>
             </ul>
-          </div>
+          </div> --}}
 
           <!-- Customer service -->
           <div class="space-y-4">
@@ -92,13 +74,15 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span class="text-background/80">123 Đường ABC, Quận 1, TP.HCM</span>
+                <span class="text-background/80">Ngõ 82 Mỹ Đình, Hà Nội</span>
               </div>
               <div class="flex items-center gap-3">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                <span class="text-background/80">1900 1234</span>
+                <a href="tel:19001234">
+                    <button>1900 1234</button>
+                </a>
               </div>
               <div class="flex items-center gap-3">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +99,7 @@
       <!-- Bottom bar -->
       <div class="py-6 border-t border-background/20">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p class="text-background/60 text-sm">© 2024 BookStore. Tất cả quyền được bảo lưu.</p>
+          <p class="text-background/60 text-sm">© 2025 BookStore. Tất cả quyền được bảo lưu.</p>
           <div class="flex gap-6 text-sm">
             <a href="#" class="text-background/60 hover:text-background transition-colors">Điều khoản sử dụng</a>
             <a href="#" class="text-background/60 hover:text-background transition-colors">Chính sách bảo mật</a>
@@ -141,7 +125,7 @@
           e.preventDefault();
 
           const email = newsletterEmail.value.trim();
-          
+
           if (!email) {
             showMessage('Vui lòng nhập địa chỉ email.', 'error');
             return;
@@ -160,7 +144,7 @@
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
                                document.querySelector('input[name="_token"]')?.value
               },
               body: JSON.stringify({ email: email })
