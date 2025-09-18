@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\ViewModels\CartViewModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -21,32 +22,28 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $bookId = $request->book_id;
-        $quantity = $request->quantity;
-        $book = Book::find($bookId);
+        $cartViewModel = new CartViewModel();
+        $success = $cartViewModel->addToCart($request->book_id, $request->quantity);
 
-        if (!$book) {
-            return response()->json(['error' => 'Sách không tồn tại'], 404);
-        }
+        if ($success) {
+            $cartCount = $cartViewModel->getCartCount();
 
-        // Check stock availability
-        if ($book->quantity < $quantity) {
-            return response()->json(['error' => 'Không đủ hàng trong kho'], 400);
-        }
+            // Dispatch event to update header
+            event('cart.count.updated', ['count' => $cartCount]);
+            event('cart.updated');
 
-        if (Auth::check()) {
-            // User is logged in - use database cart
-            $this->addToDatabaseCart($bookId, $quantity);
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã thêm sản phẩm vào giỏ hàng',
+                'cart_count' => $cartCount
+            ]);
         } else {
-            // User is not logged in - use session cart
-            $this->addToSessionCart($bookId, $quantity);
+            $errors = $cartViewModel->getErrors();
+            return response()->json([
+                'success' => false,
+                'error' => $errors['auth'] ?? $errors['book'] ?? $errors['quantity'] ?? 'Có lỗi xảy ra'
+            ], 400);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đã thêm sản phẩm vào giỏ hàng',
-            'cart_count' => $this->getCartCount()
-        ]);
     }
 
     /**
@@ -58,19 +55,27 @@ class CartController extends Controller
             'book_id' => 'required|exists:books,id'
         ]);
 
-        $bookId = $request->book_id;
+        $cartViewModel = new CartViewModel();
+        $success = $cartViewModel->removeFromCart($request->book_id);
 
-        if (Auth::check()) {
-            $this->removeFromDatabaseCart($bookId);
+        if ($success) {
+            $cartCount = $cartViewModel->getCartCount();
+
+            // Dispatch event to update header
+            event('cart.count.updated', ['count' => $cartCount]);
+            event('cart.updated');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa sản phẩm khỏi giỏ hàng',
+                'cart_count' => $cartCount
+            ]);
         } else {
-            $this->removeFromSessionCart($bookId);
+            return response()->json([
+                'success' => false,
+                'error' => 'Không thể xóa sản phẩm khỏi giỏ hàng'
+            ], 400);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đã xóa sản phẩm khỏi giỏ hàng',
-            'cart_count' => $this->getCartCount()
-        ]);
     }
 
     /**
@@ -83,29 +88,28 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $bookId = $request->book_id;
-        $quantity = $request->quantity;
-        $book = Book::find($bookId);
+        $cartViewModel = new CartViewModel();
+        $success = $cartViewModel->updateQuantity($request->book_id, $request->quantity);
 
-        if (!$book) {
-            return response()->json(['error' => 'Sách không tồn tại'], 404);
-        }
+        if ($success) {
+            $cartCount = $cartViewModel->getCartCount();
 
-        if ($book->quantity < $quantity) {
-            return response()->json(['error' => 'Không đủ hàng trong kho'], 400);
-        }
+            // Dispatch event to update header
+            event('cart.count.updated', ['count' => $cartCount]);
+            event('cart.updated');
 
-        if (Auth::check()) {
-            $this->updateDatabaseCart($bookId, $quantity);
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật số lượng sản phẩm',
+                'cart_count' => $cartCount
+            ]);
         } else {
-            $this->updateSessionCart($bookId, $quantity);
+            $errors = $cartViewModel->getErrors();
+            return response()->json([
+                'success' => false,
+                'error' => $errors['quantity'] ?? 'Có lỗi xảy ra'
+            ], 400);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đã cập nhật số lượng sản phẩm',
-            'cart_count' => $this->getCartCount()
-        ]);
     }
 
     /**
@@ -113,7 +117,8 @@ class CartController extends Controller
      */
     public function show()
     {
-        $cartCount = $this->getCartCount();
+        $cartViewModel = new CartViewModel();
+        $cartCount = $cartViewModel->getCartCount();
         return view('pages.cart.index', compact('cartCount'));
     }
 
@@ -122,31 +127,12 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cartItems = collect();
-
-        if (Auth::check()) {
-            $cart = Cart::where('user_id', Auth::id())->first();
-            if ($cart) {
-                $cartItems = CartItem::with('book.author')->where('cart_id', $cart->id)->get();
-            }
-        } else {
-            $sessionCart = Session::get('cart', []);
-            foreach ($sessionCart as $item) {
-                $book = Book::with('author')->find($item['book_id']);
-                if ($book) {
-                    $cartItems->push((object) [
-                        'book' => $book,
-                        'quantity' => $item['quantity'],
-                        'book_id' => $book->id
-                    ]);
-                }
-            }
-        }
+        $cartViewModel = new CartViewModel();
 
         return response()->json([
             'success' => true,
-            'cart_items' => $cartItems,
-            'cart_count' => $this->getCartCount()
+            'cart_items' => $cartViewModel->getCartItems(),
+            'cart_count' => $cartViewModel->getCartCount()
         ]);
     }
 
@@ -155,9 +141,11 @@ class CartController extends Controller
      */
     public function count()
     {
+        $cartViewModel = new CartViewModel();
+
         return response()->json([
             'success' => true,
-            'cart_count' => $this->getCartCount()
+            'cart_count' => $cartViewModel->getCartCount()
         ]);
     }
 
@@ -167,15 +155,15 @@ class CartController extends Controller
     private function addToDatabaseCart($bookId, $quantity)
     {
         $user = Auth::user();
-        
+
         // Get or create cart
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
-        
+
         // Check if item already exists
         $cartItem = CartItem::where('cart_id', $cart->id)
             ->where('book_id', $bookId)
             ->first();
-        
+
         if ($cartItem) {
             // Update quantity
             $cartItem->quantity += $quantity;
@@ -186,10 +174,10 @@ class CartController extends Controller
                 ->leftJoin('discounts', 'books.id', '=', 'discounts.book_id')
                 ->where('books.id', $bookId)
                 ->first();
-            
+
             // Calculate final price with discount
             $finalPrice = $this->calculateFinalPrice($book);
-            
+
             CartItem::create([
                 'cart_id' => $cart->id,
                 'book_id' => $bookId,
@@ -205,7 +193,7 @@ class CartController extends Controller
     private function addToSessionCart($bookId, $quantity)
     {
         $cart = Session::get('cart', []);
-        
+
         if (isset($cart[$bookId])) {
             $cart[$bookId]['quantity'] += $quantity;
         } else {
@@ -214,7 +202,7 @@ class CartController extends Controller
                 'quantity' => $quantity
             ];
         }
-        
+
         Session::put('cart', $cart);
     }
 
@@ -225,7 +213,7 @@ class CartController extends Controller
     {
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->id)->first();
-        
+
         if ($cart) {
             CartItem::where('cart_id', $cart->id)
                 ->where('book_id', $bookId)
@@ -250,12 +238,12 @@ class CartController extends Controller
     {
         $user = Auth::user();
         $cart = Cart::where('user_id', $user->id)->first();
-        
+
         if ($cart) {
             $cartItem = CartItem::where('cart_id', $cart->id)
                 ->where('book_id', $bookId)
                 ->first();
-            
+
             if ($cartItem) {
                 $cartItem->quantity = $quantity;
                 $cartItem->save();
@@ -269,7 +257,7 @@ class CartController extends Controller
     private function updateSessionCart($bookId, $quantity)
     {
         $cart = Session::get('cart', []);
-        
+
         if (isset($cart[$bookId])) {
             $cart[$bookId]['quantity'] = $quantity;
             Session::put('cart', $cart);
@@ -290,7 +278,7 @@ class CartController extends Controller
             $sessionCart = Session::get('cart', []);
             return array_sum(array_column($sessionCart, 'quantity'));
         }
-        
+
         return 0;
     }
 
@@ -302,14 +290,14 @@ class CartController extends Controller
         $price = $book->price;
         $percent = $book->percent ?? 0;
         $amount = $book->amount ?? 0;
-        
+
         $finalPrice = $price - ($price * $percent / 100) - $amount;
-        
+
         // Ensure price doesn't go below 0
         if ($finalPrice <= 0) {
             $finalPrice = 0;
         }
-        
+
         return $finalPrice;
     }
 }

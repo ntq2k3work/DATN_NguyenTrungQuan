@@ -6,20 +6,15 @@
         <div class="flex justify-center">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-16 h-16">
         </div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 class="mt-4 text-center text-3xl font-extrabold text-gray-900">
             Quên mật khẩu
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
             Nhập email của bạn để nhận link đặt lại mật khẩu
         </p>
-        <div class="mt-2 text-center">
-            <p class="text-xs text-gray-500">
-                ⏱️ Chống spam: Chỉ cho phép gửi email sau mỗi 30 giây
-            </p>
-        </div>
     </div>
 
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="mt-2 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             @if (session('status'))
                 <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">

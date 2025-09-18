@@ -17,7 +17,7 @@ class SearchController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
-        
+
         if (empty($query)) {
             return response()->json([
                 'success' => false,
@@ -48,8 +48,8 @@ class SearchController extends Controller
 
             // Format dữ liệu trả về
             $results = $books->map(function ($book) {
-                $discountPrice = $book->discount ? 
-                    $book->price * (1 - $book->discount->percent / 100) : 
+                $discountPrice = $book->discount ?
+                    $book->price * (1 - $book->discount->percent / 100) :
                     $book->price;
 
                 return [
@@ -90,7 +90,7 @@ class SearchController extends Controller
     public function suggestions(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
-        
+
         if (strlen($query) < 2) {
             return response()->json([
                 'success' => true,
@@ -161,8 +161,8 @@ class SearchController extends Controller
     public function results(Request $request)
     {
         $query = $request->get('q', '');
-        
-        if (empty($query)) {
+
+if (empty($query)) {
             return view('pages.search-results', [
                 'query' => '',
                 'books' => collect(),
@@ -232,8 +232,8 @@ class SearchController extends Controller
                 default:
                     // Relevance sorting - prioritize exact matches
                     $booksQuery->orderByRaw("
-                        CASE 
-                            WHEN title LIKE ? THEN 1
+                        CASE
+                            HEN title LIKE ? THEN 1
                             WHEN title LIKE ? THEN 2
                             WHEN description LIKE ? THEN 3
                             ELSE 4
