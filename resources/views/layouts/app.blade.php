@@ -32,11 +32,11 @@
     <!-- Chatbot Component -->
     @livewire('chatbot-component')
 
-    <!-- Cart Manager (Hidden - chỉ để xử lý events) -->
-    @livewire('cart-manager')
-
-    <!-- Wishlist Manager (Hidden - chỉ để xử lý events) -->
-    @livewire('wishlist-manager')
+    <!-- Cart & Wishlist Managers (hidden globally, still mounted for events/state) -->
+    <div class="hidden">
+        @livewire('cart-manager')
+        @livewire('wishlist-manager')
+    </div>
 
     @vite('resources/js/app.js')
     <script src="{{ asset('js/toast-notifications.js') }}"></script>

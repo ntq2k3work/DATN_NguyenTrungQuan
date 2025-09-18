@@ -96,7 +96,7 @@
             <!-- Results -->
             <div class="flex items-center justify-between mb-6">
                 <div class="text-sm text-gray-600">
-                    Hiển thị <span class="font-semibold">{{ $books->count() }}</span> 
+                    Hiển thị <span class="font-semibold">{{ $books->count() }}</span>
                     trong tổng số <span class="font-semibold">{{ $totalResults }}</span> kết quả
                 </div>
             </div>
@@ -108,19 +108,19 @@
                         <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                             <a href="{{ route('product.show', $book->slug) }}" class="block">
                                 <div class="aspect-w-3 aspect-h-4">
-                                    <img src="{{ $book->image_url }}" 
-                                         alt="{{ $book->title }}" 
+                                    <img src="{{ $book->image_url }}"
+                                         alt="{{ $book->title }}"
                                          class="w-full h-48 object-cover">
                                 </div>
                             </a>
-                            
+
                             <div class="p-4">
                                 <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
                                     <a href="{{ route('product.show', $book->slug) }}" class="hover:text-red-600">
                                         {{ $book->title }}
                                     </a>
                                 </h3>
-                                
+
                                 <div class="text-sm text-gray-600 mb-2">
                                     <div class="mb-1">
                                         <span class="font-medium">Tác giả:</span> {{ $book->author->name ?? 'N/A' }}
@@ -132,7 +132,7 @@
                                         <span class="font-medium">Danh mục:</span> {{ $book->category->name ?? 'N/A' }}
                                     </div>
                                 </div>
-                                
+
                                 <div class="flex items-center justify-between mt-3">
                                     <div class="flex items-center space-x-2">
                                         @if($book->discount)
@@ -152,13 +152,13 @@
                                         @endif
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-3 flex space-x-2">
-                                    <button onclick="addToCart({{ $book->id }})" 
+                                    <button onclick="addToCart({{ $book->id }})"
                                             class="btn-primary flex-1 text-white px-3 py-2 rounded-lg text-sm">
                                         Thêm vào giỏ
                                     </button>
-                                    <button onclick="toggleWishlist({{ $book->id }})" 
+                                    <button onclick="toggleWishlist({{ $book->id }})"
                                             class="btn-secondary px-3 py-2 border border-gray-300 rounded-lg">
                                         <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -219,7 +219,7 @@
 // Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
     const filters = ['category-filter', 'author-filter', 'publisher-filter', 'price-filter', 'sort-filter'];
-    
+
     filters.forEach(filterId => {
         const filter = document.getElementById(filterId);
         if (filter) {
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
     const clearFiltersBtn = document.getElementById('clear-filters');
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', clearFilters);
@@ -238,38 +238,38 @@ document.addEventListener('DOMContentLoaded', function() {
 function applyFilters() {
     const url = new URL(window.location);
     const params = new URLSearchParams();
-    
+
     // Get current query
     const query = url.searchParams.get('q');
     if (query) {
         params.set('q', query);
     }
-    
+
     // Get filter values
     const category = document.getElementById('category-filter')?.value;
     const author = document.getElementById('author-filter')?.value;
     const publisher = document.getElementById('publisher-filter')?.value;
     const price = document.getElementById('price-filter')?.value;
     const sort = document.getElementById('sort-filter')?.value;
-    
+
     if (category) params.set('category', category);
     if (author) params.set('author', author);
     if (publisher) params.set('publisher', publisher);
     if (price) params.set('price', price);
     if (sort) params.set('sort', sort);
-    
+
     // Redirect with new parameters
-    window.location.href = '/search-results?' + params.toString();
+    window.location.href = '{{ route('search.results') }}' + '?' + params.toString();
 }
 
 function clearFilters() {
     const url = new URL(window.location);
     const query = url.searchParams.get('q');
-    
+
     if (query) {
-        window.location.href = '/search-results?q=' + encodeURIComponent(query);
+        window.location.href = '{{ route('search.results') }}?q=' + encodeURIComponent(query);
     } else {
-        window.location.href = '/search-results';
+        window.location.href = '{{ route('search.results') }}';
     }
 }
 

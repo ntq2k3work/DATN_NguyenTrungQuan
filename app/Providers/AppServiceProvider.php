@@ -25,10 +25,10 @@ class AppServiceProvider extends ServiceProvider
     {
         // Sử dụng Bootstrap pagination
         Paginator::useBootstrap();
-        
+
         $categories = Category::with('parent')->where('parent_id',null)->orderByDesc('parent_id')->get();
         $publishers = Publisher::all();
-        
+
         View::share('categories', $categories);
         View::share('publishers', $publishers);
     }

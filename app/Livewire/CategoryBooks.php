@@ -103,35 +103,38 @@ class CategoryBooks extends Component
         switch ($this->categoryType) {
             case 'best-sellers':
                 // For best sellers, you might want to add a best_seller flag or sales count logic
-                $query->where('is_best_seller', true)->orWhere('sales_count', '>', 100);
+                $query->where(function($q) {
+                    $q->where('is_best_seller', true)->orWhere('sales_count', '>', 100);
+                });
                 break;
             case 'new-releases':
                 // Books created in the last 30 days
                 $query->where('created_at', '>=', now()->subDays(30));
                 break;
             case 'top-selling':
-                // Books with highest sales count
-                $query->orderBy('sales_count', 'desc');
+                // Books with highest sales count - don't apply additional ordering here
                 break;
             case 'recommendations':
                 // For recommendations, you might want to add recommendation logic
                 // For now, just show popular books
-                $query->where('is_featured', true)->orWhere('sales_count', '>', 50);
+                $query->where(function($q) {
+                    $q->where('is_featured', true)->orWhere('sales_count', '>', 50);
+                });
                 break;
             default:
                 // All books
                 break;
         }
 
-        // Apply publisher filters
-        if (!empty($this->selectedPublishers)) {
-            $query->whereIn('publisher_id', $this->selectedPublishers);
+        // Apply publisher filters - only if publishers are selected
+        if (!empty($this->selectedPublishers) && is_array($this->selectedPublishers)) {
+            $query->whereIn('publisher_id', array_filter($this->selectedPublishers));
         }
 
-        // Apply price range filters
-        if (!empty($this->selectedPriceRanges)) {
+        // Apply price range filters - only if price ranges are selected
+        if (!empty($this->selectedPriceRanges) && is_array($this->selectedPriceRanges)) {
             $query->where(function ($q) {
-                foreach ($this->selectedPriceRanges as $range) {
+                foreach (array_filter($this->selectedPriceRanges) as $range) {
                     switch ($range) {
                         case '0-50000':
                             $q->orWhereBetween('price', [0, 50000]);
@@ -153,38 +156,56 @@ class CategoryBooks extends Component
             });
         }
 
-        // Apply custom price range
-        if ($this->customPriceMin || $this->customPriceMax) {
-            $min = $this->customPriceMin ?: 0;
-            $max = $this->customPriceMax ?: PHP_INT_MAX;
-            $query->whereBetween('price', [$min, $max]);
+        // Apply custom price range - only if both values are provided
+        if ($this->customPriceMin && $this->customPriceMax) {
+            $min = (float) $this->customPriceMin;
+            $max = (float) $this->customPriceMax;
+            if ($min <= $max) {
+                $query->whereBetween('price', [$min, $max]);
+            }
+        } elseif ($this->customPriceMin) {
+            $min = (float) $this->customPriceMin;
+            $query->where('price', '>=', $min);
+        } elseif ($this->customPriceMax) {
+            $max = (float) $this->customPriceMax;
+            $query->where('price', '<=', $max);
         }
 
-        // Apply sorting (but not for top-selling as it already has its own order)
-        if ($this->categoryType !== 'top-selling') {
-            switch ($this->sortBy) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'name_asc':
-                    $query->orderBy('title', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('title', 'desc');
-                    break;
-                case 'newest':
+        // Apply sorting
+        switch ($this->sortBy) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default:
+                // For top-selling, use sales_count as primary sort
+                if ($this->categoryType === 'top-selling') {
+                    $query->orderBy('sales_count', 'desc');
+                } else {
                     $query->orderBy('created_at', 'desc');
-                    break;
-                case 'oldest':
-                    $query->orderBy('created_at', 'asc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-                    break;
-            }
+                }
+                break;
+        }
+
+        // Add secondary sorting for consistency
+        if ($this->categoryType === 'top-selling') {
+            $query->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('title', 'asc');
         }
 
         $books = $query->paginate($this->perPage);

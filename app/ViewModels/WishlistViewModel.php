@@ -5,15 +5,17 @@ namespace App\ViewModels;
 use App\Models\Wishlist;
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 
 class WishlistViewModel extends BaseViewModel
 {
-    protected $wishlistItems = [];
+    protected Collection $wishlistItems;
     protected $wishlistCount = 0;
 
     public function __construct()
     {
         parent::__construct();
+        $this->wishlistItems = collect();
         $this->loadWishlist();
     }
 
@@ -22,11 +24,10 @@ class WishlistViewModel extends BaseViewModel
         if (Auth::check()) {
             $this->wishlistItems = Wishlist::where('user_id', Auth::id())
                 ->with('book')
-                ->get()
-                ->toArray();
-            $this->wishlistCount = count($this->wishlistItems);
+                ->get();
+            $this->wishlistCount = $this->wishlistItems->count();
         } else {
-            $this->wishlistItems = [];
+            $this->wishlistItems = collect();
             $this->wishlistCount = 0;
         }
     }
@@ -130,7 +131,7 @@ class WishlistViewModel extends BaseViewModel
             ->exists();
     }
 
-    public function getWishlistItems(): array
+    public function getWishlistItems(): \Illuminate\Support\Collection
     {
         return $this->wishlistItems;
     }
@@ -142,7 +143,7 @@ class WishlistViewModel extends BaseViewModel
 
     public function isEmpty(): bool
     {
-        return empty($this->wishlistItems);
+        return $this->wishlistItems->isEmpty();
     }
 
     public function getWishlistStatus(array $bookIds): array
@@ -162,7 +163,7 @@ class WishlistViewModel extends BaseViewModel
     public function toArray(): array
     {
         return array_merge(parent::toArray(), [
-            'wishlistItems' => $this->wishlistItems,
+            'wishlistItems' => ($this->wishlistItems instanceof \Illuminate\Support\Collection) ? $this->wishlistItems->toArray() : $this->wishlistItems,
             'wishlistCount' => $this->wishlistCount,
             'isEmpty' => $this->isEmpty(),
         ]);

@@ -88,6 +88,5 @@
     </div>
   </div>
 
-  @livewire('cart-manager')
-  @livewire('wishlist-manager')
+
 @endsection

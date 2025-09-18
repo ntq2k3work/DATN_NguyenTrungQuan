@@ -16,8 +16,9 @@ class BookCard extends Component
     public $rank = null; // For top-selling cards
     public $addingToCart = false;
     public $componentId;
+    public $inWishlist = false;
 
-    protected $listeners = ['cartUpdated', 'wishlistUpdated', 'resetAddingToCart'];
+    protected $listeners = ['cartUpdated', 'wishlistUpdated', 'wishlistToggled' => 'handleWishlistToggled', 'resetAddingToCart'];
 
     public function mount($book, $showWishlistButton = true, $showAddToCartButton = true, $cardStyle = 'default', $rank = null)
     {
@@ -28,6 +29,7 @@ class BookCard extends Component
         $this->cardStyle = $cardStyle;
         $this->rank = $rank;
         $this->componentId = uniqid('bookcard_');
+        $this->inWishlist = (new BookViewModel(Book::find($this->bookId)))->isInWishlist();
     }
 
     public function addToCart()
@@ -48,6 +50,8 @@ class BookCard extends Component
 
     public function toggleWishlist()
     {
+        // Optimistically update UI
+        $this->inWishlist = !$this->inWishlist;
         $this->dispatch('toggleWishlist', bookId: $this->bookId);
     }
 
@@ -60,8 +64,14 @@ class BookCard extends Component
 
     public function isInWishlist()
     {
-        $bookViewModel = new BookViewModel(Book::find($this->bookId));
-        return $bookViewModel->isInWishlist();
+        return $this->inWishlist;
+    }
+
+    public function handleWishlistToggled($bookId, $inWishlist)
+    {
+        if ($bookId === $this->bookId) {
+            $this->inWishlist = (bool) $inWishlist;
+        }
     }
 
     public function render()

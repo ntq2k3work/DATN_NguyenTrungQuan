@@ -1,4 +1,4 @@
-@extends('layouts.app', ['wishlistCount' => $wishlistItems->count(),'cartCount' => $cartCount])
+@extends('layouts.app', ['wishlistCount' => count($wishlistItems),'cartCount' => $cartCount])
 @section('title', 'Danh sách yêu thích')
 
 @section('content')
@@ -13,13 +13,13 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm text-gray-500">
-                        {{ $wishlistItems->count() }} sản phẩm
+                        {{ count($wishlistItems) }} sản phẩm
                     </span>
                 </div>
             </div>
         </div>
 
-        @if($wishlistItems->count() > 0)
+        @if(count($wishlistItems) > 0)
             <!-- Wishlist Items -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($wishlistItems as $item)
@@ -41,9 +41,9 @@
                                         -{{ $book->discount_percent }}%
                                     </span>
                                 @endif
-                                
+
                                 <!-- Remove from wishlist button -->
-                                <button 
+                                <button
                                     class="absolute top-2 right-2 bg-white/80 hover:bg-white p-2 rounded-full shadow-md transition-colors"
                                     onclick="removeFromWishlist({{ $book->id }})"
                                     data-book-id="{{ $book->id }}"
@@ -97,13 +97,13 @@
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <button 
+                                    <button
                                         onclick="addToCartFromWishlist({{ $book->id }})"
                                         class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
                                     >
                                         Thêm vào giỏ hàng
                                     </button>
-                                    <a 
+                                    <a
                                         href="{{ route('product.show', $book->slug) }}"
                                         class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm text-center"
                                     >
@@ -157,7 +157,7 @@
 // Remove from wishlist function
 function removeFromWishlist(bookId) {
     // Remove confirmation dialog - delete directly
-    
+
     const button = document.querySelector(`[data-book-id="${bookId}"]`);
     if (button) {
         button.disabled = true;
@@ -177,7 +177,7 @@ function removeFromWishlist(bookId) {
     .then(response => response.json())
     .then(data => {
         console.log('Response from server:', data); // Debug log
-        
+
         if (data.success) {
             // Find and remove the product card
             const productCard = document.querySelector(`[data-book-id="${bookId}"]`).closest('.group');
@@ -252,10 +252,10 @@ function showToast(message, type = 'success') {
         `;
         document.body.appendChild(toast);
     }
-    
+
     const toastMessage = document.getElementById('toast-message');
     toastMessage.textContent = message;
-    
+
     // Change color based on type
     if (type === 'error') {
         toast.classList.remove('bg-green-500');
@@ -264,10 +264,10 @@ function showToast(message, type = 'success') {
         toast.classList.remove('bg-red-500');
         toast.classList.add('bg-green-500');
     }
-    
+
     // Show toast
     toast.classList.remove('translate-x-full');
-    
+
     // Hide toast after 3 seconds
     setTimeout(() => {
         toast.classList.add('translate-x-full');
@@ -287,12 +287,12 @@ function updateCartCount(count) {
 function addToCartFromWishlist(bookId) {
     const button = document.querySelector(`[onclick="addToCartFromWishlist(${bookId})"]`);
     const originalText = button.textContent;
-    
+
     // Disable button and show loading
     button.disabled = true;
     button.textContent = 'Đang thêm...';
     button.classList.add('opacity-50');
-    
+
     // Make API call
     fetch('/cart/add', {
         method: 'POST',
@@ -312,15 +312,15 @@ function addToCartFromWishlist(bookId) {
             if (window.WishlistManager) {
                 window.WishlistManager.showToast(data.message, 'success');
             }
-            
+
             // Update cart count in header
             updateCartCount(data.cart_count);
-            
+
             // Change button text temporarily
             button.textContent = 'Đã thêm!';
             button.classList.remove('bg-red-600', 'hover:bg-red-700');
             button.classList.add('bg-green-600');
-            
+
             setTimeout(() => {
                 button.textContent = originalText;
                 button.classList.remove('bg-green-600');

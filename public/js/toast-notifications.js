@@ -48,7 +48,7 @@ function showToast(message, type = 'success') {
 
     const toast = document.createElement('div');
     toast.id = 'toast';
-    toast.className = `${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 transform transition-all duration-300 ease-in-out translate-x-full opacity-0 fixed top-4 right-4 z-50`;
+    toast.className = `${colors[type]} text-white mt-4 px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 transform transition-all duration-300 ease-in-out translate-x-full opacity-0 fixed top-4 right-4 z-50`;
     toast.innerHTML = `
         <div class="flex-shrink-0">
             ${icons[type]}

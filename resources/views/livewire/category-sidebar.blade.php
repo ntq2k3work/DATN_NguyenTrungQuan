@@ -16,23 +16,31 @@
         <!-- Publishers -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Nhà xuất bản</h3>
-            <div class="space-y-2 max-h-48 overflow-y-auto">
+            <div wire:loading.class="opacity-50" wire:target="selectedPublishers" class="space-y-2 max-h-48 overflow-y-auto transition-opacity duration-200">
                 @foreach($publishers as $publisher)
                     <label class="flex items-center">
                         <input type="checkbox"
                                wire:model.live="selectedPublishers"
                                value="{{ $publisher->id }}"
-                               class="publisher-checkbox rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                               wire:loading.attr="disabled"
+                               class="publisher-checkbox rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50">
                         <span class="ml-2 text-sm text-gray-700">{{ $publisher->name }}</span>
                     </label>
                 @endforeach
+            </div>
+            <div wire:loading wire:target="selectedPublishers" class="text-sm text-gray-500 mt-2">
+                <svg class="animate-spin h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang lọc...
             </div>
         </div>
 
         <!-- Price Range -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Khoảng giá</h3>
-            <div class="space-y-2">
+            <div wire:loading.class="opacity-50" wire:target="selectedPriceRanges" class="space-y-2 transition-opacity duration-200">
                 @php
                     $priceRanges = [
                         '0-50000' => 'Dưới 50.000đ',
@@ -48,10 +56,18 @@
                         <input type="checkbox"
                                wire:model.live="selectedPriceRanges"
                                value="{{ $value }}"
-                               class="price-checkbox rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                               wire:loading.attr="disabled"
+                               class="price-checkbox rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50">
                         <span class="ml-2 text-sm text-gray-700">{{ $label }}</span>
                     </label>
                 @endforeach
+            </div>
+            <div wire:loading wire:target="selectedPriceRanges" class="text-sm text-gray-500 mt-2">
+                <svg class="animate-spin h-4 w-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Đang lọc...
             </div>
         </div>
 

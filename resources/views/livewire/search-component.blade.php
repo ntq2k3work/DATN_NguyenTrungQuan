@@ -44,9 +44,9 @@
     @if($showResults && count($results) > 0)
         <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
             @foreach($results as $result)
-                <div
-                    wire:click="window.location.href='{{ $result['url'] }}'"
-                    class="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                <a
+                    href="{{ $result['url'] }}"
+                    class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
                 >
                     <div class="flex items-start space-x-3">
                         <img src="{{ $result['image_url'] }}"
@@ -70,16 +70,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             @endforeach
 
             <!-- View All Results Link -->
-            <div
-                wire:click="window.location.href='{{ route('search-results', ['q' => $query]) }}'"
-                class="px-4 py-2 text-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
+            <a
+                href="{{ route('search.results', ['q' => $query]) }}"
+                class="block px-4 py-2 text-center bg-gray-50 hover:bg-gray-100"
             >
                 <span class="text-sm text-blue-600 font-medium">Xem tất cả kết quả cho "{{ $query }}"</span>
-            </div>
+            </a>
         </div>
     @endif
 

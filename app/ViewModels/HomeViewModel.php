@@ -7,16 +7,17 @@ use App\Models\Category;
 use App\Models\Wishlist;
 use App\Models\Cart;
 use App\Models\CartItem;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class HomeViewModel extends BaseViewModel
 {
-    protected $books = [];
-    protected $categories = [];
-    protected $featuredBooks = [];
-    protected $newReleases = [];
-    protected $bestSellers = [];
-    protected $recommendedBooks = [];
+    protected Collection $books;
+    protected Collection $categories;
+    protected Collection $featuredBooks;
+    protected Collection $newReleases;
+    protected Collection $bestSellers;
+    protected Collection $recommendedBooks;
 
     public function __construct()
     {
@@ -39,16 +40,14 @@ class HomeViewModel extends BaseViewModel
         $this->books = Book::with(['author', 'category', 'publisher', 'discount'])
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function loadCategories(): void
     {
         $this->categories = Category::withCount('books')
             ->orderBy('name')
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function loadFeaturedBooks(): void
@@ -57,8 +56,7 @@ class HomeViewModel extends BaseViewModel
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->limit(8)
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function loadNewReleases(): void
@@ -67,8 +65,7 @@ class HomeViewModel extends BaseViewModel
             ->where('status', 'active')
             ->orderBy('created_at', 'desc')
             ->limit(8)
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function loadBestSellers(): void
@@ -76,14 +73,13 @@ class HomeViewModel extends BaseViewModel
         $this->bestSellers = Book::with(['author', 'category', 'publisher', 'discount'])
             ->where('status', 'active')
             ->limit(8)
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function loadRecommendedBooks(): void
     {
         if (!Auth::check()) {
-            $this->recommendedBooks = [];
+            $this->recommendedBooks = collect();
             return;
         }
 
@@ -91,7 +87,7 @@ class HomeViewModel extends BaseViewModel
         $bookIdsInWishlist = $wishlists->pluck('book_id');
 
         if ($bookIdsInWishlist->isEmpty()) {
-            $this->recommendedBooks = [];
+            $this->recommendedBooks = collect();
             return;
         }
 
@@ -124,78 +120,78 @@ class HomeViewModel extends BaseViewModel
             return $book;
         })->sortByDesc('relevance_score')->take(8);
 
-        $this->recommendedBooks = $books->toArray();
+        $this->recommendedBooks = $books->values();
     }
 
-    public function getBooks(): array
+    public function getBooks(): Collection
     {
         return $this->books;
     }
 
-    public function getCategories(): array
+    public function getCategories(): Collection
     {
         return $this->categories;
     }
 
-    public function getFeaturedBooks(): array
+    public function getFeaturedBooks(): Collection
     {
         return $this->featuredBooks;
     }
 
-    public function getNewReleases(): array
+    public function getNewReleases(): Collection
     {
         return $this->newReleases;
     }
 
-    public function getBestSellers(): array
+    public function getBestSellers(): Collection
     {
         return $this->bestSellers;
     }
 
-    public function getRecommendedBooks(): array
+    public function getRecommendedBooks(): Collection
     {
         return $this->recommendedBooks;
     }
 
     public function getBooksCount(): int
     {
-        return count($this->books);
+        return $this->books->count();
     }
 
     public function getCategoriesCount(): int
     {
-        return count($this->categories);
+        return $this->categories->count();
     }
 
     public function hasFeaturedBooks(): bool
     {
-        return !empty($this->featuredBooks);
+        return $this->featuredBooks->isNotEmpty();
     }
 
     public function hasNewReleases(): bool
     {
-        return !empty($this->newReleases);
+        return $this->newReleases->isNotEmpty();
     }
 
     public function hasBestSellers(): bool
     {
-        return !empty($this->bestSellers);
+        return $this->bestSellers->isNotEmpty();
     }
 
     public function hasRecommendedBooks(): bool
     {
-        return !empty($this->recommendedBooks);
+        return $this->recommendedBooks->isNotEmpty();
     }
 
     public function toArray(): array
     {
         return array_merge(parent::toArray(), [
-            'books' => $this->books,
-            'categories' => $this->categories,
-            'featuredBooks' => $this->featuredBooks,
-            'newReleases' => $this->newReleases,
-            'bestSellers' => $this->bestSellers,
-            'recommendedBooks' => $this->recommendedBooks,
+            'books' => $this->books->toArray(),
+            'categories' => $this->categories->toArray(),
+            'featuredBooks' => $this->featuredBooks->toArray(),
+            'newReleases' => $this->newReleases->toArray(),
+            'bestSellers' => $this->bestSellers->toArray(),
+            'recommendedBooks' => $this->recommendedBooks->toArray(),
             'booksCount' => $this->getBooksCount(),
             'categoriesCount' => $this->getCategoriesCount(),
             'hasFeaturedBooks' => $this->hasFeaturedBooks(),

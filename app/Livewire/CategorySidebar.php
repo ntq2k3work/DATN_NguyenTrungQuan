@@ -26,8 +26,13 @@ class CategorySidebar extends Component
 
     public function updatedSelectedPublishers()
     {
+        // Ensure selectedPublishers is always an array
+        if (!is_array($this->selectedPublishers)) {
+            $this->selectedPublishers = [];
+        }
+
         $this->dispatch('filtersUpdated', [
-            'publishers' => $this->selectedPublishers,
+            'publishers' => array_filter($this->selectedPublishers),
             'priceRanges' => $this->selectedPriceRanges,
             'customPriceMin' => $this->customPriceMin,
             'customPriceMax' => $this->customPriceMax,
@@ -36,9 +41,14 @@ class CategorySidebar extends Component
 
     public function updatedSelectedPriceRanges()
     {
+        // Ensure selectedPriceRanges is always an array
+        if (!is_array($this->selectedPriceRanges)) {
+            $this->selectedPriceRanges = [];
+        }
+
         $this->dispatch('filtersUpdated', [
             'publishers' => $this->selectedPublishers,
-            'priceRanges' => $this->selectedPriceRanges,
+            'priceRanges' => array_filter($this->selectedPriceRanges),
             'customPriceMin' => $this->customPriceMin,
             'customPriceMax' => $this->customPriceMax,
         ]);

@@ -43,10 +43,13 @@ class WishlistManager extends Component
         $success = $wishlistViewModel->toggleWishlist($bookId);
 
         if ($success) {
-            $message = $wishlistViewModel->isInWishlist($bookId) ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích';
+            $inWishlist = $wishlistViewModel->isInWishlist($bookId);
+            $message = $inWishlist ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích';
             $this->dispatch('show-toast', message: $message, type: 'success');
+            // notify cards to sync actual state
+            $this->dispatch('wishlistToggled', bookId: $bookId, inWishlist: $inWishlist);
             $this->loadWishlist();
-            $this->dispatch('wishlistCountUpdated', count: $this->wishlistCount);
+            $this->dispatch('wishlistCountUpdated', ['count' => $this->wishlistCount]);
         } else {
             $errors = $wishlistViewModel->getErrors();
             $this->dispatch('show-toast', message: $errors['auth'] ?? $errors['book'] ?? 'Có lỗi xảy ra', type: 'error');
@@ -67,7 +70,7 @@ class WishlistManager extends Component
 
     public function getWishlistCount()
     {
-        $this->dispatch('wishlistCountUpdated', count: $this->wishlistCount);
+        $this->dispatch('wishlistCountUpdated', ['count' => $this->wishlistCount]);
     }
 
     public function render()
