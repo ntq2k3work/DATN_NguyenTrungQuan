@@ -19,16 +19,6 @@ class ChatbotManager {
         this.testConnection();
     }
 
-    async testConnection() {
-        try {
-            const response = await fetch('/api/chatbot/test');
-            const data = await response.json();
-            console.log('Chatbot API test:', data);
-        } catch (error) {
-            console.error('Chatbot API test failed:', error);
-        }
-    }
-
     bindEvents() {
         // Toggle modal
         this.toggleButton.addEventListener('click', () => this.handleToggle());
@@ -41,7 +31,7 @@ class ChatbotManager {
 
         // Close modal
         this.closeButton.addEventListener('click', () => this.handleClose());
-        
+
         // Send message
         this.sendButton.addEventListener('click', () => this.handleSendMessage());
         this.input.addEventListener('keydown', (e) => {
@@ -79,7 +69,7 @@ class ChatbotManager {
         this.modal.classList.add('active');
         this.toggleButton.setAttribute('aria-expanded', 'true');
         this.input.focus();
-        
+
         // Add animation to button
         this.toggleButton.style.transform = 'scale(1.1)';
         setTimeout(() => {
@@ -100,7 +90,7 @@ class ChatbotManager {
             "Chào bạn! Tôi ở đây để hỗ trợ bạn tìm kiếm sách phù hợp.",
             "Hi! Bạn cần tìm sách gì không? Tôi có thể giúp bạn!"
         ];
-        
+
         const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
         this.addBotMessage(randomMessage);
     }
@@ -135,7 +125,7 @@ class ChatbotManager {
             'thơ', 'thơ ca', 'tập thơ', 'nhà thơ', 'bài thơ', 'thơ văn',
             'văn học', 'văn chương', 'tác phẩm', 'sáng tác'
         ];
-        
+
         const lowerMessage = message.toLowerCase();
         return bookKeywords.some(keyword => lowerMessage.includes(keyword));
     }
@@ -155,18 +145,18 @@ class ChatbotManager {
     createMessageElement(message, type) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chatbot-message chatbot-message-${type}`;
-        
+
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
         contentDiv.innerHTML = `<p>${this.escapeHtml(message)}</p>`;
-        
+
         const timeDiv = document.createElement('div');
         timeDiv.className = 'message-time';
         timeDiv.textContent = this.getCurrentTime();
-        
+
         messageDiv.appendChild(contentDiv);
         messageDiv.appendChild(timeDiv);
-        
+
         return messageDiv;
     }
 
@@ -174,16 +164,16 @@ class ChatbotManager {
         try {
             // Add typing indicator
             this.addTypingIndicator();
-            
+
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             if (!csrfToken) {
                 throw new Error('CSRF token not found');
             }
-            
+
             console.log('Sending request to:', '/api/chatbot/recommendations');
             console.log('Query:', query);
-            
+
             // Call Gemini AI API
             const response = await fetch('/api/chatbot/recommendations', {
                 method: 'POST',
@@ -196,17 +186,17 @@ class ChatbotManager {
             });
 
             console.log('Response status:', response.status);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
             console.log('Response data:', data);
-            
+
             // Remove typing indicator
             this.removeTypingIndicator();
-            
+
             if (data.success && data.recommendations && data.recommendations.length > 0) {
                 this.addBookRecommendations(data.recommendations, data.summary, data.ai_powered);
             } else {
@@ -224,21 +214,21 @@ class ChatbotManager {
     addBookRecommendations(recommendations, summary, aiPowered) {
         // Add summary message
         this.addBotMessage(summary);
-        
+
         // Add each recommendation
         recommendations.forEach((rec, index) => {
             const book = rec.book;
             const reason = rec.reason;
             const score = rec.match_score;
-            
+
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chatbot-message chatbot-message-bot book-recommendation';
-            
+
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content book-card-content';
-            
+
             const stars = '★'.repeat(Math.floor(score / 2)) + '☆'.repeat(5 - Math.floor(score / 2));
-            
+
             contentDiv.innerHTML = `
                 <div class="book-recommendation-card">
                     <div class="book-info">
@@ -262,16 +252,16 @@ class ChatbotManager {
                     </div>
                 </div>
             `;
-            
+
             const timeDiv = document.createElement('div');
             timeDiv.className = 'message-time';
             timeDiv.textContent = this.getCurrentTime();
-            
+
             messageDiv.appendChild(contentDiv);
             messageDiv.appendChild(timeDiv);
             this.messagesContainer.appendChild(messageDiv);
         });
-        
+
         // Add AI powered indicator
         if (aiPowered) {
             const aiIndicator = document.createElement('div');
@@ -283,17 +273,17 @@ class ChatbotManager {
             `;
             this.messagesContainer.appendChild(aiIndicator);
         }
-        
+
         this.scrollToBottom();
     }
 
     handleBotResponse(userMessage) {
         const responses = this.getBotResponses(userMessage.toLowerCase());
         const response = responses[Math.floor(Math.random() * responses.length)];
-        
+
         // Add typing indicator
         this.addTypingIndicator();
-        
+
         setTimeout(() => {
             this.removeTypingIndicator();
             this.addBotMessage(response);
@@ -355,7 +345,7 @@ class ChatbotManager {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'chatbot-message chatbot-message-bot typing-indicator';
         typingDiv.id = 'typing-indicator';
-        
+
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
         contentDiv.innerHTML = `
@@ -365,7 +355,7 @@ class ChatbotManager {
                 <span></span>
             </div>
         `;
-        
+
         typingDiv.appendChild(contentDiv);
         this.messagesContainer.appendChild(typingDiv);
         this.scrollToBottom();
@@ -384,9 +374,9 @@ class ChatbotManager {
 
     getCurrentTime() {
         const now = new Date();
-        return now.toLocaleTimeString('vi-VN', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return now.toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     }
 
@@ -415,13 +405,13 @@ style.textContent = `
         border-radius: 18px;
         border-bottom-left-radius: 4px;
     }
-    
+
     .typing-dots {
         display: flex;
         gap: 4px;
         align-items: center;
     }
-    
+
     .typing-dots span {
         width: 8px;
         height: 8px;
@@ -429,15 +419,15 @@ style.textContent = `
         border-radius: 50%;
         animation: typing 1.4s infinite ease-in-out;
     }
-    
+
     .typing-dots span:nth-child(1) {
         animation-delay: -0.32s;
     }
-    
+
     .typing-dots span:nth-child(2) {
         animation-delay: -0.16s;
     }
-    
+
     @keyframes typing {
         0%, 80%, 100% {
             transform: scale(0.8);

@@ -152,8 +152,8 @@
                     <span class="text-sm text-muted-foreground line-through text-teal-600">{{ number_format($book->price,0,',','.') }}</span>
                   </div>
                   <div class="flex gap-2">
-                    <button 
-                      class="border border-gray-300 p-2 rounded hover:bg-gray-100" 
+                    <button
+                      class="border border-gray-300 p-2 rounded hover:bg-gray-100"
                       onclick="event.stopPropagation(); toggleWishlist({{ $book->id }})"
                       data-book-id="{{ $book->id }}"
                       title="Thêm vào yêu thích"
@@ -167,7 +167,7 @@
                         />
                       </svg>
                     </button>
-                    <button 
+                    <button
                       class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-500 cursor-pointer add-to-cart-btn"
                       data-book-id="{{ $book->id }}"
                       onclick="event.stopPropagation(); addToCart({{ $book->id }})"
@@ -253,7 +253,7 @@
                 </div>
               </div>
 
-              <button 
+              <button
                 class="w-full px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer text-sm add-to-cart-btn"
                 data-book-id="{{ $book->id }}"
                 onclick="event.stopPropagation(); addToCart({{ $book->id }})"
@@ -292,25 +292,25 @@
   <script>
     function addToCart(bookId, button = null) {
       console.log('addToCart called with bookId:', bookId);
-      
+
       // If button is not provided, find the first button with the book ID
       if (!button) {
         button = document.querySelector(`[data-book-id="${bookId}"]`);
       }
-      
+
       if (!button) {
         console.error('Button not found for book ID:', bookId);
         return;
       }
-      
+
       console.log('Button found:', button);
       const originalText = button.textContent;
-      
+
       // Disable button and show loading
       button.disabled = true;
       button.textContent = 'Đang thêm...';
       button.classList.add('opacity-50');
-      
+
       // Make API call
       fetch('{{ route("cart.add") }}', {
         method: 'POST',
@@ -332,15 +332,15 @@
         if (data.success) {
           // Show success message
           showToast(data.message);
-          
+
           // Update cart count if cart icon exists
           updateCartCount(data.cart_count);
-          
+
           // Change button text temporarily
           button.textContent = 'Đã thêm!';
           button.classList.remove('bg-amber-600', 'hover:bg-amber-500');
           button.classList.add('bg-green-600');
-          
+
           setTimeout(() => {
             button.textContent = originalText;
             button.classList.remove('bg-green-600');
@@ -360,13 +360,13 @@
         button.classList.remove('opacity-50');
       });
     }
-    
+
     function showToast(message, type = 'success') {
       const toast = document.getElementById('toast');
       const toastMessage = document.getElementById('toast-message');
-      
+
       toastMessage.textContent = message;
-      
+
       // Change color based on type
       if (type === 'error') {
         toast.classList.remove('bg-green-500');
@@ -375,16 +375,16 @@
         toast.classList.remove('bg-red-500');
         toast.classList.add('bg-green-500');
       }
-      
+
       // Show toast
       toast.classList.remove('translate-x-full');
-      
+
       // Hide toast after 3 seconds
       setTimeout(() => {
         toast.classList.add('translate-x-full');
       }, 3000);
     }
-    
+
     function updateCartCount(count) {
       // Update cart count in header if exists
       const cartCountElement = document.querySelector('.cart-count');
@@ -403,7 +403,7 @@
       }
     }
   </script>
-  
+
   <!-- Include wishlist functionality -->
   <script src="{{ asset('js/wishlist.js') }}"></script>
 @endsection

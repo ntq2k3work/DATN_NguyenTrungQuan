@@ -10,8 +10,17 @@
                 />
             </a>
             <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">{{ $category->name }}</span>
-            <button class="absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button
+                class="wishlist-btn absolute top-2 right-2 bg-background/80 hover:bg-background p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity {{ ($book->in_wishlist ?? false) ? 'opacity-100 bg-red-50 hover:bg-red-100' : '' }}"
+                onclick="toggleWishlist({{ $book->id }})"
+                data-book-id="{{ $book->id }}"
+                data-in-wishlist="{{ ($book->in_wishlist ?? false) ? 'true' : 'false' }}"
+                title="{{ ($book->in_wishlist ?? false) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' }}"
+            >
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 {{ ($book->in_wishlist ?? false) ? 'fill-current text-red-600' : 'stroke-current text-gray-600 hover:text-red-600' }}"
+                     fill="{{ ($book->in_wishlist ?? false) ? 'currentColor' : 'none' }}"
+                     stroke="{{ ($book->in_wishlist ?? false) ? 'none' : 'currentColor' }}"
+                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
@@ -45,13 +54,35 @@
                     @endif
                 </div>
                 <div class="flex gap-1 sm:gap-2">
-                    <button class="border border-gray-300 p-1.5 sm:p-2 rounded hover:bg-gray-100">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button
+                        class="wishlist-btn border border-gray-300 p-1.5 sm:p-2 rounded hover:bg-gray-100 hover:border-red-500 transition-colors {{ ($book->in_wishlist ?? false) ? 'bg-red-50 border-red-500' : '' }}"
+                        onclick="toggleWishlist({{ $book->id }})"
+                        data-book-id="{{ $book->id }}"
+                        data-in-wishlist="{{ ($book->in_wishlist ?? false) ? 'true' : 'false' }}"
+                        title="{{ ($book->in_wishlist ?? false) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' }}"
+                    >
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 {{ ($book->in_wishlist ?? false) ? 'fill-current text-red-600' : 'stroke-current text-gray-600 hover:text-red-600' }}"
+                             fill="{{ ($book->in_wishlist ?? false) ? 'currentColor' : 'none' }}"
+                             stroke="{{ ($book->in_wishlist ?? false) ? 'none' : 'currentColor' }}"
+                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                     </button>
-                    <button class="bg-primary text-white px-3 sm:px-4 py-2 rounded hover:bg-primary/90 text-sm sm:text-base">Mua</button>
+                    <button
+                        class="bg-primary text-white px-3 sm:px-4 py-2 rounded hover:bg-primary/90 text-sm sm:text-base transition-colors"
+                        onclick="buyNow({{ $book->id }})"
+                        data-book-id="{{ $book->id }}"
+                    >
+                        Mua ngay
+                    </button>
+                    <button
+                        class="bg-amber-600 text-white px-3 sm:px-4 py-2 rounded hover:bg-amber-700 text-sm sm:text-base transition-colors add-to-cart-btn"
+                        onclick="addToCart({{ $book->id }})"
+                        data-book-id="{{ $book->id }}"
+                    >
+                        Thêm vào giỏ
+                    </button>
                 </div>
             </div>
         </div>

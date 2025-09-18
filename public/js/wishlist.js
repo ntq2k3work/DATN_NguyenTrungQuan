@@ -7,12 +7,12 @@ window.WishlistManager = {
 
         const svg = button.querySelector('svg');
         const originalText = button.getAttribute('title');
-        
+
         // Disable button and show loading
         button.disabled = true;
         button.setAttribute('title', 'Đang xử lý...');
         button.classList.add('opacity-50');
-        
+
         // Make API call
         fetch('/wishlist/toggle', {
             method: 'POST',
@@ -29,7 +29,7 @@ window.WishlistManager = {
             if (data.success) {
                 // Update button state
                 const isInWishlist = data.in_wishlist;
-                
+
             if (isInWishlist) {
                 // Added to wishlist
                 button.classList.remove('opacity-0', 'group-hover:opacity-100');
@@ -40,9 +40,9 @@ window.WishlistManager = {
                 svg.setAttribute('stroke', 'none');
                 button.setAttribute('title', 'Xóa khỏi yêu thích');
                 button.setAttribute('data-in-wishlist', 'true');
-                
+
                 this.showToast(data.message, 'success');
-                
+
                 // Update wishlist count in header
                 this.updateWishlistCount(data.wishlist_count);
             } else {
@@ -55,9 +55,9 @@ window.WishlistManager = {
                 svg.setAttribute('stroke', 'currentColor');
                 button.setAttribute('title', 'Thêm vào yêu thích');
                 button.setAttribute('data-in-wishlist', 'false');
-                
+
                 this.showToast(data.message, 'success');
-                
+
                 // Update wishlist count in header
                 this.updateWishlistCount(data.wishlist_count);
             }
@@ -102,10 +102,10 @@ window.WishlistManager = {
             `;
             document.body.appendChild(toast);
         }
-        
+
         const toastMessage = document.getElementById('toast-message');
         toastMessage.textContent = message;
-        
+
         // Change color based on type
         if (type === 'error') {
             toast.classList.remove('bg-green-500');
@@ -114,10 +114,10 @@ window.WishlistManager = {
             toast.classList.remove('bg-red-500');
             toast.classList.add('bg-green-500');
         }
-        
+
         // Show toast
         toast.classList.remove('translate-x-full');
-        
+
         // Hide toast after 3 seconds
         setTimeout(() => {
             toast.classList.add('translate-x-full');
@@ -128,15 +128,16 @@ window.WishlistManager = {
     checkWishlistStatus: function(bookIds) {
         if (!Array.isArray(bookIds) || bookIds.length === 0) return;
 
-        fetch('/wishlist/check', {
+        // Create URL with query parameters
+        const params = new URLSearchParams();
+        bookIds.forEach(id => params.append('book_ids[]', id));
+
+        fetch(`/wishlist/check?${params.toString()}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                book_ids: bookIds
-            })
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -168,3 +169,15 @@ window.WishlistManager = {
 function toggleWishlist(bookId) {
     window.WishlistManager.toggleWishlist(bookId);
 }
+
+// Initialize wishlist status when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all wishlist buttons on the page
+    const wishlistButtons = document.querySelectorAll('[data-book-id]');
+    const bookIds = Array.from(wishlistButtons).map(button => parseInt(button.getAttribute('data-book-id')));
+
+    if (bookIds.length > 0) {
+        // Check wishlist status for all books on the page
+        window.WishlistManager.checkWishlistStatus(bookIds);
+    }
+});

@@ -25,7 +25,7 @@ class ProductController extends Controller
         $price = $book->price;
         $percent = $book->discount?->percent ?? 0;
         $amount = $book->discount?->amount ?? 0;
-        
+
         $book->final_price = $price - ($price * $percent / 100) - $amount;
         if ($book->final_price <= 0) {
             $book->final_price = 0;
@@ -57,7 +57,7 @@ class ProductController extends Controller
             $relatedPrice = $relatedBook->price;
             $relatedPercent = $relatedBook->discount?->percent ?? 0;
             $relatedAmount = $relatedBook->discount?->amount ?? 0;
-            
+
             $relatedBook->final_price = $relatedPrice - ($relatedPrice * $relatedPercent / 100) - $relatedAmount;
             if ($relatedBook->final_price <= 0) {
                 $relatedBook->final_price = 0;
@@ -69,10 +69,10 @@ class ProductController extends Controller
 
         // Calculate cart count
         $cartCount = $this->getCartCount();
-        
+
         // Calculate wishlist count
         $wishlistCount = $this->getWishlistCount();
-        
+
         return view('pages.product.detail', compact('book', 'inWishlist', 'relatedBooks', 'cartCount', 'wishlistCount'));
     }
 
@@ -80,7 +80,7 @@ class ProductController extends Controller
     {
         return number_format($price, 0, ',', '.');
     }
-    
+
     /**
      * Get total cart count
      */
@@ -95,7 +95,7 @@ class ProductController extends Controller
             $sessionCart = Session::get('cart', []);
             return array_sum(array_column($sessionCart, 'quantity'));
         }
-        
+
         return 0;
     }
 }

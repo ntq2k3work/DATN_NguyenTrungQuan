@@ -94,7 +94,7 @@ class WishlistController extends Controller
         if ($deleted) {
             // Get updated wishlist count
             $wishlistCount = Wishlist::where('user_id', $userId)->count();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa khỏi danh sách yêu thích',
@@ -142,10 +142,10 @@ class WishlistController extends Controller
         if ($existingWishlist) {
             // Remove from wishlist
             $existingWishlist->delete();
-            
+
             // Get updated wishlist count
             $wishlistCount = Wishlist::where('user_id', $userId)->count();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa khỏi danh sách yêu thích',
@@ -158,10 +158,10 @@ class WishlistController extends Controller
                 'user_id' => $userId,
                 'book_id' => $bookId
             ]);
-            
+
             // Get updated wishlist count
             $wishlistCount = Wishlist::where('user_id', $userId)->count();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã thêm vào danh sách yêu thích',
@@ -176,6 +176,41 @@ class WishlistController extends Controller
      */
     public function check(Request $request)
     {
+        // Check if checking multiple books
+        if ($request->has('book_ids')) {
+            $bookIds = $request->input('book_ids');
+
+            if (!is_array($bookIds) || empty($bookIds)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Dữ liệu không hợp lệ'
+                ], 400);
+            }
+
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => true,
+                    'wishlist_status' => array_fill_keys($bookIds, false)
+                ]);
+            }
+
+            $userId = Auth::id();
+            $wishlistStatus = [];
+
+            foreach ($bookIds as $bookId) {
+                $inWishlist = Wishlist::where('user_id', $userId)
+                    ->where('book_id', $bookId)
+                    ->exists();
+                $wishlistStatus[$bookId] = $inWishlist;
+            }
+
+            return response()->json([
+                'success' => true,
+                'wishlist_status' => $wishlistStatus
+            ]);
+        }
+
+        // Single book check (backward compatibility)
         $validator = Validator::make($request->all(), [
             'book_id' => 'required|integer|exists:books,id'
         ]);
@@ -242,7 +277,7 @@ class WishlistController extends Controller
             ->get();
 
         $cartCount = (new CartController())->getCartCount();
-        
+
 
         // Calculate final prices for wishlist items
         foreach ($wishlistItems as $item) {
@@ -250,7 +285,7 @@ class WishlistController extends Controller
             $price = $book->price;
             $percent = $book->discount?->percent ?? 0;
             $amount = $book->discount?->amount ?? 0;
-            
+
             $book->final_price = $price - ($price * $percent / 100) - $amount;
             if ($book->final_price <= 0) {
                 $book->final_price = 0;

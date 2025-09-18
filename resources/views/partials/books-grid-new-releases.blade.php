@@ -10,7 +10,7 @@
                 />
             </a>
             <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
-            <x-wishlist-button :book="$book" :in-wishlist="false" size="sm" />
+            <x-wishlist-button :book="$book" :in-wishlist="$book->in_wishlist ?? false" size="sm" />
         </div>
 
         <div class="space-y-2 sm:space-y-3">
@@ -40,7 +40,7 @@
                     @endif
                 </div>
                 <div class="flex gap-1 sm:gap-2">
-                    <button 
+                    <button
                         class="bg-amber-600 hover:bg-amber-500 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base transition-colors"
                         onclick="addToCart({{ $book->id }}, this)"
                         data-book-id="{{ $book->id }}"

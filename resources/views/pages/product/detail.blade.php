@@ -91,8 +91,9 @@
                     <h1 class="text-2xl font-bold text-red-600 mb-2">{{ $book->title }}</h1>
                     <div class="flex items-center space-x-4 text-sm">
                         <span class="text-green-600 font-medium">Tình trạng: Còn hàng</span>
-                        <span class="text-gray-600">Nhà xuất bản: {{ $book->publisher->name ?? 'Chưa có thông tin' }}</span>
                     </div>
+                    <div class="text-sm text-gray-600 mt-2">Tác giả: {{ $book->author->name ?? 'Chưa có thông tin' }}</div>
+                    <div class="text-sm text-gray-600 mt-2">Nhà xuất bản: {{ $book->publisher->name ?? 'Chưa có thông tin' }}</div>
                     <div class="mt-2">
                         <span class="text-blue-600 font-medium text-sm">Số lượng có sẵn: {{ $book->quantity }} sản phẩm</span>
                     </div>
@@ -194,27 +195,6 @@
                     </div>
                 </div>
 
-                <!-- Features -->
-                <div class="space-y-2">
-                    <div class="flex items-start space-x-2">
-                        <div class="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span class="text-gray-700">Tiếp cận toàn diện các dạng bài trọng điểm.</span>
-                    </div>
-                    <div class="flex items-start space-x-2">
-                        <div class="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span class="text-gray-700">Luyện thi hơn 1000 câu hỏi thực hành bám sát đề thi thật</span>
-                    </div>
-                    <div class="flex items-start space-x-2">
-                        <div class="w-2 h-2 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <span class="text-gray-700">Củng cố kiến thức bằng hệ thống bài test và đáp án chi tiết.</span>
-                    </div>
-                </div>
-
-                <!-- Logos -->
-                <div class="flex items-center space-x-4 pt-4">
-                    <div class="text-sm font-bold text-gray-600">1980 EDU</div>
-                    <div class="text-sm text-gray-600">NHÀ XUẤT BẢN {{ strtoupper($book->publisher->name ?? 'DÂN TRÍ') }}</div>
-                </div>
             </div>
         </div>
 

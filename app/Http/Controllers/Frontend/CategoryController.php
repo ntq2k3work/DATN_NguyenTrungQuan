@@ -6,17 +6,46 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Publisher;
+use App\Models\Wishlist;
 use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
     use WishlistCountTrait;
+
+    /**
+     * Add wishlist status to books collection
+     */
+    private function addWishlistStatusToBooks($books)
+    {
+        if (!Auth::check()) {
+            return $books;
+        }
+
+        $userId = Auth::id();
+        $bookIds = $books->pluck('id')->toArray();
+
+        $wishlistBookIds = Wishlist::where('user_id', $userId)
+            ->whereIn('book_id', $bookIds)
+            ->pluck('book_id')
+            ->toArray();
+
+        foreach ($books as $book) {
+            $book->in_wishlist = in_array($book->id, $wishlistBookIds);
+        }
+
+        return $books;
+    }
     public function index()
     {
         $books = Book::with(['author', 'category', 'publisher'])
             ->orderBy('created_at', 'desc')
             ->paginate(12);
+
+        // Add wishlist status to books
+        $books = $this->addWishlistStatusToBooks($books);
 
         // Get publishers for filter
         $publishers = Publisher::orderBy('name')->get();
@@ -103,6 +132,9 @@ class CategoryController extends Controller
         $books = Book::with(['author', 'category', 'publisher'])
             ->where('category_id', $category->id)
             ->paginate(12);
+
+        // Add wishlist status to books
+        $books = $this->addWishlistStatusToBooks($books);
 
         // Get publishers for filter
         $publishers = Publisher::orderBy('name')->get();
@@ -297,6 +329,9 @@ class CategoryController extends Controller
         }
 
             $books = $query->paginate(12);
+
+            // Add wishlist status to books
+            $books = $this->addWishlistStatusToBooks($books);
 
             if ($request->ajax() || $request->wantsJson()) {
                 $html = view('partials.books-grid', compact('books', 'category'))->render();

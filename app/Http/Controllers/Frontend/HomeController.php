@@ -12,6 +12,7 @@ use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -64,15 +65,28 @@ class HomeController extends Controller
             } else{
                 $book_recommendations = Book::inRandomOrder()->take(8)->get();
             }
+
+            // Thêm trạng thái wishlist cho book_recommendations
+            foreach($book_recommendations as $book) {
+                $book->in_wishlist = false;
+                if ($bookIdsInWishlist->contains($book->id)) {
+                    $book->in_wishlist = true;
+                }
+            }
         } else {
             $wishlists = collect();
             $book_recommendations = Book::inRandomOrder()->take(8)->get();
+
+            // Thêm trạng thái wishlist cho book_recommendations (false cho user chưa đăng nhập)
+            foreach($book_recommendations as $book) {
+                $book->in_wishlist = false;
+            }
         }
 
-        $best_sellers = Book::select('books.*', \DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'), 
-        \DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
+        $best_sellers = Book::select('books.*', DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'),
+        DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
         ->whereExists(function($query) {
-            $query->select(\DB::raw(1))
+            $query->select(DB::raw(1))
                   ->from('discounts')
                   ->whereColumn('discounts.book_id', 'books.id');
         })
@@ -89,6 +103,12 @@ class HomeController extends Controller
             if ($book->final_price <= 0){
                 $book->final_price = 0;
                 $book->percent = 100;
+            }
+
+            // Kiểm tra trạng thái wishlist
+            $book->in_wishlist = false;
+            if ($auth && $bookIdsInWishlist->contains($book->id)) {
+                $book->in_wishlist = true;
             }
         }
 
@@ -108,17 +128,23 @@ class HomeController extends Controller
             }
 
             $book->price = $this->numberFormat($book->price);
+
+            // Kiểm tra trạng thái wishlist
+            $book->in_wishlist = false;
+            if ($auth && $bookIdsInWishlist->contains($book->id)) {
+                $book->in_wishlist = true;
+            }
         }
-        
+
         // Calculate cart count
         $cartCount = $this->getCartCount();
-        
+
         // Calculate wishlist count
         $wishlistCount = $this->getWishlistCount();
         $wishlist = $this->getWishlist();
         return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount','wishlistCount','wishlist']));
     }
-    
+
     /**
      * Get total cart count
      */
@@ -133,7 +159,7 @@ class HomeController extends Controller
             $sessionCart = Session::get('cart', []);
             return array_sum(array_column($sessionCart, 'quantity'));
         }
-        
+
         return 0;
     }
 }
