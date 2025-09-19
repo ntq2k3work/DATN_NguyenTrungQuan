@@ -43,17 +43,17 @@
 
                     <div class="flex items-center space-x-3">
                         <button wire:click="updateQuantity({{ $book['id'] }}, {{ $quantity - 1 }})"
-                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300">
+                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
                             -
                         </button>
                         <input type="number"
                                value="{{ $quantity }}"
                                min="1"
-                               max="99"
-                               wire:change="updateQuantity({{ $book['id'] }}, $event.target.value)"
+                               max="{{ $book['quantity'] ?? 99 }}"
+                               wire:input="updateQuantityFromInput({{ $book['id'] }}, $event.target.value)"
                                class="w-16 h-8 text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <button wire:click="updateQuantity({{ $book['id'] }}, {{ $quantity + 1 }})"
-                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300">
+                                class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
                             +
                         </button>
                     </div>

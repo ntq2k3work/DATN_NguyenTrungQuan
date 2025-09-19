@@ -199,9 +199,11 @@
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
-                <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                    Best Seller
-                </span>
+                @if(($bookData['discount_percent'] ?? 0) > 0 || ($bookData['discount_amount'] ?? 0) > 0)
+                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                        {{ ($bookData['discount_percent'] ?? 0) > 0 ? $bookData['discount_percent'].'%' : (($bookData['discount_amount'] ?? 0) > 0 ? $bookData['discount_amount'].'đ' : '') }}
+                    </span>
+                @endif
 
                 @if($showWishlistButton)
                     <button
@@ -243,28 +245,16 @@
                         @endif
                     </div>
                     <div class="flex gap-2">
-                        @if($showWishlistButton)
-                            <button
-                                wire:click.stop="toggleWishlist"
-                                class="border border-gray-300 p-2 rounded hover:bg-gray-100 {{ $this->isInWishlist() ? 'bg-red-50 hover:bg-red-100' : '' }}"
-                                title="{{ $this->isInWishlist() ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' }}"
-                            >
-                                <svg class="w-4 h-4 {{ $this->isInWishlist() ? 'fill-current text-red-600' : 'stroke-current text-gray-600 hover:text-red-600' }}"
-                                     viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
-                        @endif
+                        
                         @if($showAddToCartButton)
                             <button
                                 wire:click.stop="addToCart"
                                 data-book-id="{{ $bookData['id'] }}"
                                 data-component-id="{{ $componentId }}"
-                                class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 cursor-pointer add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-primary/90 cursor-pointer add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
                                 {{ $addingToCart ? 'disabled' : '' }}
                             >
-                                {{ $addingToCart ? 'Đang thêm...' : 'Mua' }}
+                                {{ $addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ hàng' }}
                             </button>
                         @endif
                     </div>

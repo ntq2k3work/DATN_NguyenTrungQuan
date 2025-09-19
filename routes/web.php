@@ -141,7 +141,6 @@ Route::get('/search/suggestions', [App\Http\Controllers\SearchController::class,
 Route::get('/search-results', [App\Http\Controllers\SearchController::class, 'results'])->name('search.results');
 
 // Chatbot Routes
-Route::get('/api/chatbot/test', [ChatbotController::class, 'test'])->name('chatbot.test');
 Route::get('/api/chatbot/books', [ChatbotController::class, 'getBooksData'])->name('chatbot.books');
 Route::post('/api/chatbot/recommendations', [ChatbotController::class, 'getRecommendations'])->name('chatbot.recommendations');
 

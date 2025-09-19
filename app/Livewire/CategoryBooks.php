@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Publisher;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -102,24 +104,57 @@ class CategoryBooks extends Component
         // Apply category type specific filters
         switch ($this->categoryType) {
             case 'best-sellers':
-                // For best sellers, you might want to add a best_seller flag or sales count logic
-                $query->where(function($q) {
-                    $q->where('is_best_seller', true)->orWhere('sales_count', '>', 100);
-                });
+                $query->leftJoin('discounts', 'books.id', '=', 'discounts.book_id')
+                    ->where(function($q) {
+                        $q->whereNotNull('discounts.percent')
+                          ->orWhereNotNull('discounts.amount');
+                    })
+                    ->orderByRaw('COALESCE(discounts.percent, 0) DESC')
+                    ->orderByRaw('COALESCE(discounts.amount, 0) DESC')
+                    ->select('books.*');
+                // Tạo discount_percent column
+                $query->addSelect('discounts.percent as discount_percent');
+                $query->addSelect('discounts.amount as discount_amount');
                 break;
             case 'new-releases':
                 // Books created in the last 30 days
-                $query->where('created_at', '>=', now()->subDays(30));
+                $query->orderBy('created_at', 'desc');
                 break;
-            case 'top-selling':
-                // Books with highest sales count - don't apply additional ordering here
-                break;
+
             case 'recommendations':
-                // For recommendations, you might want to add recommendation logic
-                // For now, just show popular books
-                $query->where(function($q) {
-                    $q->where('is_featured', true)->orWhere('sales_count', '>', 50);
-                });
+                // Lấy các sách có cùng danh mục với sách user yêu thích, nếu không có thì hiển thị sách mới nhất
+                $user = Auth::check() ? Auth::user() : null;
+                $favoriteCategoryIds = [];
+
+                if ($user) {
+                    // Lấy id các sách user yêu thích
+                    $wishlistBookIds = DB::table('wishlists')
+                        ->where('user_id', $user->id)
+                        ->pluck('book_id')
+                        ->toArray();
+
+                    if (!empty($wishlistBookIds)) {
+                        // Lấy các category_id từ các sách yêu thích
+                        $favoriteCategoryIds = Book::whereIn('id', $wishlistBookIds)
+                            ->pluck('category_id')
+                            ->unique()
+                            ->filter()
+                            ->toArray();
+                    }
+                }
+
+                if (!empty($favoriteCategoryIds)) {
+                    $query->whereIn('category_id', $favoriteCategoryIds)
+                        ->whereNotIn('id', function($subQuery) use ($user) {
+                            $subQuery->select('book_id')
+                                  ->from('wishlists')
+                                  ->where('user_id', $user->id);
+                        })
+                        ->orderBy('created_at', 'desc');
+                } else {
+                    // Nếu không có danh mục yêu thích hoặc user chưa đăng nhập, hiển thị sách mới nhất
+                    $query->orderBy('created_at', 'desc');
+                }
                 break;
             default:
                 // All books

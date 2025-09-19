@@ -71,9 +71,7 @@ class ChatbotComponent extends Component
     public function addWelcomeMessage()
     {
         $welcomeMessages = [
-            "Xin chào! Tôi có thể giúp gì cho bạn hôm nay?",
-            "Chào bạn! Tôi ở đây để hỗ trợ bạn tìm kiếm sách phù hợp.",
-            "Hi! Bạn cần tìm sách gì không? Tôi có thể giúp bạn!"
+            "Xin chào! Tôi có thể giúp gì cho bạn hôm nay?"
         ];
 
         $this->welcomeMessage = $welcomeMessages[array_rand($welcomeMessages)];

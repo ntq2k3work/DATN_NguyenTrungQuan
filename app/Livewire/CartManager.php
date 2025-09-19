@@ -52,12 +52,33 @@ class CartManager extends Component
 
         if ($success) {
             $this->loadCart();
-            // $this->dispatch('show-toast', message: 'Đã thêm vào giỏ hàng!', type: 'success');
-
             $this->dispatch('cartCountUpdated', ['count' => $this->cartCount]);
         } else {
             $errors = $cartViewModel->getErrors();
-            // $this->dispatch('show-toast', message: $errors['quantity'] ?? 'Có lỗi xảy ra', type: 'warning');
+            $this->dispatch('show-toast', message: $errors['quantity'] ?? 'Có lỗi xảy ra', type: 'warning');
+        }
+    }
+
+    public function updateQuantityFromInput($bookId, $quantity)
+    {
+        // Validate input
+        $quantity = (int) $quantity;
+        
+        if ($quantity < 1) {
+            $quantity = 1;
+        }
+
+        $cartViewModel = new CartViewModel();
+        $success = $cartViewModel->updateQuantity($bookId, $quantity);
+
+        if ($success) {
+            $this->loadCart();
+            $this->dispatch('cartCountUpdated', ['count' => $this->cartCount]);
+        } else {
+            $errors = $cartViewModel->getErrors();
+            $this->dispatch('show-toast', message: $errors['quantity'] ?? 'Có lỗi xảy ra', type: 'warning');
+            // Reload cart to reset the input value
+            $this->loadCart();
         }
     }
 

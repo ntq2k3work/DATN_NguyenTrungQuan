@@ -9,9 +9,11 @@
                     class="w-full h-[200px] sm:h-[220px] lg:h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                 />
             </a>
-            <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                Best Seller
-            </span>
+            @if(($bookData['discount_percent'] ?? 0) > 0 || ($bookData['discount_amount'] ?? 0) > 0)
+                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                        {{ ($bookData['discount_percent'] ?? 0) > 0 ? $bookData['discount_percent'].'%' : (($bookData['discount_amount'] ?? 0) > 0 ? $bookData['discount_amount'].'đ' : '') }}
+                    </span>
+            @endif
             <x-wishlist-button :book="$book" :in-wishlist="false" size="sm" />
         </div>
 

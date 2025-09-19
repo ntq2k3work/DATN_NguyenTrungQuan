@@ -38,7 +38,7 @@ class HomeViewModel extends BaseViewModel
     public function loadBooks(): void
     {
         $this->books = Book::with(['author', 'category', 'publisher', 'discount'])
-            ->where('status', 'active')
+            ->where('status', 'activate')
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -53,7 +53,7 @@ class HomeViewModel extends BaseViewModel
     public function loadFeaturedBooks(): void
     {
         $this->featuredBooks = Book::with(['author', 'category', 'publisher', 'discount'])
-            ->where('status', 'active')
+            ->where('status', 'activate')
             ->orderBy('created_at', 'desc')
             ->limit(8)
             ->get();
@@ -62,7 +62,7 @@ class HomeViewModel extends BaseViewModel
     public function loadNewReleases(): void
     {
         $this->newReleases = Book::with(['author', 'category', 'publisher', 'discount'])
-            ->where('status', 'active')
+            ->where('status', 'activate')
             ->orderBy('created_at', 'desc')
             ->limit(8)
             ->get();
@@ -71,7 +71,7 @@ class HomeViewModel extends BaseViewModel
     public function loadBestSellers(): void
     {
         $this->bestSellers = Book::with(['author', 'category', 'publisher', 'discount'])
-            ->where('status', 'active')
+            ->where('status', 'activate')
             ->limit(8)
             ->get();
     }
@@ -79,7 +79,12 @@ class HomeViewModel extends BaseViewModel
     public function loadRecommendedBooks(): void
     {
         if (!Auth::check()) {
-            $this->recommendedBooks = collect();
+            // Nếu user chưa đăng nhập, hiển thị 4 cuốn sách mới nhất
+            $this->recommendedBooks = Book::with(['author', 'category', 'publisher', 'discount'])
+                ->where('status', 'activate')
+                ->orderBy('created_at', 'desc')
+                ->limit(8)
+                ->get();
             return;
         }
 
@@ -87,7 +92,12 @@ class HomeViewModel extends BaseViewModel
         $bookIdsInWishlist = $wishlists->pluck('book_id');
 
         if ($bookIdsInWishlist->isEmpty()) {
-            $this->recommendedBooks = collect();
+            // Nếu user đã đăng nhập nhưng không có sách yêu thích, hiển thị 4 cuốn sách mới nhất
+            $this->recommendedBooks = Book::with(['author', 'category', 'publisher', 'discount'])
+                ->where('status', 'activate')
+                ->orderBy('created_at', 'desc')
+                ->limit(8)
+                ->get();
             return;
         }
 
@@ -106,6 +116,7 @@ class HomeViewModel extends BaseViewModel
             })
             ->with(['author', 'category', 'publisher', 'discount'])
             ->get();
+
 
         // Sort by relevance
         $books = $books->map(function($book) use ($categoryIds, $authorIds) {
