@@ -29,7 +29,7 @@ class CategoriesTable
                     ->weight('bold'),
 
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label('Đường dẫn URL')
                     ->searchable()
                     ->copyable(),
 

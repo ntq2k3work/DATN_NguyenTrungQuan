@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Wishlist;
+use App\ViewModels\WishlistViewModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -26,38 +27,28 @@ class WishlistController extends Controller
             ], 400);
         }
 
-        if (!Auth::check()) {
+        $wishlistViewModel = new WishlistViewModel();
+        $success = $wishlistViewModel->addToWishlist($request->book_id);
+
+        if ($success) {
+            $wishlistCount = $wishlistViewModel->getWishlistCount();
+
+            // Dispatch event to update header
+            event('wishlist.count.updated', ['count' => $wishlistCount]);
+            event('wishlist.updated');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã thêm vào danh sách yêu thích',
+                'wishlist_count' => $wishlistCount
+            ]);
+        } else {
+            $errors = $wishlistViewModel->getErrors();
             return response()->json([
                 'success' => false,
-                'error' => 'Vui lòng đăng nhập để thêm vào danh sách yêu thích'
-            ], 401);
-        }
-
-        $bookId = $request->book_id;
-        $userId = Auth::id();
-
-        // Check if already in wishlist
-        $existingWishlist = Wishlist::where('user_id', $userId)
-            ->where('book_id', $bookId)
-            ->first();
-
-        if ($existingWishlist) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Sản phẩm đã có trong danh sách yêu thích'
+                'error' => $errors['auth'] ?? $errors['book'] ?? $errors['exists'] ?? 'Có lỗi xảy ra'
             ], 400);
         }
-
-        // Add to wishlist
-        Wishlist::create([
-            'user_id' => $userId,
-            'book_id' => $bookId
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Đã thêm vào danh sách yêu thích'
-        ]);
     }
 
     /**
@@ -76,24 +67,15 @@ class WishlistController extends Controller
             ], 400);
         }
 
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Vui lòng đăng nhập để thực hiện thao tác này'
-            ], 401);
-        }
+        $wishlistViewModel = new WishlistViewModel();
+        $success = $wishlistViewModel->removeFromWishlist($request->book_id);
 
-        $bookId = $request->book_id;
-        $userId = Auth::id();
+        if ($success) {
+            $wishlistCount = $wishlistViewModel->getWishlistCount();
 
-        // Remove from wishlist
-        $deleted = Wishlist::where('user_id', $userId)
-            ->where('book_id', $bookId)
-            ->delete();
-
-        if ($deleted) {
-            // Get updated wishlist count
-            $wishlistCount = Wishlist::where('user_id', $userId)->count();
+            // Dispatch event to update header
+            event('wishlist.count.updated', ['count' => $wishlistCount]);
+            event('wishlist.updated');
 
             return response()->json([
                 'success' => true,
@@ -101,9 +83,10 @@ class WishlistController extends Controller
                 'wishlist_count' => $wishlistCount
             ]);
         } else {
+            $errors = $wishlistViewModel->getErrors();
             return response()->json([
                 'success' => false,
-                'error' => 'Sản phẩm không có trong danh sách yêu thích'
+                'error' => $errors['auth'] ?? $errors['not_found'] ?? 'Có lỗi xảy ra'
             ], 400);
         }
     }
@@ -124,50 +107,29 @@ class WishlistController extends Controller
             ], 400);
         }
 
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Vui lòng đăng nhập để thực hiện thao tác này'
-            ], 401);
-        }
+        $wishlistViewModel = new WishlistViewModel();
+        $success = $wishlistViewModel->toggleWishlist($request->book_id);
 
-        $bookId = $request->book_id;
-        $userId = Auth::id();
+        if ($success) {
+            $wishlistCount = $wishlistViewModel->getWishlistCount();
+            $isInWishlist = $wishlistViewModel->isInWishlist($request->book_id);
 
-        // Check if already in wishlist
-        $existingWishlist = Wishlist::where('user_id', $userId)
-            ->where('book_id', $bookId)
-            ->first();
-
-        if ($existingWishlist) {
-            // Remove from wishlist
-            $existingWishlist->delete();
-
-            // Get updated wishlist count
-            $wishlistCount = Wishlist::where('user_id', $userId)->count();
+            // Dispatch event to update header
+            event('wishlist.count.updated', ['count' => $wishlistCount]);
+            event('wishlist.updated');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Đã xóa khỏi danh sách yêu thích',
-                'in_wishlist' => false,
+                'message' => $isInWishlist ? 'Đã thêm vào danh sách yêu thích' : 'Đã xóa khỏi danh sách yêu thích',
+                'in_wishlist' => $isInWishlist,
                 'wishlist_count' => $wishlistCount
             ]);
         } else {
-            // Add to wishlist
-            Wishlist::create([
-                'user_id' => $userId,
-                'book_id' => $bookId
-            ]);
-
-            // Get updated wishlist count
-            $wishlistCount = Wishlist::where('user_id', $userId)->count();
-
+            $errors = $wishlistViewModel->getErrors();
             return response()->json([
-                'success' => true,
-                'message' => 'Đã thêm vào danh sách yêu thích',
-                'in_wishlist' => true,
-                'wishlist_count' => $wishlistCount
-            ]);
+                'success' => false,
+                'error' => $errors['auth'] ?? $errors['book'] ?? 'Có lỗi xảy ra'
+            ], 400);
         }
     }
 
@@ -187,22 +149,8 @@ class WishlistController extends Controller
                 ], 400);
             }
 
-            if (!Auth::check()) {
-                return response()->json([
-                    'success' => true,
-                    'wishlist_status' => array_fill_keys($bookIds, false)
-                ]);
-            }
-
-            $userId = Auth::id();
-            $wishlistStatus = [];
-
-            foreach ($bookIds as $bookId) {
-                $inWishlist = Wishlist::where('user_id', $userId)
-                    ->where('book_id', $bookId)
-                    ->exists();
-                $wishlistStatus[$bookId] = $inWishlist;
-            }
+            $wishlistViewModel = new WishlistViewModel();
+            $wishlistStatus = $wishlistViewModel->getWishlistStatus($bookIds);
 
             return response()->json([
                 'success' => true,
@@ -222,19 +170,8 @@ class WishlistController extends Controller
             ], 400);
         }
 
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => true,
-                'in_wishlist' => false
-            ]);
-        }
-
-        $bookId = $request->book_id;
-        $userId = Auth::id();
-
-        $inWishlist = Wishlist::where('user_id', $userId)
-            ->where('book_id', $bookId)
-            ->exists();
+        $wishlistViewModel = new WishlistViewModel();
+        $inWishlist = $wishlistViewModel->isInWishlist($request->book_id);
 
         return response()->json([
             'success' => true,
@@ -247,18 +184,11 @@ class WishlistController extends Controller
      */
     public function count()
     {
-        if (!Auth::check()) {
-            return response()->json([
-                'success' => true,
-                'wishlist_count' => 0
-            ]);
-        }
-
-        $wishlistCount = Wishlist::where('user_id', Auth::id())->count();
+        $wishlistViewModel = new WishlistViewModel();
 
         return response()->json([
             'success' => true,
-            'wishlist_count' => $wishlistCount
+            'wishlist_count' => $wishlistViewModel->getWishlistCount()
         ]);
     }
 
@@ -271,29 +201,9 @@ class WishlistController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để xem danh sách yêu thích');
         }
 
-        $wishlistItems = Wishlist::with(['book.author', 'book.category', 'book.publisher', 'book.discount'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
+        $wishlistViewModel = new WishlistViewModel();
+        $wishlistItems = $wishlistViewModel->getWishlistItems();
         $cartCount = (new CartController())->getCartCount();
-
-
-        // Calculate final prices for wishlist items
-        foreach ($wishlistItems as $item) {
-            $book = $item->book;
-            $price = $book->price;
-            $percent = $book->discount?->percent ?? 0;
-            $amount = $book->discount?->amount ?? 0;
-
-            $book->final_price = $price - ($price * $percent / 100) - $amount;
-            if ($book->final_price <= 0) {
-                $book->final_price = 0;
-                $book->discount_percent = 100;
-            } else {
-                $book->discount_percent = $percent;
-            }
-        }
 
         return view('pages.wishlist.index', compact('wishlistItems', 'cartCount'));
     }

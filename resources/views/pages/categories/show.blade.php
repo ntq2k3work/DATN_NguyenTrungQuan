@@ -12,14 +12,11 @@
             </p>
         </div>
 
-        <!-- Main Content with Sidebar -->
         <div class="main-content-with-sidebar flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-            <!-- Left Sidebar - Hidden on mobile, shown on larger screens -->
             <div class="hidden lg:block flex-shrink-0">
-                @include('partials.category-sidebar')
+                @livewire('category-sidebar')
             </div>
 
-            <!-- Mobile Filter Button -->
             <div class="lg:hidden mb-4">
                 <button id="mobile-filter-btn" class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-primary/90 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +26,6 @@
                 </button>
             </div>
 
-            <!-- Mobile Sidebar Overlay -->
             <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden">
                 <div class="fixed inset-y-0 left-0 w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out" id="mobile-sidebar">
                     <div class="flex items-center justify-between p-4 border-b">
@@ -41,56 +37,13 @@
                         </button>
                     </div>
                     <div class="p-4 overflow-y-auto max-h-[calc(100vh-80px)]">
-                        @include('partials.category-sidebar')
+                        @livewire('category-sidebar')
                     </div>
                 </div>
             </div>
 
-            <!-- Right Content - Books Grid -->
             <div class="flex-1">
-                <!-- Loading Spinner -->
-                <div id="loading-spinner" class="hidden flex justify-center items-center py-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                    <span class="ml-2 text-gray-600">Đang tải...</span>
-                </div>
-
-                <!-- Results Info and Sort -->
-                <div class="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="text-sm text-gray-600">
-                            Hiển thị <span id="current-count">{{ $books->count() }}</span>
-                            trong tổng số <span id="total-count">{{ $books->total() }}</span> sách
-                        </p>
-                    </div>
-
-                    <!-- Sort Options -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm font-medium text-gray-700">Sắp xếp:</label>
-                        <select id="sort-select" class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:ring-purple-500 focus:border-purple-500">
-                            <option value="default">Mặc định</option>
-                            <option value="price_asc">Giá tăng dần</option>
-                            <option value="price_desc">Giá giảm dần</option>
-                            <option value="name_asc">Tên A-Z</option>
-                            <option value="name_desc">Tên Z-A</option>
-                            <option value="newest">Mới nhất</option>
-                            <option value="oldest">Cũ nhất</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Books Grid Container -->
-                <div id="books-grid-container">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                        @include('partials.books-grid', ['books' => $books, 'category' => $category])
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                @if($books->count() > 0)
-                <div class="mt-8 sm:mt-12">
-                    {{ $books->links() }}
-                </div>
-                @endif
+                @livewire('category-books')
             </div>
         </div>
     </div>
@@ -103,13 +56,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeMobileSidebar = document.getElementById('close-mobile-sidebar');
     const mobileSidebar = document.getElementById('mobile-sidebar');
 
-    // Open mobile sidebar
     mobileFilterBtn.addEventListener('click', function() {
         mobileSidebarOverlay.classList.remove('hidden');
         mobileSidebar.classList.remove('-translate-x-full');
     });
 
-    // Close mobile sidebar
     function closeSidebar() {
         mobileSidebarOverlay.classList.add('hidden');
         mobileSidebar.classList.add('-translate-x-full');
@@ -122,350 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close on escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeSidebar();
         }
     });
-
-        // Filter functionality
-    const filterCheckboxes = document.querySelectorAll('.filter-checkbox');
-    const clearFiltersBtn = document.getElementById('clear-filters');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const booksGridContainer = document.getElementById('books-grid-container');
-    const currentCountSpan = document.getElementById('current-count');
-    const totalCountSpan = document.getElementById('total-count');
-    const minPriceInput = document.getElementById('min-price');
-    const maxPriceInput = document.getElementById('max-price');
-    const applyPriceRangeBtn = document.getElementById('apply-price-range');
-    const sortSelect = document.getElementById('sort-select');
-
-    let filterTimeout;
-    let customPriceRange = { min: 0, max: 0 };
-
-    // Handle filter changes
-    const handleFilterChange = () => {
-        clearTimeout(filterTimeout);
-        filterTimeout = setTimeout(() => {
-            performFilter();
-        }, 300); // Debounce 300ms
-    };
-
-    // Add event listeners to checkboxes
-    filterCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', handleFilterChange);
-    });
-
-    // Sort select change event
-    sortSelect.addEventListener('change', () => {
-        performFilter();
-    });
-
-    // Apply custom price range button
-    applyPriceRangeBtn.addEventListener('click', () => {
-        const minPrice = parseInt(minPriceInput.value) || 0;
-        const maxPrice = parseInt(maxPriceInput.value) || 0;
-
-        if (minPrice > 0 || maxPrice > 0) {
-            customPriceRange = { min: minPrice, max: maxPrice };
-            // Uncheck all quick price filters
-            document.querySelectorAll('.price-checkbox').forEach(cb => {
-                cb.checked = false;
-            });
-            performFilter();
-        }
-    });
-
-    // Clear filters button
-    clearFiltersBtn.addEventListener('click', () => {
-        filterCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        minPriceInput.value = '';
-        maxPriceInput.value = '';
-        customPriceRange = { min: 0, max: 0 };
-        performFilter();
-    });
-
-        // Perform filter AJAX request
-    const performFilter = () => {
-        const selectedPublishers = Array.from(document.querySelectorAll('.publisher-checkbox:checked'))
-            .map(checkbox => checkbox.value);
-
-        const selectedPriceRanges = Array.from(document.querySelectorAll('.price-checkbox:checked'))
-            .map(checkbox => checkbox.value);
-
-        const selectedSort = sortSelect.value;
-
-        // Show loading
-        loadingSpinner.classList.remove('hidden');
-        booksGridContainer.style.opacity = '0.5';
-
-        // Prepare URL parameters
-        const params = new URLSearchParams();
-        if (selectedPublishers.length > 0) {
-            selectedPublishers.forEach(publisher => {
-                params.append('publishers[]', publisher);
-            });
-        }
-        if (selectedPriceRanges.length > 0) {
-            selectedPriceRanges.forEach(range => {
-                params.append('price_ranges[]', range);
-            });
-        }
-        if (customPriceRange.min > 0) {
-            params.append('custom_price_min', customPriceRange.min);
-        }
-        if (customPriceRange.max > 0) {
-            params.append('custom_price_max', customPriceRange.max);
-        }
-        if (selectedSort && selectedSort !== 'default') {
-            params.append('sort', selectedSort);
-        }
-
-        // Get category slug
-        const categorySlug = document.querySelector('.category-sidebar').dataset.categorySlug;
-
-        // Make AJAX request
-        fetch(`/api/categories/${categorySlug}/filter?${params.toString()}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Update books grid
-            booksGridContainer.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    ${data.html}
-                </div>
-            `;
-
-            // Update counts
-            currentCountSpan.textContent = data.total;
-            totalCountSpan.textContent = data.total;
-
-            // Hide loading
-            loadingSpinner.classList.add('hidden');
-            booksGridContainer.style.opacity = '1';
-
-            // Update URL without page refresh
-            const url = new URL(window.location);
-            if (selectedPublishers.length > 0) {
-                url.searchParams.set('publishers', selectedPublishers.join(','));
-            } else {
-                url.searchParams.delete('publishers');
-            }
-            if (selectedPriceRanges.length > 0) {
-                url.searchParams.set('price_ranges', selectedPriceRanges.join(','));
-            } else {
-                url.searchParams.delete('price_ranges');
-            }
-            if (customPriceRange.min > 0) {
-                url.searchParams.set('custom_price_min', customPriceRange.min);
-            } else {
-                url.searchParams.delete('custom_price_min');
-            }
-            if (customPriceRange.max > 0) {
-                url.searchParams.set('custom_price_max', customPriceRange.max);
-            } else {
-                url.searchParams.delete('custom_price_max');
-            }
-            if (selectedSort && selectedSort !== 'default') {
-                url.searchParams.set('sort', selectedSort);
-            } else {
-                url.searchParams.delete('sort');
-            }
-            window.history.pushState({}, '', url);
-        })
-                .catch(error => {
-            console.error('Error:', error);
-            loadingSpinner.classList.add('hidden');
-            booksGridContainer.style.opacity = '1';
-
-            // Show error message
-            let errorMessage = 'Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại.';
-            if (error.response && error.response.json) {
-                error.response.json().then(data => {
-                    console.error('Server error:', data);
-                    if (data.error) {
-                        errorMessage = data.error;
-                    }
-                });
-            }
-
-            booksGridContainer.innerHTML = `
-                <div class="col-span-full text-center py-8">
-                    <div class="text-red-500">
-                        <svg class="mx-auto h-8 w-8 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
-                        <p>${errorMessage}</p>
-                    </div>
-                </div>
-            `;
-        });
-    };
-
-        // Initialize filters from URL parameters
-    const initializeFiltersFromURL = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-
-        const publishersParam = urlParams.get('publishers');
-        if (publishersParam) {
-            const publishers = publishersParam.split(',');
-            publishers.forEach(publisherId => {
-                const checkbox = document.querySelector(`.publisher-checkbox[value="${publisherId}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-
-        const priceRangesParam = urlParams.get('price_ranges');
-        if (priceRangesParam) {
-            const priceRanges = priceRangesParam.split(',');
-            priceRanges.forEach(range => {
-                const checkbox = document.querySelector(`.price-checkbox[value="${range}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-
-        const customPriceMin = urlParams.get('custom_price_min');
-        const customPriceMax = urlParams.get('custom_price_max');
-        if (customPriceMin || customPriceMax) {
-            minPriceInput.value = customPriceMin || '';
-            maxPriceInput.value = customPriceMax || '';
-            customPriceRange = {
-                min: parseInt(customPriceMin) || 0,
-                max: parseInt(customPriceMax) || 0
-            };
-        }
-
-        const sortParam = urlParams.get('sort');
-        if (sortParam) {
-            sortSelect.value = sortParam;
-        }
-
-        // If any filters are active, perform filter
-        if (publishersParam || priceRangesParam || customPriceMin || customPriceMax || sortParam) {
-            performFilter();
-        }
-    };
-
-    // Initialize on page load
-    initializeFiltersFromURL();
 });
-
-// Global functions for cart and buy functionality
-function buyNow(bookId) {
-    window.location.href = `/checkout?book_id=${bookId}&quantity=1`;
-}
-
-function addToCart(bookId) {
-    const button = document.querySelector(`[data-book-id="${bookId}"].add-to-cart-btn`);
-    if (!button) return;
-
-    const originalText = button.textContent;
-
-    // Disable button and show loading
-    button.disabled = true;
-    button.textContent = 'ĐANG THÊM...';
-    button.classList.add('opacity-50');
-
-    // Make API call
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            book_id: bookId,
-            quantity: 1
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Show success message
-            showToast(data.message);
-
-            // Update cart count if cart icon exists
-            updateCartCount(data.cart_count);
-
-            // Change button text temporarily
-            button.textContent = 'ĐÃ THÊM!';
-            button.classList.remove('bg-amber-600', 'hover:bg-amber-700');
-            button.classList.add('bg-green-600');
-
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.classList.remove('bg-green-600');
-                button.classList.add('bg-amber-600', 'hover:bg-amber-700');
-            }, 2000);
-        } else {
-            showToast(data.error || 'Có lỗi xảy ra', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Có lỗi xảy ra khi thêm vào giỏ hàng', 'error');
-    })
-    .finally(() => {
-        // Re-enable button
-        button.disabled = false;
-        button.classList.remove('opacity-50');
-    });
-}
-
-function showToast(message, type = 'success') {
-    // Create toast if it doesn't exist
-    let toast = document.getElementById('toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50';
-        toast.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span id="toast-message">${message}</span>
-            </div>
-        `;
-        document.body.appendChild(toast);
-    }
-
-    const toastMessage = document.getElementById('toast-message');
-    toastMessage.textContent = message;
-
-    // Change color based on type
-    if (type === 'error') {
-        toast.classList.remove('bg-green-500');
-        toast.classList.add('bg-red-500');
-    } else {
-        toast.classList.remove('bg-red-500');
-        toast.classList.add('bg-green-500');
-    }
-
-    // Show toast
-    toast.classList.remove('translate-x-full');
-
-    // Hide toast after 3 seconds
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
-    }, 3000);
-}
-
-function updateCartCount(count) {
-    // Update cart count in header if exists
-    const cartCountElement = document.querySelector('.cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = count;
-    }
-}
 </script>
 
 @endsection

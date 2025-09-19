@@ -9,17 +9,48 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\VNPayService;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+use Livewire\Livewire;
 
 class OrderController extends Controller
 {
+    protected $orderService;
+
+    public function __construct()
+    {
+        $this->orderService = app(OrderService::class);
+    }
+
     /**
      * Show checkout page
      */
+    public function checkout(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $cartItems = $this->orderService->prepareCartItems($request, $user);
 
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('home')->with('error', 'Giỏ hàng trống');
+            }
+
+            // Validate stock availability
+            $stockValidation = $this->orderService->validateStockAvailability($cartItems);
+            if (!$stockValidation['valid']) {
+                return redirect()->back()->with('error', $stockValidation['message']);
+            }
+
+            return view('pages.checkout', compact('cartItems', 'user'));
+        } catch (\Exception $e) {
+            Log::error('Checkout error: ' . $e->getMessage());
+            return redirect()->route('home')->with('error', 'Có lỗi xảy ra khi tải trang thanh toán');
+        }
+    }
 
     /**
      * Xử lý thanh toán VNPay
@@ -37,116 +68,40 @@ class OrderController extends Controller
             ]);
 
             $user = Auth::user();
-            $cartItems = collect();
-            $cart = null;
-
-            // Check if this is a "Buy Now" request (from session)
-            $buyNowData = Session::get('buy_now');
-            
-            if ($buyNowData) {
-                $book = Book::find($buyNowData['book_id']);
-                if ($book) {
-                    $cartItems = collect([(object) [
-                        'book' => $book,
-                        'quantity' => $buyNowData['quantity'],
-                        'price' => $book->price,
-                        'book_id' => $book->id
-                    ]]);
-                }
-                // Clear buy now session
-                Session::forget('buy_now');
-            } else {
-                // Get cart items
-                if ($user) {
-                    $cart = Cart::where('user_id', $user->id)->first();
-                    if ($cart) {
-                        $cartItems = CartItem::with('book')->where('cart_id', $cart->id)->get();
-                    }
-                } else {
-                    $sessionCart = Session::get('cart', []);
-                    foreach ($sessionCart as $item) {
-                        $book = Book::find($item['book_id']);
-                        if ($book) {
-                            $cartItems->push((object) [
-                                'book' => $book,
-                                'quantity' => $item['quantity'],
-                                'price' => $book->price,
-                                'book_id' => $book->id
-                            ]);
-                        }
-                    }
-                }
-            }
+            $cartItems = $this->orderService->prepareCartItems($request, $user);
 
             if ($cartItems->isEmpty()) {
                 return redirect()->route('home')->with('error', 'Giỏ hàng trống');
             }
 
-            // Validate stock availability before processing
-            foreach ($cartItems as $item) {
-                $book = Book::find($item->book_id);
-                if (!$book) {
-                    return redirect()->back()->with('error', "Sản phẩm không tồn tại: " . ($item->book->title ?? 'Unknown'));
-                }
-                
-                if ($book->quantity < $item->quantity) {
-                    return redirect()->back()->with('error', "Không đủ số lượng tồn kho cho sản phẩm: {$book->title}. Số lượng còn lại: {$book->quantity}");
-                }
+            // Validate stock availability
+            $stockValidation = $this->orderService->validateStockAvailability($cartItems);
+            if (!$stockValidation['valid']) {
+                return redirect()->back()->with('error', $stockValidation['message']);
             }
 
-            // Calculate totals
-            $subtotal = $cartItems->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
-
-            $shippingFee = $this->calculateShippingFee($request->shipping_method, $subtotal);
-            $total = $subtotal + $shippingFee;
-
-            // Create order first with pending status
-            $order = Order::create([
+            // Create order
+            $orderData = [
                 'user_id' => $user ? $user->id : null,
-                'order_number' => Order::generateOrderNumber(),
                 'full_name' => $request->full_name,
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'address' => $request->address,
                 'shipping_method' => $request->shipping_method,
                 'payment_method' => 'vnpay',
-                'subtotal' => $subtotal,
-                'shipping_fee' => $shippingFee,
-                'total' => $total,
-                'status' => 'pending',
                 'notes' => $request->notes,
-            ]);
-
-            // Prepare cart items data
-            $cartItemsData = $cartItems->map(function ($item) {
-                return [
-                    'book_id' => $item->book_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                ];
-            })->toArray();
-
-            // Dispatch job to process order items and update stock
-            ProcessOrderJob::dispatch($order->toArray(), $cartItemsData);
-
-            // Clear cart immediately after dispatching job
-            if ($user && $cart) {
-                CartItem::where('cart_id', $cart->id)->delete();
-            } else {
-                Session::forget('cart');
-            }
-
-            // Create VNPay payment URL
-            $vnpayService = new VNPayService();
-            $orderData = [
-                'order_number' => $order->order_number,
-                'amount' => $total,
-                'order_info' => 'Thanh toan don hang ' . $order->order_number
             ];
 
-            $paymentUrl = $vnpayService->createPaymentUrl($orderData);
+            $order = $this->orderService->createOrder($orderData, $cartItems);
+
+            // Process order items
+            $this->orderService->processOrderItems($order, $cartItems);
+
+            // Clear cart
+            $this->orderService->clearCart($user);
+
+            // Create VNPay payment URL
+            $paymentUrl = $this->orderService->handleVNPayPayment($order);
 
             return redirect($paymentUrl);
 
@@ -155,71 +110,11 @@ class OrderController extends Controller
                 ->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
+            Log::error('VNPay payment error: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
         }
-    }
-
-    public function checkout(Request $request)
-    {
-        $user = Auth::user();
-        $cartItems = collect();
-
-        // Check if this is a "Buy Now" request
-        if ($request->has('book_id') && $request->has('quantity')) {
-            $bookId = $request->book_id;
-            $quantity = $request->quantity;
-            
-            $book = Book::find($bookId);
-            if ($book) {
-                // Store buy now data in session
-                Session::put('buy_now', [
-                    'book_id' => $bookId,
-                    'quantity' => $quantity,
-                    'price' => $book->price
-                ]);
-                
-                // Create temporary cart items for display
-                $cartItems = collect([(object) [
-                    'book' => $book,
-                    'quantity' => $quantity,
-                    'price' => $book->price,
-                    'book_id' => $bookId
-                ]]);
-            }
-        } else {
-            // Handle regular cart checkout
-            if ($user) {
-                $cart =Cart::where('user_id', $user->id)->first();
-                if ($cart) {
-                    $cartItems =CartItem::with('book')
-                        ->where('cart_id', $cart->id)
-                        ->get();
-                }
-            } else {
-                // Handle guest cart from session
-                $sessionCart = Session::get('cart', []);
-                $cartItems = collect();
-                foreach ($sessionCart as $item) {
-                    $book = Book::find($item['book_id']);
-                    if ($book) {
-                        $cartItems->push((object) [
-                            'book' => $book,
-                            'quantity' => $item['quantity'],
-                            'price' => $book->price,
-                            'book_id' => $book->id
-                        ]);
-                    }
-                }
-            }
-        }
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('home')->with('error', 'Giỏ hàng trống');
-        }
-
-        return view('pages.checkout', compact('cartItems', 'user'));
     }
 
     /**
@@ -228,6 +123,11 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
+            Log::info('Order store method called', [
+                'request_data' => $request->all(),
+                'user_id' => Auth::id()
+            ]);
+
             $request->validate([
                 'full_name' => 'required|string|max:255',
                 'phone' => 'required|string|max:20',
@@ -238,121 +138,65 @@ class OrderController extends Controller
                 'notes' => 'nullable|string',
             ]);
 
-
             $user = Auth::user();
-            $cartItems = collect();
-            $cart = null;
+            $cartItems = $this->orderService->prepareCartItems($request, $user);
 
+            Log::info('Cart items prepared', [
+                'cart_items_count' => $cartItems->count(),
+                'cart_items' => $cartItems->toArray()
+            ]);
 
-            // Check if this is a "Buy Now" request (from session)
-            $buyNowData = Session::get('buy_now');
-            
-            if ($buyNowData) {
-                $book = Book::find($buyNowData['book_id']);
-                if ($book) {
-                    $cartItems = collect([(object) [
-                        'book' => $book,
-                        'quantity' => $buyNowData['quantity'],
-                        'price' => $book->price,
-                        'book_id' => $book->id
-                    ]]);
-                }
-                // Clear buy now session
-                Session::forget('buy_now');
-            } else {
-                // Get cart items
-                if ($user) {
-                    $cart = Cart::where('user_id', $user->id)->first();
-                    if ($cart) {
-                        $cartItems = CartItem::with('book')->where('cart_id', $cart->id)->get();
-                    }
-                } else {
-                    $sessionCart = Session::get('cart', []);
-                    foreach ($sessionCart as $item) {
-                        $book = Book::find($item['book_id']);
-                        if ($book) {
-                            $cartItems->push((object) [
-                                'book' => $book,
-                                'quantity' => $item['quantity'],
-                                'price' => $book->price,
-                                'book_id' => $book->id
-                            ]);
-                        }
-                    }
-                }
-            }
-
-          
-            
             if ($cartItems->isEmpty()) {
+                Log::warning('Cart is empty');
                 return redirect()->route('home')->with('error', 'Giỏ hàng trống');
             }
 
-            // Validate stock availability before processing
-            foreach ($cartItems as $item) {
-                $book = Book::find($item->book_id);
-                if (!$book) {
-                    return redirect()->back()->with('error', "Sản phẩm không tồn tại: " . ($item->book->title ?? 'Unknown'));
-                }
-                
-                if ($book->quantity < $item->quantity) {
-                    return redirect()->back()->with('error', "Không đủ số lượng tồn kho cho sản phẩm: {$book->title}. Số lượng còn lại: {$book->quantity}");
-                }
+            // Validate stock availability
+            $stockValidation = $this->orderService->validateStockAvailability($cartItems);
+            if (!$stockValidation['valid']) {
+                Log::warning('Stock validation failed', ['message' => $stockValidation['message']]);
+                return redirect()->back()->with('error', $stockValidation['message']);
             }
 
-            // Calculate totals
-            $subtotal = $cartItems->sum(function ($item) {
-                return $item->price * $item->quantity;
-            });
-
-            $shippingFee = $this->calculateShippingFee($request->shipping_method, $subtotal);
-            $total = $subtotal + $shippingFee;
-
-           
-            // Create order first with pending status
-            $order = Order::create([
+            // Create order
+            $orderData = [
                 'user_id' => $user ? $user->id : null,
-                'order_number' => Order::generateOrderNumber(),
                 'full_name' => $request->full_name,
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'address' => $request->address,
                 'shipping_method' => $request->shipping_method,
                 'payment_method' => $request->payment_method,
-                'subtotal' => $subtotal,
-                'shipping_fee' => $shippingFee,
-                'total' => $total,
-                'status' => 'pending', // Will be updated by job
                 'notes' => $request->notes,
+            ];
+
+            Log::info('Creating order with data', ['order_data' => $orderData]);
+
+            $order = $this->orderService->createOrder($orderData, $cartItems);
+
+            // Process order items
+            $this->orderService->processOrderItems($order, $cartItems);
+
+            // Clear cart
+            $this->orderService->clearCart($user);
+
+            Log::info('Order processed successfully', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number
             ]);
-
-            // Prepare cart items data
-            $cartItemsData = $cartItems->map(function ($item) {
-                return [
-                    'book_id' => $item->book_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->price,
-                ];
-            })->toArray();
-
-            // Dispatch job to process order items and update stock
-            ProcessOrderJob::dispatch($order->toArray(), $cartItemsData);
-            
-            // Clear cart immediately after dispatching job
-            if ($user && $cart) {
-                CartItem::where('cart_id', $cart->id)->delete();
-            } else {
-                Session::forget('cart');
-            }
 
             return redirect()->route('orders.success', $order->order_number)
                 ->with('success', 'Đặt hàng thành công!');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error', ['errors' => $e->errors()]);
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
+            Log::error('Order processing error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
@@ -365,7 +209,7 @@ class OrderController extends Controller
     public function success($orderNumber)
     {
         $order = Order::where('order_number', $orderNumber)->first();
-        
+
         if (!$order) {
             return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng');
         }
@@ -380,7 +224,7 @@ class OrderController extends Controller
     {
         $user = Auth::user();
         $order = null;
-        
+
         // If user is searching for a specific order by order number
         if ($request->has('order_number') && !empty($request->order_number)) {
             $order = Order::with(['items.book', 'items.book.author'])
@@ -388,14 +232,14 @@ class OrderController extends Controller
                 ->where('user_id', $user->id) // Only show orders belonging to the authenticated user
                 ->first();
         }
-        
+
         // Get user's recent orders for quick access
         $recentOrders = Order::with(['items.book'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
-        
+
         return view('pages.order-tracking', compact('order', 'recentOrders'));
     }
 
@@ -428,7 +272,10 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->with('error', 'Không tìm thấy đơn hàng');
         }
 
-        return view('pages.order-details', compact('order'));
+        // Get order status history
+        $statusHistory = $this->orderService->getOrderStatusHistory($order);
+
+        return view('pages.order-details', compact('order', 'statusHistory'));
     }
 
     /**
@@ -491,46 +338,14 @@ class OrderController extends Controller
      */
     public function vnpayCallback(Request $request)
     {
-        $vnpayService = new VNPayService();
-        
-        // Validate callback data
-        if (!$vnpayService->validateCallback($request->all())) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Dữ liệu callback không hợp lệ');
-        }
+        $result = $this->orderService->processVNPayCallback($request->all());
 
-        $orderNumber = $request->vnp_TxnRef;
-        $responseCode = $request->vnp_ResponseCode;
-        $transactionStatus = $request->vnp_TransactionStatus;
-
-        $order = Order::where('order_number', $orderNumber)->first();
-        
-        if (!$order) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Không tìm thấy đơn hàng');
-        }
-
-        // Check payment status
-        if ($responseCode == '00' && $transactionStatus == '00') {
-            // Payment successful
-            $order->update([
-                'status' => 'confirmed',
-                'payment_status' => 'paid',
-                'notes' => $order->notes . "\n\nVNPay Transaction ID: " . $request->vnp_TransactionNo
-            ]);
-
-            return redirect()->route('orders.success', $order->order_number)
-                ->with('success', 'Thanh toán thành công!');
+        if ($result['success']) {
+            return redirect()->route('orders.success', $result['order']->order_number)
+                ->with('success', $result['message']);
         } else {
-            // Payment failed
-            $order->update([
-                'status' => 'cancelled',
-                'payment_status' => 'failed',
-                'notes' => $order->notes . "\n\nVNPay Error: " . $request->vnp_ResponseCode
-            ]);
-
             return redirect()->route('orders.index')
-                ->with('error', 'Thanh toán thất bại. Vui lòng thử lại.');
+                ->with('error', $result['message']);
         }
     }
 
@@ -539,46 +354,14 @@ class OrderController extends Controller
      */
     public function vnpayReturn(Request $request)
     {
-        $vnpayService = new VNPayService();
-        
-        // Validate return data
-        if (!$vnpayService->validateCallback($request->all())) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Dữ liệu return không hợp lệ');
-        }
+        $result = $this->orderService->processVNPayCallback($request->all());
 
-        $orderNumber = $request->vnp_TxnRef;
-        $responseCode = $request->vnp_ResponseCode;
-        $transactionStatus = $request->vnp_TransactionStatus;
-
-        $order = Order::where('order_number', $orderNumber)->first();
-        
-        if (!$order) {
-            return redirect()->route('orders.index')
-                ->with('error', 'Không tìm thấy đơn hàng');
-        }
-
-        // Check payment status
-        if ($responseCode == '00' && $transactionStatus == '00') {
-            // Payment successful
-            $order->update([
-                'status' => 'confirmed',
-                'payment_status' => 'paid',
-                'notes' => $order->notes . "\n\nVNPay Transaction ID: " . $request->vnp_TransactionNo
-            ]);
-
-            return redirect()->route('orders.success', $order->order_number)
-                ->with('success', 'Thanh toán thành công!');
+        if ($result['success']) {
+            return redirect()->route('orders.success', $result['order']->order_number)
+                ->with('success', $result['message']);
         } else {
-            // Payment failed
-            $order->update([
-                'status' => 'cancelled',
-                'payment_status' => 'failed',
-                'notes' => $order->notes . "\n\nVNPay Error: " . $request->vnp_ResponseCode
-            ]);
-
             return redirect()->route('orders.index')
-                ->with('error', 'Thanh toán thất bại. Vui lòng thử lại.');
+                ->with('error', $result['message']);
         }
     }
 

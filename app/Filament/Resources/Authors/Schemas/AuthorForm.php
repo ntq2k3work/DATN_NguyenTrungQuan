@@ -13,8 +13,15 @@ class AuthorForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->required(),
+                    ->label('Tên tác giả')
+                    ->required()
+                    ->maxLength(255)
+                    ->placeholder('Nhập tên tác giả'),
                 Textarea::make('bio')
+                    ->label('Tiểu sử')
+                    ->rows(4)
+                    ->maxLength(1000)
+                    ->placeholder('Nhập tiểu sử của tác giả')
                     ->columnSpanFull(),
             ]);
     }

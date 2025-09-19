@@ -60,12 +60,12 @@
                 </li>
             @endif
         </ul>
-        
+
         {{-- Page Info --}}
         <div class="text-center mt-3">
             <small class="text-muted">
-                Trang {{ $paginator->currentPage() }} trong {{ $paginator->lastPage() }} | 
-                Hiển thị {{ $paginator->firstItem() ?? 0 }} đến {{ $paginator->lastItem() ?? 0 }} 
+                Trang {{ $paginator->currentPage() }} trong {{ $paginator->lastPage() }} |
+                Hiển thị {{ $paginator->firstItem() ?? 0 }} đến {{ $paginator->lastItem() ?? 0 }}
                 trong tổng số {{ $paginator->total() }} kết quả
             </small>
         </div>

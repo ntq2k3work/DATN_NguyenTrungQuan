@@ -35,7 +35,7 @@ class BookForm
                                     ->afterStateUpdated(fn (string $operation, $state, $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
                                 TextInput::make('slug')
-                                    ->label('Slug')
+                                    ->label('Đường dẫn URL')
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)

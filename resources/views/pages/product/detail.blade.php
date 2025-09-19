@@ -492,6 +492,22 @@ function updateCartCount(count) {
     }
 }
 
+function updateWishlistCount(count) {
+    try {
+        if (window.Livewire && typeof window.Livewire.dispatch === 'function') {
+            window.Livewire.dispatch('wishlistCountUpdated', { count: count });
+        }
+        // Fallback: update header badge if present
+        const badge = document.querySelector('.wishlist-count');
+        if (badge) {
+            badge.textContent = count;
+            badge.classList.toggle('hidden', !count || count === 0);
+        }
+    } catch (e) {
+        // noop
+    }
+}
+
 // Wishlist functions
 function toggleWishlist(bookId) {
     const button = document.getElementById('wishlist-btn');
@@ -535,8 +551,8 @@ function toggleWishlist(bookId) {
                 showToast(data.message, 'success');
 
                 // Update wishlist count in header
-                if (window.WishlistManager && data.wishlist_count !== undefined) {
-                    window.WishlistManager.updateWishlistCount(data.wishlist_count);
+                if (data.wishlist_count !== undefined) {
+                    updateWishlistCount(data.wishlist_count);
                 }
             } else {
                 // Removed from wishlist
@@ -552,8 +568,8 @@ function toggleWishlist(bookId) {
                 showToast(data.message, 'success');
 
                 // Update wishlist count in header
-                if (window.WishlistManager && data.wishlist_count !== undefined) {
-                    window.WishlistManager.updateWishlistCount(data.wishlist_count);
+                if (data.wishlist_count !== undefined) {
+                    updateWishlistCount(data.wishlist_count);
                 }
             }
         } else {

@@ -36,7 +36,7 @@ class CategoryController extends Controller
             $book->in_wishlist = in_array($book->id, $wishlistBookIds);
         }
 
-        return $books;
+    return $books;
     }
     public function index()
     {

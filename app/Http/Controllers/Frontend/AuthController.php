@@ -235,6 +235,9 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
+            // Dispatch event to update header counts
+            event('user.logged.in');
+
             return redirect()->intended('/')->with('status', 'Đăng nhập thành công!');
         }
 
@@ -252,6 +255,9 @@ class AuthController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        // Dispatch event to reset header counts
+        event('user.logged.out');
 
         return redirect('/')->with('status', 'Đăng xuất thành công!');
     }

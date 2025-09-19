@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Book;
-use App\Models\Wishlist;
+use App\ViewModels\HomeViewModel;
+use App\Http\Controllers\WishlistCountTrait;
 use App\Models\Cart;
 use App\Models\CartItem;
-use App\Http\Controllers\WishlistCountTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -24,117 +22,7 @@ class HomeController extends Controller
     }
     public function index()
     {
-        $books = Book::all();
-        $auth = Auth::user();
-        if ($auth) {
-            $wishlists = Wishlist::where('user_id', $auth->id)->get('book_id');
-
-            $bookIdsInWishlist = $wishlists->pluck('book_id');
-
-            $categoriesAuthors = Book::whereIn('id', $bookIdsInWishlist)
-                ->select('category_id', 'author_id')
-                ->distinct()
-                ->get();
-
-            $categoryIds = $categoriesAuthors->pluck('category_id')->filter()->unique();
-            $authorIds = $categoriesAuthors->pluck('author_id')->filter()->unique();
-
-            // Lấy sách liên quan (cùng tác giả hoặc danh mục)
-            $books = Book::whereNotIn('id', $bookIdsInWishlist)
-                ->where(function($query) use ($categoryIds, $authorIds) {
-                    $query->whereIn('category_id', $categoryIds)
-                        ->orWhereIn('author_id', $authorIds);
-                })
-                ->get();
-
-            // Xử lý sắp xếp theo mức độ liên quan bằng code PHP
-            $books = $books->map(function($book) use ($categoryIds, $authorIds) {
-                $score = 0;
-                if ($categoryIds->contains($book->category_id)) $score++;
-                if ($authorIds->contains($book->author_id)) $score++;
-                $book->score = $score; // thêm thuộc tính điểm
-                return $book;
-            });
-
-            // Sắp xếp giảm dần theo score, rồi random trong cùng nhóm
-            if($books->count() > 0){
-                $book_recommendations = $books
-                    ->sortByDesc('score') // ưu tiên sách có điểm cao
-                    ->take(8)
-                    ->values();
-            } else{
-                $book_recommendations = Book::inRandomOrder()->take(8)->get();
-            }
-
-            // Thêm trạng thái wishlist cho book_recommendations
-            foreach($book_recommendations as $book) {
-                $book->in_wishlist = false;
-                if ($bookIdsInWishlist->contains($book->id)) {
-                    $book->in_wishlist = true;
-                }
-            }
-        } else {
-            $wishlists = collect();
-            $book_recommendations = Book::inRandomOrder()->take(8)->get();
-
-            // Thêm trạng thái wishlist cho book_recommendations (false cho user chưa đăng nhập)
-            foreach($book_recommendations as $book) {
-                $book->in_wishlist = false;
-            }
-        }
-
-        $best_sellers = Book::select('books.*', DB::raw('(SELECT discounts.percent FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as percent'),
-        DB::raw('(SELECT discounts.amount FROM discounts WHERE discounts.book_id = books.id LIMIT 1) as amount'))
-        ->whereExists(function($query) {
-            $query->select(DB::raw(1))
-                  ->from('discounts')
-                  ->whereColumn('discounts.book_id', 'books.id');
-        })
-        ->with(['author'])
-        ->take(6)
-        ->get();
-
-        foreach ($best_sellers as $book) {
-            $price = $book->price;
-            $percent = $book->percent ?? 0;
-            $amount = $book->amount ?? 0;
-
-            $book->final_price = $price - ($price * $percent / 100) - $amount;
-            if ($book->final_price <= 0){
-                $book->final_price = 0;
-                $book->percent = 100;
-            }
-
-            // Kiểm tra trạng thái wishlist
-            $book->in_wishlist = false;
-            if ($auth && $bookIdsInWishlist->contains($book->id)) {
-                $book->in_wishlist = true;
-            }
-        }
-
-        $best_sellers = $best_sellers->sortBy('final_price')->values();
-
-        $new_publishers = Book::select()->with(['author','discount'])->orderBy('created_at','desc')->take(6)->get();
-        foreach($new_publishers as $book)
-        {
-            $price = $book->price;
-            $percent = $book->discount?->percent ?? 0;
-            $amount = $book->discount?->amount ?? 0;
-            $book->final_price = $this->numberFormat($price - ($price * $percent / 100) - $amount);
-
-            if ($book->final_price <= 0){
-                $book->final_price = 0;
-                $book->percent = 100;
-            }
-
-            $book->price = $this->numberFormat($book->price);
-
-            // Kiểm tra trạng thái wishlist
-            $book->in_wishlist = false;
-            if ($auth && $bookIdsInWishlist->contains($book->id)) {
-                $book->in_wishlist = true;
-            }
-        }
+        $homeViewModel = new HomeViewModel();
 
         // Calculate cart count
         $cartCount = $this->getCartCount();
@@ -142,7 +30,16 @@ class HomeController extends Controller
         // Calculate wishlist count
         $wishlistCount = $this->getWishlistCount();
         $wishlist = $this->getWishlist();
-        return view('app',compact(['book_recommendations','best_sellers','new_publishers','cartCount','wishlistCount','wishlist']));
+
+        return view('app', [
+            'homeViewModel' => $homeViewModel,
+            'book_recommendations' => $homeViewModel->getRecommendedBooks(),
+            'best_sellers' => $homeViewModel->getBestSellers(),
+            'new_publishers' => $homeViewModel->getNewReleases(),
+            'cartCount' => $cartCount,
+            'wishlistCount' => $wishlistCount,
+            'wishlist' => $wishlist,
+        ]);
     }
 
     /**
