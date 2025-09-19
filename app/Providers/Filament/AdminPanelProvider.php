@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('BookStore Admin')
+            ->brandName('Quản trị BookStore')
             ->colors([
                 'primary' => Color::Amber,
             ])

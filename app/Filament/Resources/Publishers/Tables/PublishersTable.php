@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\Categories\Tables;
+namespace App\Filament\Resources\Publishers\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Models\Category;
 
-class CategoriesTable
+class PublishersTable
 {
     public static function configure(Table $table): Table
     {
@@ -23,36 +21,18 @@ class CategoriesTable
                     ->searchable(),
 
                 TextColumn::make('name')
-                    ->label('Tên danh mục')
+                    ->label('Tên nhà xuất bản')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
-
-                TextColumn::make('slug')
-                    ->label('Đường dẫn URL')
-                    ->searchable()
-                    ->copyable(),
-
-                TextColumn::make('parent.name')
-                    ->label('Danh mục cha')
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color('info'),
-
-                TextColumn::make('children_count')
-                    ->label('Số danh mục con')
-                    ->counts('children')
-                    ->sortable()
-                    ->badge()
-                    ->color('primary'),
+                    ->weight('bold')
+                    ->limit(50),
 
                 TextColumn::make('books_count')
                     ->label('Số sách')
                     ->counts('books')
                     ->sortable()
                     ->badge()
-                    ->color('success'),
+                    ->color('info'),
 
                 TextColumn::make('created_at')
                     ->label('Ngày tạo')
@@ -66,14 +46,11 @@ class CategoriesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('parent_id')
-                    ->label('Danh mục cha')
-                    ->relationship('parent', 'name')
-                    ->searchable()
-                    ->placeholder('Tất cả'),
-            ])
             ->recordActions([
+                ViewAction::make()
+                    ->label('Xem')
+                    ->icon('heroicon-o-eye'),
+
                 EditAction::make()
                     ->label('Sửa')
                     ->icon('heroicon-o-pencil'),
@@ -83,8 +60,8 @@ class CategoriesTable
                     DeleteBulkAction::make()
                         ->label('Xóa đã chọn')
                         ->requiresConfirmation()
-                        ->modalHeading('Xác nhận xóa danh mục')
-                        ->modalDescription('Bạn có chắc chắn muốn xóa những danh mục đã chọn?')
+                        ->modalHeading('Xác nhận xóa nhà xuất bản')
+                        ->modalDescription('Bạn có chắc chắn muốn xóa những nhà xuất bản đã chọn? Hành động này sẽ không thể hoàn tác.')
                         ->modalSubmitActionLabel('Xóa')
                         ->modalCancelActionLabel('Hủy'),
                 ]),
