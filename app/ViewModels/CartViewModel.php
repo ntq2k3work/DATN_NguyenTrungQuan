@@ -44,12 +44,23 @@ class CartViewModel extends BaseViewModel
      */
     protected function loadUserCart(): void
     {
-        $cart = Cart::where('user_id', Auth::id())->first();
+		$cart = Cart::where('user_id', Auth::id())->first();
         if ($cart) {
-            $this->cartItems = $cart->items()
-                ->with(['book.author', 'book.category'])
-                ->get()
-                ->toArray();
+			$items = $cart->items()
+				->with(['book.author', 'book.category', 'book.discount'])
+				->get();
+
+			$this->cartItems = $items->map(function ($item) {
+				$book = $item->book;
+				$finalPrice = $book ? $this->computeFinalPrice($book) : ($item->price ?? 0);
+				return [
+					'id' => $item->id,
+					'book_id' => $item->book_id,
+					'quantity' => $item->quantity,
+					'price' => $finalPrice,
+					'book' => $book ? $book->toArray() : null,
+				];
+			})->toArray();
             $this->cartCount = $cart->items()->sum('quantity');
         } else {
             $this->cartItems = [];
@@ -66,14 +77,14 @@ class CartViewModel extends BaseViewModel
         $this->cartItems = [];
         $this->cartCount = 0;
 
-        foreach ($sessionCart as $item) {
-            $book = Book::with(['author', 'category'])->find($item['book_id']);
+		foreach ($sessionCart as $item) {
+			$book = Book::with(['author', 'category', 'discount'])->find($item['book_id']);
             if ($book) {
                 $this->cartItems[] = [
                     'id' => $item['book_id'],
                     'book_id' => $item['book_id'],
                     'quantity' => $item['quantity'],
-                    'price' => $book->final_price ?? $book->price,
+					'price' => $this->computeFinalPrice($book),
                     'book' => $book->toArray()
                 ];
                 $this->cartCount += $item['quantity'];
@@ -92,7 +103,7 @@ class CartViewModel extends BaseViewModel
                 return false;
             }
 
-            $book = Book::find($bookId);
+			$book = Book::with('discount')->find($bookId);
             if (!$book) {
                 $this->addError('book', 'Sách không tồn tại');
                 $this->setLoading(false);
@@ -116,12 +127,12 @@ class CartViewModel extends BaseViewModel
                     return false;
                 }
                 $cartItem->increment('quantity', $quantity);
-            } else {
-                $cart->items()->create([
-                    'book_id' => $bookId,
-                    'quantity' => $quantity,
-                    'price' => $book->final_price ?? $book->price
-                ]);
+			} else {
+				$cart->items()->create([
+					'book_id' => $bookId,
+					'quantity' => $quantity,
+					'price' => $this->computeFinalPrice($book)
+				]);
             }
 
             $this->loadCart();
@@ -258,14 +269,27 @@ class CartViewModel extends BaseViewModel
     {
         $this->total = 0;
 
-        foreach ($this->cartItems as $item) {
-            $book = $item['book'] ?? $item;
-            $price = $item['price'] ?? $book['final_price'] ?? $book['price'] ?? 0;
-            $quantity = $item['quantity'] ?? 1;
+		foreach ($this->cartItems as $item) {
+			$bookArray = $item['book'] ?? null;
+			$price = $item['price'] ?? 0;
+			$quantity = $item['quantity'] ?? 1;
 
-            $this->total += $price * $quantity;
-        }
+			$this->total += $price * $quantity;
+		}
     }
+
+	/**
+	 * Compute final price like product detail page
+	 */
+	private function computeFinalPrice($book): float
+	{
+		$price = (float) ($book->price ?? 0);
+		$percent = (float) ($book->discount->percent ?? 0);
+		$amount = (float) ($book->discount->amount ?? 0);
+
+		$final = $price - ($price * $percent / 100) - $amount;
+		return $final > 0 ? $final : 0.0;
+	}
 
     /**
      * Get cart summary
