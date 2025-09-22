@@ -87,7 +87,7 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed');
 
 // Category Routes
-Route::get('/categories', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
+Route::get('/books', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/best-sellers', [App\Http\Controllers\Frontend\CategoryController::class, 'bestSellers'])->name('categories.best-sellers');
 Route::get('/categories/new-releases', [App\Http\Controllers\Frontend\CategoryController::class, 'newReleases'])->name('categories.new-releases');
 Route::get('/categories/recommendations', [App\Http\Controllers\Frontend\CategoryController::class, 'recommendations'])->name('categories.recommendations');
@@ -168,4 +168,7 @@ Route::get('/help/shipping-info', function () {
 Route::get('/help/faq', function () {
     return view('pages.help.faq');
 })->name('help.faq');
+
+// Sitemap Route
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
