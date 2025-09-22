@@ -12,7 +12,7 @@
             <h3 class="mt-4 text-lg font-medium text-gray-900">Giỏ hàng trống</h3>
             <p class="mt-2 text-gray-500">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
             <div class="mt-6">
-                <a href="{{ route('home') }}" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                <a href="/categories" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
                     Bắt đầu mua sắm
                 </a>
             </div>
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="mt-6 flex space-x-4">
-                    <a href="{{ route('home') }}" class="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors text-center">
+                    <a href="/categories" class="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors text-center">
                         Tiếp tục mua sắm
                     </a>
                     <a href="{{ route('checkout') }}" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors text-center">
