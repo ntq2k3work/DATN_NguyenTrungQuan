@@ -100,28 +100,81 @@ class ChatbotComponent extends Component
         $this->loading = true;
 
         try {
-            // Get CSRF token
-            $csrfToken = csrf_token();
+            $books = Book::with(['category', 'author', 'publisher', 'discount'])
+            ->whereIn('status', ['active', 'activate'])
+            ->get()
+            ->map(function ($book) {
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'slug' => $book->slug,
+                    'description' => strip_tags($book->description),
+                    'price' => $book->price,
+                    'quantity' => $book->quantity,
+                    'category' => $book->category ? $book->category->name : null,
+                    'author' => $book->author ? $book->author->name : null,
+                    'publisher' => $book->publisher ? $book->publisher->name : null,
+                    'discount_percent' => $book->discount ? $book->discount->discount_percent : null,
+                    'final_price' => $book->discount ?
+                        $book->price * (1 - $book->discount->discount_percent / 100) :
+                        $book->price,
+                    'image_url' => asset($book->image_url)
+                ];
+            });
 
-            // Call Gemini AI API
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'X-CSRF-TOKEN' => $csrfToken,
-                'Accept' => 'application/json'
-            ])->post('/api/chatbot/recommendations', [
-                'query' => $query
-            ]);
+            // Tìm kiếm sách phù hợp dựa trên từ khóa trong $query
+            $keywords = collect(explode(' ', mb_strtolower($query)));
+            $recommendations = [];
 
-            if ($response->successful()) {
-                $data = $response->json();
+            foreach ($books as $book) {
+                $bookText = mb_strtolower(
+                    ($book['title'] ?? '') . ' ' .
+                    ($book['description'] ?? '') . ' ' .
+                    ($book['author'] ?? '') . ' ' .
+                    ($book['category'] ?? '')
+                );
 
-                if ($data['success'] && isset($data['recommendations']) && count($data['recommendations']) > 0) {
-                    $this->addBookRecommendations($data['recommendations'], $data['summary'], $data['ai_powered'] ?? false);
-                } else {
-                    $this->addBotMessage($data['summary'] ?? "Xin lỗi, tôi không tìm thấy sách phù hợp với yêu cầu của bạn. Bạn có thể thử mô tả cụ thể hơn không?");
+                $score = 0;
+                foreach ($keywords as $keyword) {
+                    if (mb_strlen($keyword) > 2 && mb_strpos($bookText, $keyword) !== false) {
+                        $score += 2;
+                    }
                 }
+
+                // Ưu tiên nếu có từ khóa trong tiêu đề hoặc tác giả
+                foreach ($keywords as $keyword) {
+                    if (mb_strlen($keyword) > 2 && (mb_strpos(mb_strtolower($book['title'] ?? ''), $keyword) !== false || mb_strpos(mb_strtolower($book['author'] ?? ''), $keyword) !== false)) {
+                        $score += 3;
+                    }
+                }
+
+                if ($score > 0) {
+                    $recommendations[] = [
+                        'book' => $book,
+                        'reason' => 'Sách phù hợp với yêu cầu của bạn',
+                        'match_score' => min($score, 10)
+                    ];
+                }
+            }
+
+            // Sắp xếp theo điểm số giảm dần
+            usort($recommendations, function ($a, $b) {
+                return $b['match_score'] <=> $a['match_score'];
+            });
+
+            // Chỉ gợi ý sách có match_score > 7
+            $recommendations = array_filter($recommendations, function ($rec) {
+                return $rec['match_score'] > 7;
+            });
+
+            // Lấy tối đa 5 gợi ý
+            // $recommendations = array_slice($recommendations, 0, 5);
+
+            if (count($recommendations) > 0) {
+                $summary = 'Đây là những cuốn sách phù hợp nhất với yêu cầu của bạn.';
+                $this->addBookRecommendations($recommendations, $summary, false);
             } else {
-                $this->addBotMessage("Xin lỗi, có lỗi xảy ra khi tìm kiếm sách. Vui lòng thử lại sau.");
+                $this->addBotMessage("Xin lỗi, tôi không tìm thấy sách phù hợp với yêu cầu của bạn. Bạn có thể thử mô tả cụ thể hơn không?");
             }
         } catch (\Exception $e) {
             $this->addBotMessage("Xin lỗi, có lỗi xảy ra khi tìm kiếm sách: " . $e->getMessage() . ". Vui lòng thử lại sau.");
@@ -153,11 +206,6 @@ class ChatbotComponent extends Component
                             <span class='current-price'>" . number_format($book['final_price'], 0, ',', '.') . "đ</span>
                             " . ($book['discount_percent'] ? "<span class='original-price'>" . number_format($book['price'], 0, ',', '.') . "đ</span>" : '') . "
                         </div>
-                        <div class='book-rating'>
-                            <span class='stars'>{$stars}</span>
-                            <span class='score'>{$score}/10</span>
-                        </div>
-                        <p class='recommendation-reason'>{$reason}</p>
                     </div>
                     <div class='book-actions'>
                         <a href='/product/{$book['slug']}' class='view-book-btn' target='_blank'>
