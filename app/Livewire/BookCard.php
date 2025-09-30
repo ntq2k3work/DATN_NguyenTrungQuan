@@ -23,8 +23,8 @@ class BookCard extends Component
     public function mount($book, $showWishlistButton = true, $showAddToCartButton = true, $cardStyle = 'default', $rank = null)
     {
         $this->bookId = $book->id;
-        // Load book with discount relationship
-        $bookWithDiscount = Book::with('discount')->find($this->bookId);
+        // Load book with discount and author relationships
+        $bookWithDiscount = Book::with(['discount', 'author'])->find($this->bookId);
         $this->bookData = $bookWithDiscount->toArray();
         $this->showWishlistButton = $showWishlistButton;
         $this->showAddToCartButton = $showAddToCartButton;
@@ -78,7 +78,7 @@ class BookCard extends Component
 
     public function render()
     {
-        $bookWithDiscount = Book::with('discount')->find($this->bookId);
+        $bookWithDiscount = Book::with(['discount', 'author'])->find($this->bookId);
         $bookViewModel = new BookViewModel($bookWithDiscount);
 
         return view('livewire.book-card', [

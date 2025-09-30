@@ -164,7 +164,7 @@ class ChatbotComponent extends Component
 
             // Chỉ gợi ý sách có match_score > 7
             $recommendations = array_filter($recommendations, function ($rec) {
-                return $rec['match_score'] > 7;
+                return $rec['match_score'] > 5;
             });
 
             // Lấy tối đa 5 gợi ý

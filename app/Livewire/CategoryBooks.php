@@ -14,6 +14,10 @@ class CategoryBooks extends Component
 {
     use WithPagination;
 
+    protected $queryString = [
+        'sortBy' => ['as' => 'sort', 'except' => 'default'],
+    ];
+
     public $selectedPublishers = [];
     public $selectedPriceRanges = [];
     public $customPriceMin = '';
@@ -21,6 +25,8 @@ class CategoryBooks extends Component
     public $sortBy = 'default';
     public $perPage = 12;
     public $categoryType = 'all'; // all, best-sellers, new-releases, top-selling, recommendations
+    public $categorySlug = null;
+    public $categoryId = null;
 
     protected $listeners = ['filtersUpdated' => 'updateFilters'];
 
@@ -44,6 +50,11 @@ class CategoryBooks extends Component
 
         // Determine category type from route
         $routeName = request()->route()->getName();
+        $this->categorySlug = request()->route('slug');
+        if ($this->categorySlug) {
+            $category = Category::where('slug', $this->categorySlug)->first();
+            $this->categoryId = $category?->id;
+        }
         if (str_contains($routeName, 'best-sellers')) {
             $this->categoryType = 'best-sellers';
         } elseif (str_contains($routeName, 'new-releases')) {
@@ -100,6 +111,11 @@ class CategoryBooks extends Component
     public function render()
     {
         $query = Book::with(['author', 'category', 'publisher']);
+
+        // Filter by selected category (when browsing a specific category slug)
+        if ($this->categoryId) {
+            $query->where('category_id', $this->categoryId);
+        }
 
         // Apply category type specific filters
         switch ($this->categoryType) {
@@ -206,13 +222,50 @@ class CategoryBooks extends Component
             $query->where('price', '<=', $max);
         }
 
+        // If a specific sort is selected, clear any earlier orderings so it takes precedence
+        if ($this->sortBy !== 'default') {
+            $query->reorder();
+        }
+
         // Apply sorting
         switch ($this->sortBy) {
             case 'price_asc':
-                $query->orderBy('price', 'asc');
+                // Ensure discounts table is available for computing effective price
+                if ($this->categoryType !== 'best-sellers') {
+                    $query->leftJoin('discounts', 'books.id', '=', 'discounts.book_id')
+                          ->select('books.*');
+                }
+                $query->orderByRaw(
+                    '(books.price - CASE '
+                    . 'WHEN discounts.percent IS NOT NULL AND discounts.percent > 0 '
+                    . 'AND (discounts.start_date IS NULL OR discounts.start_date <= NOW()) '
+                    . 'AND (discounts.end_date IS NULL OR discounts.end_date >= NOW()) '
+                    . 'THEN books.price * (discounts.percent / 100.0) '
+                    . 'WHEN discounts.amount IS NOT NULL AND discounts.amount > 0 '
+                    . 'AND (discounts.start_date IS NULL OR discounts.start_date <= NOW()) '
+                    . 'AND (discounts.end_date IS NULL OR discounts.end_date >= NOW()) '
+                    . 'THEN LEAST(discounts.amount, books.price) '
+                    . 'ELSE 0 END) ASC'
+                );
                 break;
             case 'price_desc':
-                $query->orderBy('price', 'desc');
+                // Ensure discounts table is available for computing effective price
+                if ($this->categoryType !== 'best-sellers') {
+                    $query->leftJoin('discounts', 'books.id', '=', 'discounts.book_id')
+                          ->select('books.*');
+                }
+                $query->orderByRaw(
+                    '(books.price - CASE '
+                    . 'WHEN discounts.percent IS NOT NULL AND discounts.percent > 0 '
+                    . 'AND (discounts.start_date IS NULL OR discounts.start_date <= NOW()) '
+                    . 'AND (discounts.end_date IS NULL OR discounts.end_date >= NOW()) '
+                    . 'THEN books.price * (discounts.percent / 100.0) '
+                    . 'WHEN discounts.amount IS NOT NULL AND discounts.amount > 0 '
+                    . 'AND (discounts.start_date IS NULL OR discounts.start_date <= NOW()) '
+                    . 'AND (discounts.end_date IS NULL OR discounts.end_date >= NOW()) '
+                    . 'THEN LEAST(discounts.amount, books.price) '
+                    . 'ELSE 0 END) DESC'
+                );
                 break;
             case 'name_asc':
                 $query->orderBy('title', 'asc');

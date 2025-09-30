@@ -1,4 +1,4 @@
-<div class="group {{ $cardStyle === 'horizontal' ? 'flex items-center space-x-4' : '' }} {{ $cardStyle === 'compact' ? 'flex items-start space-x-3' : '' }} hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden cursor-pointer"
+<div class="group h-full {{ $cardStyle === 'horizontal' ? 'flex items-center space-x-4' : '' }} hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden cursor-pointer"
      onclick="window.location.href='{{ route('product.show', $bookData['slug']) }}'">
 
     @if($cardStyle === 'default')
@@ -149,10 +149,12 @@
         </div>
     @elseif($cardStyle === 'compact')
         <div class="p-4 flex flex-col h-full">
-            <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
-                     alt="{{ $bookData['title'] }}"
-                     class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
+            <div class="relative mb-4 rounded-md overflow-hidden">
+                <div class="w-full aspect-[3/4]">
+                    <img src="{{ asset($bookData['image_url']) }}"
+                         alt="{{ $bookData['title'] }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                </div>
                 <div class="absolute top-2 left-2 flex flex-col gap-2">
                     <span class="bg-emerald-500 text-white px-2 py-1 text-xs rounded">New</span>
                     @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
@@ -178,13 +180,13 @@
 
             <div class="flex flex-col flex-grow space-y-2">
                 <div class="min-h-[4rem]">
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors h-[3.5rem] leading-tight overflow-hidden">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
-                    <p class="text-sm text-muted-foreground min-h-[1rem]">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
+                    <p class="text-sm text-muted-foreground">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
                 </div>
 
-                <div class="flex items-center gap-2 min-h-[1.25rem]">
+                <div class="flex items-center gap-2">
                     <div class="flex items-center text-blue-600">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -193,7 +195,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between min-h-[1.5rem]">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
                             @php
