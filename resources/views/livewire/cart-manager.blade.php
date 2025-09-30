@@ -12,7 +12,7 @@
             <h3 class="mt-4 text-lg font-medium text-gray-900">Giỏ hàng trống</h3>
             <p class="mt-2 text-gray-500">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
             <div class="mt-6">
-                <a href="/categories" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                <a href="/books" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
                     Bắt đầu mua sắm
                 </a>
             </div>
