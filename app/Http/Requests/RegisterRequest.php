@@ -55,6 +55,7 @@ class RegisterRequest extends FormRequest
             'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
             'address.required' => 'Địa chỉ là bắt buộc.',
             'g-recaptcha-response.required' => 'Vui lòng xác nhận bạn không phải là người máy.',
+            'gender.required' => "Giới tính là bắt buộc"
         ];
     }
 }

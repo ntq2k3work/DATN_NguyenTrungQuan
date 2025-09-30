@@ -147,7 +147,7 @@
                         MUA NGAY
                     </button>
 
-                    <button onclick="addToCart({{ $book->id }})" class="w-full bg-amber-600 text-white py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors font-semibold text-lg add-to-cart-btn" data-book-id="{{ $book->id }}">
+                    <button onclick="addToCart({{ $book->id }})" id="addToCart-btn" class="w-full bg-amber-600 text-white py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors font-semibold text-lg add-to-cart-btn" data-book-id="{{ $book->id }}">
                         THÊM VÀO GIỎ HÀNG
                     </button>
                 </div>
@@ -391,7 +391,7 @@ function addToCart(bookId) {
         return;
     }
     const quantity = document.getElementById('quantity').value;
-    const button = document.querySelector(`[data-book-id="${bookId}"]`);
+    const button = document.querySelector('#addToCart-btn');
     const originalText = button.textContent;
 
     // Disable button and show loading
