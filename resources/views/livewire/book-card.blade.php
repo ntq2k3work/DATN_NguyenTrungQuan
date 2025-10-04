@@ -4,7 +4,7 @@
     @if($cardStyle === 'default')
         <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
@@ -80,7 +80,7 @@
         <div class="p-6">
             <div class="flex gap-4">
                 <div class="relative flex-shrink-0">
-                    <img src="{{ asset($bookData['image_url']) }}"
+                    <img src="{{ $imageUrl }}"
                          alt="{{ $bookData['title'] }}"
                          class="w-24 h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
                     @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
@@ -151,7 +151,7 @@
         <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4 rounded-md overflow-hidden">
                 <div class="w-full aspect-[3/4]">
-                    <img src="{{ asset($bookData['image_url']) }}"
+                    <img src="{{ $imageUrl }}"
                          alt="{{ $bookData['title'] }}"
                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
@@ -228,7 +228,7 @@
     @elseif($cardStyle === 'best-seller')
         <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
@@ -303,7 +303,7 @@
     @elseif($cardStyle === 'new-release')
         <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
@@ -393,7 +393,7 @@
             @endif
 
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[240px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 

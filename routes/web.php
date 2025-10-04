@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit',[AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
     Route::get('/password/change',[AuthController::class, 'changePassword'])->name('password.change');
-    Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
+    Route::post('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
 
     // Email Settings Routes
     Route::get('/email-settings',[AuthController::class, 'emailSettings'])->name('email-settings');

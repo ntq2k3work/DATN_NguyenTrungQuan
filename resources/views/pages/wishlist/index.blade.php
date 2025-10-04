@@ -31,7 +31,7 @@
                             <div class="relative mb-4">
                                 <a href="{{ route('product.show', $book->slug) }}">
                                     <img
-                                        src="{{ asset($book->image_url) }}"
+                                        src="{{ asset($book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg') }}"
                                         alt="{{ $book->title }}"
                                         class="w-full h-[200px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                                     />

@@ -34,9 +34,8 @@
     <!-- Change Password Form -->
     <div class="bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <form method="POST" action="{{ route('password.change') }}" class="space-y-6">
+        <form method="POST" action="{{ route('password.update') }}" class="space-y-6">
           @csrf
-          @method('PUT')
 
           <!-- Current Password -->
           <div>

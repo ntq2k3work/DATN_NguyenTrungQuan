@@ -38,7 +38,7 @@ class CheckPasswordResetToken
 
         // Kiểm tra token có hết hạn không (60 phút)
         $tokenCreated = Carbon::parse($resetRecord->created_at);
-        $isExpired = $tokenCreated->addHours(1)->isPast();
+        $isExpired = now()->isAfter($tokenCreated->addHours(1));
 
         if ($isExpired) {
             // Xóa token hết hạn

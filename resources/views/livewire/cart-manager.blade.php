@@ -26,7 +26,7 @@
                     $price = $item['price'] ?? $book['final_price'] ?? $book['price'];
                 @endphp
                 <div class="bg-white rounded-lg shadow-md p-6 flex items-center space-x-6">
-                    <img src="{{ asset($book['image_url'] ?? '/images/placeholder-book.jpg') }}"
+                    <img src="{{ asset($book['image_url'] ? (str_starts_with($book['image_url'], 'http') ? $book['image_url'] : '/storage/' . ltrim($book['image_url'], '/')) : '/images/placeholder-book.jpg') }}"
                          alt="{{ $book['title'] }}"
                          class="w-20 h-28 object-cover rounded">
 

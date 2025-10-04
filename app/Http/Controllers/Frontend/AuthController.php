@@ -127,6 +127,13 @@ class AuthController extends Controller
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
+        ], [
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không hợp lệ.',
+            'token.required' => 'Token không hợp lệ.',
         ]);
 
         // Find the reset record
@@ -141,7 +148,7 @@ class AuthController extends Controller
 
         // Check if token is expired (60 minutes)
         $tokenCreated = Carbon::parse($resetRecord->created_at);
-        $isExpired = $tokenCreated->addHours(1)->isPast();
+        $isExpired = now()->isAfter($tokenCreated->addHours(1));
 
         if ($isExpired) {
             // Delete expired token

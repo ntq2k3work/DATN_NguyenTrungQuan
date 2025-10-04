@@ -57,7 +57,15 @@ class BookViewModel extends BaseViewModel
 
     public function getImageUrl(): string
     {
-        return $this->book->image_url;
+        $imageUrl = $this->book->image_url;
+        
+        // If the URL is absolute (starts with http:// or https://), return as-is
+        if (str_starts_with($imageUrl, 'http://') || str_starts_with($imageUrl, 'https://')) {
+            return $imageUrl;
+        }
+        
+        // If it's a relative path, add /storage prefix
+        return '/storage/' . ltrim($imageUrl, '/');
     }
 
     public function getDescription(): string

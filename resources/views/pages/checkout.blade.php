@@ -218,7 +218,7 @@
                     <div class="space-y-4">
                         @foreach($cartItems as $item)
                         <div class="flex items-center space-x-4 py-3 border-b border-gray-200">
-                            <img src="{{ asset($item->book->image_url) }}"
+                            <img src="{{ asset($item->book->image_url ? (str_starts_with($item->book->image_url, 'http') ? $item->book->image_url : '/storage/' . ltrim($item->book->image_url, '/')) : '/images/placeholder.jpg') }}"
                                  alt="{{ $item->book->title }}"
                                  class="w-16 h-20 object-cover rounded">
                             <div class="flex-1">

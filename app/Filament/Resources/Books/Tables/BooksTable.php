@@ -24,6 +24,13 @@ class BooksTable
     {
         return $table
             ->columns([
+                ImageColumn::make('image_url')
+                    ->label('Ảnh')
+                    ->disk('public')
+                    ->size(60)
+                    ->circular()
+                    ->defaultImageUrl(url('/images/placeholder.jpg')),
+
                 TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
@@ -156,7 +163,8 @@ class BooksTable
                         ->modalDescription('Bạn có chắc chắn muốn xóa những sách đã chọn?')
                         ->modalSubmitActionLabel('Xóa')
                         ->modalCancelActionLabel('Hủy'),
-                ]),
+                ])
+                ->label('Lựa chọn'),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()

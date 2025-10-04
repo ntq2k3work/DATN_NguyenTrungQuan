@@ -4,7 +4,7 @@
     <div class="p-3 sm:p-4">
         <div class="relative mb-3 sm:mb-4">
             <a href="{{ route('product.show', $book->slug) }}">
-                <img src="{{ asset($book->image_url) }}" alt="{{ $book->title }}"
+                <img src="{{ asset($book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg') }}" alt="{{ $book->title }}"
                     class="w-full h-[200px] sm:h-[220px] lg:h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
             </a>
             <span class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">Gợi ý</span>

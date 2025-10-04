@@ -65,7 +65,7 @@
                     class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
                 >
                     <div class="flex items-start space-x-3">
-                        <img src="{{ $result['image_url'] }}"
+                        <img src="{{ $result['image_url'] ? (str_starts_with($result['image_url'], 'http') ? $result['image_url'] : '/storage/' . ltrim($result['image_url'], '/')) : '/images/placeholder.jpg' }}"
                              alt="{{ $result['title'] }}"
                              class="w-12 h-16 object-cover rounded">
                         <div class="flex-1 min-w-0">

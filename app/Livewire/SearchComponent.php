@@ -129,7 +129,7 @@ class SearchComponent extends Component
                     'discount_price' => number_format($discountPrice, 0, ',', '.'),
                     'discount_percent' => $discount,
                     'has_discount' => $discount > 0,
-                    'image_url' => asset($book->image_url),
+                    'image_url' => $book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg',
                     'url' => route('product.show', $book->slug),
                     'discount' => $discount,
                 ];

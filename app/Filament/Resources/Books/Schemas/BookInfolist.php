@@ -90,7 +90,9 @@ class BookInfolist
                     ->schema([
                         ImageEntry::make('image_url')
                             ->label('Hình ảnh sách')
+                            ->disk('public')
                             ->size(300)
+                            ->defaultImageUrl(url('/images/placeholder.jpg'))
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),

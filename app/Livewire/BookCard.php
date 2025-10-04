@@ -90,6 +90,7 @@ class BookCard extends Component
             'hasDiscount' => $bookViewModel->hasDiscount(),
             'discountPercent' => $bookViewModel->getDiscountPercent(),
             'isAvailable' => $bookViewModel->isAvailable(),
+            'imageUrl' => $bookViewModel->getImageUrl(),
         ]);
     }
 }

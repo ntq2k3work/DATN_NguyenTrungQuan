@@ -118,7 +118,7 @@ class ChatbotComponent extends Component
                     'final_price' => $book->discount ?
                         $book->price * (1 - $book->discount->discount_percent / 100) :
                         $book->price,
-                    'image_url' => asset($book->image_url)
+                    'image_url' => $book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg'
                 ];
             });
 
