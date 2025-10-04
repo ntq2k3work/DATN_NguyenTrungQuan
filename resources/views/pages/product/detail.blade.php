@@ -42,7 +42,7 @@
             <div class="space-y-4">
                 <div class="relative">
                     <img
-                        src="{{ asset($book->image_url) }}"
+                        src="{{ asset($book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg') }}"
                         alt="{{ $book->title }}"
                         class="w-full h-[500px] object-cover rounded-lg shadow-lg"
                     />
@@ -64,19 +64,19 @@
                     </button>
                 </div>
 
-                <!-- Thumbnail Images -->
+                {{-- <!-- Thumbnail Images -->
                 <div class="flex space-x-2">
                     <img
-                        src="{{ asset($book->image_url) }}"
+                        src="{{ asset($book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg') }}"
                         alt="{{ $book->title }}"
                         class="w-20 h-20 object-cover rounded border-2 border-gray-200 cursor-pointer hover:border-red-500"
                     />
                     <img
-                        src="{{ asset($book->image_url) }}"
+                        src="{{ asset($book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg') }}"
                         alt="{{ $book->title }}"
                         class="w-20 h-20 object-cover rounded border-2 border-gray-200 cursor-pointer hover:border-red-500"
                     />
-                </div>
+                </div> --}}
 
                 <!-- Dots indicator -->
                 <div class="flex justify-center space-x-2">
@@ -147,7 +147,7 @@
                         MUA NGAY
                     </button>
 
-                    <button onclick="addToCart({{ $book->id }})" class="w-full bg-amber-600 text-white py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors font-semibold text-lg add-to-cart-btn" data-book-id="{{ $book->id }}">
+                    <button onclick="addToCart({{ $book->id }})" id="addToCart-btn" class="w-full bg-amber-600 text-white py-3 px-6 rounded-lg hover:bg-amber-700 transition-colors font-semibold text-lg add-to-cart-btn" data-book-id="{{ $book->id }}">
                         THÊM VÀO GIỎ HÀNG
                     </button>
                 </div>
@@ -209,7 +209,7 @@
                         <div class="relative mb-4">
                             <a href="{{ route('product.show', $relatedBook->slug) }}">
                                 <img
-                                    src="{{ asset($relatedBook->image_url) }}"
+                                    src="{{ asset($relatedBook->image_url ? (str_starts_with($relatedBook->image_url, 'http') ? $relatedBook->image_url : '/storage/' . ltrim($relatedBook->image_url, '/')) : '/images/placeholder.jpg') }}"
                                     alt="{{ $relatedBook->title }}"
                                     class="w-full h-[200px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300"
                                 />
@@ -391,7 +391,7 @@ function addToCart(bookId) {
         return;
     }
     const quantity = document.getElementById('quantity').value;
-    const button = document.querySelector(`[data-book-id="${bookId}"]`);
+    const button = document.querySelector('#addToCart-btn');
     const originalText = button.textContent;
 
     // Disable button and show loading

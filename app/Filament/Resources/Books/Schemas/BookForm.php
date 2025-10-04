@@ -113,6 +113,7 @@ class BookForm
                             ->imageCropAspectRatio('16:9')
                             ->imageResizeTargetWidth('400')
                             ->imageResizeTargetHeight('300')
+                            ->disk('public')
                             ->directory('books')
                             ->columnSpanFull()
                             ->placeholder('Tải lên hình ảnh sách'),

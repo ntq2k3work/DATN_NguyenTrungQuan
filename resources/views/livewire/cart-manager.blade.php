@@ -12,7 +12,7 @@
             <h3 class="mt-4 text-lg font-medium text-gray-900">Giỏ hàng trống</h3>
             <p class="mt-2 text-gray-500">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
             <div class="mt-6">
-                <a href="{{ route('home') }}" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                <a href="/books" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
                     Bắt đầu mua sắm
                 </a>
             </div>
@@ -26,7 +26,7 @@
                     $price = $item['price'] ?? $book['final_price'] ?? $book['price'];
                 @endphp
                 <div class="bg-white rounded-lg shadow-md p-6 flex items-center space-x-6">
-                    <img src="{{ asset($book['image_url'] ?? '/images/placeholder-book.jpg') }}"
+                    <img src="{{ asset($book['image_url'] ? (str_starts_with($book['image_url'], 'http') ? $book['image_url'] : '/storage/' . ltrim($book['image_url'], '/')) : '/images/placeholder-book.jpg') }}"
                          alt="{{ $book['title'] }}"
                          class="w-20 h-28 object-cover rounded">
 
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="mt-6 flex space-x-4">
-                    <a href="{{ route('home') }}" class="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors text-center">
+                    <a href="{{ route('categories.index') }}" class="flex-1 bg-gray-500 text-white py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors text-center">
                         Tiếp tục mua sắm
                     </a>
                     <a href="{{ route('checkout') }}" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors text-center">

@@ -108,7 +108,7 @@
                         <div class="product-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                             <a href="{{ route('product.show', $book->slug) }}" class="block">
                                 <div class="aspect-w-3 aspect-h-4">
-                                    <img src="{{ $book->image_url }}"
+                                    <img src="{{ $book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg' }}"
                                          alt="{{ $book->title }}"
                                          class="w-full h-48 object-cover">
                                 </div>

@@ -15,6 +15,22 @@
             </svg>
         </div>
 
+        <!-- Clear Button -->
+        @if($query && !$loading)
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                <button
+                    type="button"
+                    wire:click="clearSearch"
+                    class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                    aria-label="Xóa tìm kiếm"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        @endif
+
         <!-- Loading Indicator -->
         @if($loading)
             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -49,7 +65,7 @@
                     class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
                 >
                     <div class="flex items-start space-x-3">
-                        <img src="{{ $result['image_url'] }}"
+                        <img src="{{ $result['image_url'] ? (str_starts_with($result['image_url'], 'http') ? $result['image_url'] : '/storage/' . ltrim($result['image_url'], '/')) : '/images/placeholder.jpg' }}"
                              alt="{{ $result['title'] }}"
                              class="w-12 h-16 object-cover rounded">
                         <div class="flex-1 min-w-0">

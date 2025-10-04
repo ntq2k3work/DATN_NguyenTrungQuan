@@ -1,4 +1,4 @@
-<div>
+<div class="w-85">
     <div class="space-y-6">
         <!-- Categories -->
         <div>
@@ -75,15 +75,16 @@
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Giá tùy chỉnh</h3>
             <div class="space-y-3">
-                <div class="flex space-x-2">
+                <div class="flex space-x-2 items-center">
                     <input type="number"
                            wire:model.live.debounce.500ms="customPriceMin"
                            placeholder="Từ"
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500">
+                           class="w-[158px] px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500">
+                    <div>-</div>
                     <input type="number"
                            wire:model.live.debounce.500ms="customPriceMax"
                            placeholder="Đến"
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500">
+                           class="w-[158px] px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-purple-500 focus:border-purple-500">
                 </div>
                 <button wire:click="applyCustomPriceRange"
                         class="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors">

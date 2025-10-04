@@ -53,4 +53,19 @@ class Book extends Model
     {
         return $this->price * (1 - $this->discount_percent / 100);
     }
+
+    public function getImageUrlAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        
+        // Nếu đã là URL đầy đủ, trả về nguyên vẹn
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+        
+        // Nếu là đường dẫn tương đối, thêm base URL
+        return asset('storage/' . $value);
+    }
 }

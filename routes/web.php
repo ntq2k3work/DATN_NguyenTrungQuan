@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit',[AuthController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update',[AuthController::class, 'updateProfile'])->name('profile.update');
     Route::get('/password/change',[AuthController::class, 'changePassword'])->name('password.change');
-    Route::put('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
+    Route::post('/password/change',[AuthController::class, 'updatePassword'])->name('password.update');
 
     // Email Settings Routes
     Route::get('/email-settings',[AuthController::class, 'emailSettings'])->name('email-settings');
@@ -87,7 +87,7 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed');
 
 // Category Routes
-Route::get('/categories', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
+Route::get('/books', [App\Http\Controllers\Frontend\CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/best-sellers', [App\Http\Controllers\Frontend\CategoryController::class, 'bestSellers'])->name('categories.best-sellers');
 Route::get('/categories/new-releases', [App\Http\Controllers\Frontend\CategoryController::class, 'newReleases'])->name('categories.new-releases');
 Route::get('/categories/recommendations', [App\Http\Controllers\Frontend\CategoryController::class, 'recommendations'])->name('categories.recommendations');
@@ -168,4 +168,7 @@ Route::get('/help/shipping-info', function () {
 Route::get('/help/faq', function () {
     return view('pages.help.faq');
 })->name('help.faq');
+
+// Sitemap Route
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 

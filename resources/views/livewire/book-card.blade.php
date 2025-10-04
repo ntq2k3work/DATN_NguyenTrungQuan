@@ -1,12 +1,18 @@
-<div class="group {{ $cardStyle === 'horizontal' ? 'flex items-center space-x-4' : '' }} {{ $cardStyle === 'compact' ? 'flex items-start space-x-3' : '' }} hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden cursor-pointer"
+<div class="group h-full {{ $cardStyle === 'horizontal' ? 'flex items-center space-x-4' : '' }} hover:shadow-lg transition-shadow duration-300 bg-amber-50 rounded-lg overflow-hidden cursor-pointer"
      onclick="window.location.href='{{ route('product.show', $bookData['slug']) }}'">
 
     @if($cardStyle === 'default')
-        <div class="p-4">
+        <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
+
+                @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                        -{{ $bookData['discount']['percent'] }}%
+                    </span>
+                @endif
 
                 @if($showWishlistButton)
                     <button
@@ -23,15 +29,15 @@
                 @endif
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            <div class="flex flex-col flex-grow space-y-2">
+                <div class="min-h-[4rem]">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors h-[3.5rem] leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
-                    <p class="text-sm text-gray-500">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
+                    <p class="text-sm text-gray-500 min-h-[1rem]">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 min-h-[1.25rem]">
                     <div class="flex items-center text-blue-600">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -40,10 +46,14 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[1.5rem]">
                     <div class="flex items-center gap-2">
-                        @if ($bookData['discount_percent'] ?? 0)
-                            <span class="text-lg font-bold text-primary">{{ number_format($bookData['discount_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
+                        @if ($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                            @php
+                                $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                $finalPrice = $bookData['price'] - $discountAmount;
+                            @endphp
+                            <span class="text-lg font-bold text-primary">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                             <span class="text-sm text-gray-500 line-through">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                         @else
                             <span class="text-lg font-bold text-primary">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
@@ -52,15 +62,17 @@
                 </div>
 
                 @if($showAddToCartButton)
-                    <button
-                        wire:click.stop="addToCart"
-                        data-book-id="{{ $bookData['id'] }}"
-                        data-component-id="{{ $componentId }}"
-                        class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-amber-500 cursor-pointer transition add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ $addingToCart ? 'disabled' : '' }}
-                    >
-                        {{ $addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ' }}
-                    </button>
+                    <div class="mt-auto">
+                        <button
+                            wire:click.stop="addToCart"
+                            data-book-id="{{ $bookData['id'] }}"
+                            data-component-id="{{ $componentId }}"
+                            class="w-full bg-amber-600 text-white text-sm py-2 px-4 rounded hover:bg-amber-500 cursor-pointer transition add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            {{ $addingToCart ? 'disabled' : '' }}
+                        >
+                            {{ $addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ' }}
+                        </button>
+                    </div>
                 @endif
             </div>
         </div>
@@ -68,12 +80,12 @@
         <div class="p-6">
             <div class="flex gap-4">
                 <div class="relative flex-shrink-0">
-                    <img src="{{ asset($bookData['image_url']) }}"
+                    <img src="{{ $imageUrl }}"
                          alt="{{ $bookData['title'] }}"
                          class="w-24 h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
-                    @if($bookData['discount_percent'] ?? 0)
+                    @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
                         <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                            {{ $bookData['discount_percent'] ?? 0 }}%
+                            -{{ $bookData['discount']['percent'] }}%
                         </span>
                     @endif
                 </div>
@@ -82,7 +94,7 @@
                         <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                             {{ $bookData['title'] }}
                         </h3>
-                        <p class="text-sm text-muted-foreground">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
+                        <p class="text-sm mt-2 text-muted-foreground">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="flex items-center text-blue-600">
@@ -94,9 +106,15 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col">
-                            <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['final_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
-                            @if($bookData['discount_percent'] ?? 0)
+                            @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                                @php
+                                    $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                    $finalPrice = $bookData['price'] - $discountAmount;
+                                @endphp
+                                <span class="text-lg font-bold text-orange-500">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                                 <span class="text-sm text-muted-foreground line-through text-teal-600">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
+                            @else
+                                <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                             @endif
                         </div>
                         <div class="flex gap-2">
@@ -130,13 +148,20 @@
             </div>
         </div>
     @elseif($cardStyle === 'compact')
-        <div class="p-4">
-            <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
-                     alt="{{ $bookData['title'] }}"
-                     class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300" />
+        <div class="p-4 flex flex-col h-full">
+            <div class="relative mb-4 rounded-md overflow-hidden">
+                <div class="w-full aspect-[3/4]">
+                    <img src="{{ $imageUrl }}"
+                         alt="{{ $bookData['title'] }}"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                </div>
                 <div class="absolute top-2 left-2 flex flex-col gap-2">
                     <span class="bg-emerald-500 text-white px-2 py-1 text-xs rounded">New</span>
+                    @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                        <span class="bg-red-500 text-white px-2 py-1 text-xs rounded">
+                            -{{ $bookData['discount']['percent'] }}%
+                        </span>
+                    @endif
                 </div>
                 @if($showWishlistButton)
                     <button
@@ -153,9 +178,9 @@
                 @endif
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            <div class="flex flex-col flex-grow space-y-2">
+                <div class="min-h-[4rem]">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
                     <p class="text-sm text-muted-foreground">{{ $bookData['author']['name'] ?? 'Unknown' ?? 'Unknown' }}</p>
@@ -172,36 +197,44 @@
 
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg font-bold text-primary text-orange-500">{{ number_format($bookData['final_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
-                        @if($bookData['discount_percent'] ?? 0)
+                        @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                            @php
+                                $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                $finalPrice = $bookData['price'] - $discountAmount;
+                            @endphp
+                            <span class="text-lg font-bold text-primary text-orange-500">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                             <span class="text-sm text-muted-foreground line-through text-teal-600">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="text-lg font-bold text-primary text-orange-500">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                         @endif
                     </div>
                 </div>
 
                 @if($showAddToCartButton)
-                    <button
-                        wire:click.stop="addToCart"
-                        data-book-id="{{ $bookData['id'] }}"
-                        data-component-id="{{ $componentId }}"
-                        class="w-full px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer text-sm add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ $addingToCart ? 'disabled' : '' }}
-                    >
-                        {{ $addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ' }}
-                    </button>
+                    <div class="mt-auto">
+                        <button
+                            wire:click.stop="addToCart"
+                            data-book-id="{{ $bookData['id'] }}"
+                            data-component-id="{{ $componentId }}"
+                            class="w-full px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-500 cursor-pointer text-sm add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            {{ $addingToCart ? 'disabled' : '' }}
+                        >
+                            {{ $addingToCart ? 'Đang thêm...' : 'Thêm vào giỏ' }}
+                        </button>
+                    </div>
                 @endif
             </div>
         </div>
     @elseif($cardStyle === 'best-seller')
-        <div class="p-4">
+        <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
-                @if(($bookData['discount_percent'] ?? 0) > 0 || ($bookData['discount_amount'] ?? 0) > 0)
+                @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
                     <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                        {{ ($bookData['discount_percent'] ?? 0) > 0 ? $bookData['discount_percent'].'%' : (($bookData['discount_amount'] ?? 0) > 0 ? $bookData['discount_amount'].'đ' : '') }}
+                        -{{ $bookData['discount']['percent'] }}%
                     </span>
                 @endif
 
@@ -220,15 +253,15 @@
                 @endif
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            <div class="flex flex-col flex-grow space-y-2">
+                <div class="min-h-[4rem]">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors h-[2.5rem] leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
-                    <p class="text-sm text-gray-500">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
+                    <p class="text-sm text-gray-500 min-h-[1rem]">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 min-h-[1.25rem]">
                     <div class="flex items-center text-blue-600">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -237,15 +270,21 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[1.5rem]">
                     <div class="flex flex-col">
-                        <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['final_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
-                        @if($bookData['discount_percent'] ?? 0)
+                        @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                            @php
+                                $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                $finalPrice = $bookData['price'] - $discountAmount;
+                            @endphp
+                            <span class="text-lg font-bold text-orange-500">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                             <span class="text-sm text-gray-500 line-through text-teal-600">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                         @endif
                     </div>
                     <div class="flex gap-2">
-                        
+
                         @if($showAddToCartButton)
                             <button
                                 wire:click.stop="addToCart"
@@ -262,13 +301,20 @@
             </div>
         </div>
     @elseif($cardStyle === 'new-release')
-        <div class="p-4">
+        <div class="p-4 flex flex-col h-full">
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[280px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
 
-                <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
+                <div class="absolute top-2 left-2 flex flex-col gap-2">
+                    <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">New</span>
+                    @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">
+                            -{{ $bookData['discount']['percent'] }}%
+                        </span>
+                    @endif
+                </div>
 
                 @if($showWishlistButton)
                     <button
@@ -285,15 +331,15 @@
                 @endif
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            <div class="flex flex-col flex-grow space-y-2">
+                <div class="min-h-[3rem]">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors h-[2.5rem] leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
-                    <p class="text-sm text-gray-500">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
+                    <p class="text-sm text-gray-500 min-h-[1rem]">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 min-h-[1.25rem]">
                     <div class="flex items-center text-blue-600">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
@@ -302,11 +348,17 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[1.5rem]">
                     <div class="flex flex-col">
-                        <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['final_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
-                        @if($bookData['discount_percent'] ?? 0)
+                        @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                            @php
+                                $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                $finalPrice = $bookData['price'] - $discountAmount;
+                            @endphp
+                            <span class="text-lg font-bold text-orange-500">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                             <span class="text-sm text-gray-500 line-through text-teal-600">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="text-lg font-bold text-orange-500">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                         @endif
                     </div>
                     <div class="flex gap-2">
@@ -329,7 +381,7 @@
             </div>
         </div>
     @elseif($cardStyle === 'top-selling')
-        <div class="p-4 relative">
+        <div class="p-4 relative flex flex-col h-full">
             <!-- Rank Badge -->
             @if($rank)
                 <div class="absolute -top-2 -left-2 z-10">
@@ -341,9 +393,15 @@
             @endif
 
             <div class="relative mb-4">
-                <img src="{{ asset($bookData['image_url']) }}"
+                <img src="{{ $imageUrl }}"
                      alt="{{ $bookData['title'] }}"
                      class="w-full h-[240px] object-cover rounded-md group-hover:scale-105 transition-transform duration-300">
+
+                @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                    <span class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                        -{{ $bookData['discount']['percent'] }}%
+                    </span>
+                @endif
 
                 @if($showWishlistButton)
                     <button
@@ -360,39 +418,47 @@
                 @endif
             </div>
 
-            <div class="space-y-3">
-                <div>
-                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+            <div class="flex flex-col flex-grow space-y-2">
+                <div class="min-h-[3rem]">
+                    <h3 class="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors h-[2.5rem] leading-tight overflow-hidden">
                         {{ $bookData['title'] }}
                     </h3>
-                    <p class="text-sm text-gray-500">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
+                    <p class="text-sm text-gray-500 min-h-[1rem]">{{ $bookData['author']['name'] ?? 'Unknown' }}</p>
                 </div>
 
-                <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1 min-h-[1.25rem]">
                     <span class="inline-block bg-orange-400 text-white text-xs px-2 py-1 rounded">
                         Đã bán {{ $bookData['sales_count'] ?? rand(100, 2000) }}
                     </span>
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[1.5rem]">
                     <div class="flex flex-col">
-                        <span class="text-lg font-bold text-yellow-600">{{ number_format($bookData['final_price'] ?? $bookData['price'], 0, ',', '.') }}đ</span>
-                        @if($bookData['discount_percent'] ?? 0)
+                        @if($bookData['discount'] && $bookData['discount']['percent'] > 0)
+                            @php
+                                $discountAmount = $bookData['price'] * ($bookData['discount']['percent'] / 100);
+                                $finalPrice = $bookData['price'] - $discountAmount;
+                            @endphp
+                            <span class="text-lg font-bold text-yellow-600">{{ number_format($finalPrice, 0, ',', '.') }}đ</span>
                             <span class="text-sm text-teal-600 line-through">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
+                        @else
+                            <span class="text-lg font-bold text-yellow-600">{{ number_format($bookData['price'], 0, ',', '.') }}đ</span>
                         @endif
                     </div>
                 </div>
 
                 @if($showAddToCartButton)
-                    <button
-                        wire:click.stop="addToCart"
-                        data-book-id="{{ $bookData['id'] }}"
-                        data-component-id="{{ $componentId }}"
-                        class="w-full bg-amber-600 text-white font-medium py-2 px-4 rounded hover:bg-primary/90 cursor-pointer text-sm add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ $addingToCart ? 'disabled' : '' }}
-                    >
-                        {{ $addingToCart ? 'Đang thêm...' : 'Mua ngay' }}
-                    </button>
+                    <div class="mt-auto">
+                        <button
+                            wire:click.stop="addToCart"
+                            data-book-id="{{ $bookData['id'] }}"
+                            data-component-id="{{ $componentId }}"
+                            class="w-full bg-amber-600 text-white font-medium py-2 px-4 rounded hover:bg-primary/90 cursor-pointer text-sm add-to-cart-btn {{ $addingToCart ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            {{ $addingToCart ? 'disabled' : '' }}
+                        >
+                            {{ $addingToCart ? 'Đang thêm...' : 'Mua ngay' }}
+                        </button>
+                    </div>
                 @endif
             </div>
         </div>

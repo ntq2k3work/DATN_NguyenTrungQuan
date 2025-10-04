@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Category;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class SearchComponent extends Component
@@ -99,27 +100,43 @@ class SearchComponent extends Component
             ->orWhereHas('category', function ($query) {
                 $query->where('name', 'like', '%' . $this->query . '%');
             })
-            ->with(['author', 'category'])
+            ->with(['author', 'category','discount'])
             ->limit(5)
             ->get()
             ->map(function ($book) {
+
+                $discount     = $book->discount?->percent ?: $book->discount?->amount;
+                $discountType = $book->discount?->percent ? 'percent' : 'amount';
+                $price        = $book->price;
+
+                if ($discountType === 'percent') {
+                    $discountPrice = $price * (100 - $discount) / 100;
+                } else {
+                    $discountPrice = $price - $discount;
+                }
+
+                if ($discountPrice < 0) {
+                    $discountPrice = 0;
+                }
+
                 return [
                     'id' => $book->id,
                     'title' => $book->title,
                     'author' => $book->author?->name ?? 'Unknown',
                     'publisher' => $book->publisher?->name ?? 'Unknown',
                     'category' => $book->category?->name ?? 'Unknown',
-                    'price' => number_format($book->price, 0, ',', '.'),
-                    'discount_price' => $book->discount_percent ? number_format($book->discount_price, 0, ',', '.') : null,
-                    'discount_percent' => $book->discount_percent,
-                    'has_discount' => $book->discount_percent > 0,
-                    'image_url' => asset($book->image_url),
-                    'url' => route('product.show', $book->slug)
+                    'price' => number_format($price, 0, ',', '.'),
+                    'discount_price' => number_format($discountPrice, 0, ',', '.'),
+                    'discount_percent' => $discount,
+                    'has_discount' => $discount > 0,
+                    'image_url' => $book->image_url ? (str_starts_with($book->image_url, 'http') ? $book->image_url : '/storage/' . ltrim($book->image_url, '/')) : '/images/placeholder.jpg',
+                    'url' => route('product.show', $book->slug),
+                    'discount' => $discount,
                 ];
             });
-
         $this->results = $books->toArray();
         $this->showResults = count($this->results) > 0;
+        Log::debug(print_r($this->results, true));
         $this->loading = false;
     }
 

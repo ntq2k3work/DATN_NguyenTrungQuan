@@ -34,9 +34,8 @@
     <!-- Change Password Form -->
     <div class="bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <form method="POST" action="{{ route('password.change') }}" class="space-y-6">
+        <form method="POST" action="{{ route('password.update') }}" class="space-y-6">
           @csrf
-          @method('PUT')
 
           <!-- Current Password -->
           <div>
@@ -135,7 +134,7 @@
           </div>
 
           <!-- Password Requirements -->
-          <div class="rounded-md bg-blue-50 p-4">
+          {{-- <div class="rounded-md bg-blue-50 p-4">
             <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
@@ -157,10 +156,10 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> --}}
 
           <!-- Security Notice -->
-          <div class="rounded-md bg-yellow-50 p-4">
+          {{-- <div class="rounded-md bg-yellow-50 p-4">
             <div class="flex">
               <div class="flex-shrink-0">
                 <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -178,7 +177,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> --}}
 
           <!-- Form Actions -->
           <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">

@@ -106,7 +106,7 @@
         </button>
         <div class="text-sm text-gray-700">
           Bạn đã có tài khoản?
-          <a href="#" class="text-blue-600 ml-2">Đăng nhập ngay</a>
+          <a href="{{ route('login') }}" class="text-blue-600 ml-2">Đăng nhập ngay</a>
         </div>
       </div>
     </form>
